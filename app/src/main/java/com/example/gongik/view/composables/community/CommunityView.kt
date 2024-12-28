@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,9 +26,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -44,6 +48,7 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.res.painterResource
@@ -52,7 +57,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -62,9 +66,22 @@ import com.example.gongik.R
 import com.example.gongik.model.viewmodel.BarColorController
 import com.example.gongik.model.viewmodel.CommunityCategories
 import com.example.gongik.model.viewmodel.CommunityViewModel
+import com.example.gongik.model.viewmodel.MainNavGraphBarItems
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.view.composables.main.MainNavController
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking
+
+object CommunityNavController{
+    private var _route = MutableStateFlow("")
+    val route = _route.asStateFlow()
+
+    fun navigate(inputRoute: String) {
+        _route.value = inputRoute
+    }
+}
 
 @Composable
 fun CommunityView(
@@ -151,6 +168,10 @@ fun CommunityViewBody(
     var previousSelectedCategory by rememberSaveable {
         mutableStateOf(savedStartDestination)
     }
+    var savedSelectedSubCategory by rememberSaveable {
+        mutableIntStateOf(-1)
+    }
+    val currentRoute = CommunityNavController.route.collectAsState().value
     var transitionDir = 1
 
     LaunchedEffect(currentSelectedCategory) {
@@ -164,38 +185,83 @@ fun CommunityViewBody(
         }
     }
 
+    LaunchedEffect(currentRoute) {
+
+        if (currentRoute.isNotBlank()) {
+            communityNavController.navigate(currentRoute) {
+                communityNavController.popBackStack()
+            }
+
+            if (currentRoute == CommunityCategories.HOT.name) {
+                savedSelectedSubCategory = 0
+            }
+            else {
+                savedSelectedSubCategory = -1
+            }
+
+            CommunityNavController.navigate("")
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        CommunityUpperCategory(
-            currentSelectedCategory,
-            communityNavController
-        )
+        CommunityUpperCategory(currentSelectedCategory)
 
-        NavHost(
-            modifier = Modifier.fillMaxSize(),
-            navController = communityNavController,
-            startDestination = savedStartDestination.name,
-            enterTransition = { slideInHorizontally( initialOffsetX = { transitionDir * it } ) },
-            exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
+        Box(
+            contentAlignment = Alignment.BottomEnd
         ) {
-            composable(CommunityCategories.ALL.name) {
-                CommunityPostsList(CommunityCategories.ALL)
+            NavHost(
+                modifier = Modifier.fillMaxSize(),
+                navController = communityNavController,
+                startDestination = savedStartDestination.name,
+                enterTransition = { slideInHorizontally( initialOffsetX = { transitionDir * it } ) },
+                exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
+            ) {
+                composable(CommunityCategories.ALL.name) {
+                    CommunityPostsListBody(
+                        savedSelectedSubCategory,
+                        CommunityCategories.ALL
+                    )
+                }
+                composable(CommunityCategories.HOT.name) {
+                    CommunityPostsListBody(
+                        savedSelectedSubCategory,
+                        CommunityCategories.HOT
+                    )
+                }
+                composable(CommunityCategories.NOTICE.name) {
+                    CommunityPostsListBody(
+                        savedSelectedSubCategory,
+                        CommunityCategories.NOTICE
+                    )
+                }
             }
-            composable(CommunityCategories.HOT.name) {
-                CommunityPostsList(CommunityCategories.HOT)
-            }
-            composable(CommunityCategories.NOTICE.name) {
-                CommunityPostsList(CommunityCategories.NOTICE)
+
+            Surface(
+                modifier = Modifier
+                    .size(48.dp)
+                    .offset(x = (-12).dp, y = (-12).dp)
+                    .clickable {
+                        MainNavController.navigate(MainNavGraphBarItems.WRITEPOST.name)
+                    },
+                shape = RoundedCornerShape(100)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_add_24),
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    contentDescription = null,
+                    modifier = Modifier.padding(4.dp)
+                )
             }
         }
     }
 }
 
+// 전체, 인기, 공지
 @Composable
 fun CommunityUpperCategory(
-    currentSelectedCategory : CommunityCategories,
-    communityNavController : NavHostController
+    currentSelectedCategory : CommunityCategories
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
@@ -257,13 +323,50 @@ fun CommunityUpperCategory(
                     .clickable {
                         if (selectedCategory != item.idx) {
                             selectedCategory = item.idx
-                            communityNavController.navigate(item.name) {
-                                communityNavController.popBackStack()
-                            }
+                            CommunityNavController.navigate(item.name)
                         }
                     }
             )
         }
+    }
+}
+
+fun generateTest(count : Int) : List<Pair<String, String>> {
+    val test = mutableListOf<Pair<String, String>>()
+
+    for (idx : Int in 1..count) {
+        test.add(
+            Pair("코빈스의 이름은 코빈스의 이름은 코빈스의 이름은 코빈스의 이름은", "신준섭 신준섭 신준섭 신준섭 신준섭 신준섭")
+        )
+    }
+
+    return test.toList()
+}
+
+@Composable
+fun CommunityPostsListBody(
+    savedSelectedSubCategory: Int,
+    currentSelectedCategory: CommunityCategories
+) {
+    // 현재 선택 중인 서브 카테고리
+    var currentSelectedSubCategory by rememberSaveable {
+        mutableIntStateOf(savedSelectedSubCategory)
+    }
+
+    Column {
+        if (currentSelectedCategory != CommunityCategories.NOTICE) {
+            CommunityLowerCategory(
+                currentSelectedCategory = currentSelectedCategory,
+                savedSelectedSubCategory = currentSelectedSubCategory
+            ) { getSelectedSubCategory ->
+                currentSelectedSubCategory = getSelectedSubCategory
+            }
+        }
+
+        CommunityPostsList(
+            currentSelectedCategory,
+            currentSelectedSubCategory
+        )
     }
 }
 
@@ -307,8 +410,8 @@ fun CommunityLowerCategory(
     var _subCategoryYPos by rememberSaveable { mutableFloatStateOf(0f) }
     var _subCategoryHeight by rememberSaveable { mutableStateOf(0f) }
     val subCategoryBackgroundColor by animateColorAsState(targetValue =
-        if (currentSelectedSubCategory >= 0) { primary }
-        else { onPrimary }
+    if (currentSelectedSubCategory >= 0) { primary }
+    else { onPrimary }
     ) {
         if (currentSelectedSubCategory < 0) {
             _subCategoryLeftXPos = 0f
@@ -331,12 +434,18 @@ fun CommunityLowerCategory(
                     outline = Outline.Rounded(
                         roundRect = RoundRect(
                             left = 12.dp.toPx() + subCategoryLeftXPos.let {
-                                if (preSelectedSubCategory == currentSelectedSubCategory) { _subCategoryLeftXPos }
-                                else { it }
+                                if (preSelectedSubCategory == currentSelectedSubCategory) {
+                                    _subCategoryLeftXPos
+                                } else {
+                                    it
+                                }
                             },
                             right = 12.dp.toPx() + subCategoryRightXPos.let {
-                                if (preSelectedSubCategory == currentSelectedSubCategory) { _subCategoryRightXPos }
-                                else { it }
+                                if (preSelectedSubCategory == currentSelectedSubCategory) {
+                                    _subCategoryRightXPos
+                                } else {
+                                    it
+                                }
                             },
                             top = 0f,
                             bottom = _subCategoryHeight,
@@ -363,8 +472,9 @@ fun CommunityLowerCategory(
                             width = 1.dp,
                             color = if (item.idx == currentSelectedSubCategory) {
                                 Color.Transparent
-                            }
-                            else { tertiary },
+                            } else {
+                                tertiary
+                            },
                             shape = RoundedCornerShape(100)
                         )
                         .clickable(
@@ -382,6 +492,7 @@ fun CommunityLowerCategory(
                                 currentSelectedSubCategory = item.idx
                                 callback(item.idx)
                             } else {
+                                // 전체 카테고리일 때만 서브 카테고리 해제 가능
                                 if (currentSelectedCategory == CommunityCategories.ALL) {
                                     preSelectedSubCategory = -1
                                     currentSelectedSubCategory = -1
@@ -394,7 +505,8 @@ fun CommunityLowerCategory(
 
                             if (currentSelectedSubCategory == item.idx) {
                                 _subCategoryLeftXPos = it.positionInParent().x
-                                _subCategoryRightXPos = it.positionInParent().x + it.size.width.toFloat()
+                                _subCategoryRightXPos =
+                                    it.positionInParent().x + it.size.width.toFloat()
                                 _subCategoryYPos = it.positionInParent().y
                             }
                         }
@@ -405,45 +517,8 @@ fun CommunityLowerCategory(
     }
 }
 
-fun generateTest(count : Int) : List<Pair<String, String>> {
-    val test = mutableListOf<Pair<String, String>>()
-
-    for (idx : Int in 1..count) {
-        test.add(
-            Pair("코빈스의 이름은 코빈스의 이름은 코빈스의 이름은 코빈스의 이름은", "신준섭 신준섭 신준섭 신준섭 신준섭 신준섭")
-        )
-    }
-
-    return test.toList()
-}
-
 @Composable
 fun CommunityPostsList(
-    currentSelectedCategory : CommunityCategories
-) {
-    var currentSelectedSubCategory by rememberSaveable {
-        mutableIntStateOf(-1)
-    }
-
-    Column {
-        if (currentSelectedCategory != CommunityCategories.NOTICE) {
-            CommunityLowerCategory(
-                currentSelectedCategory = currentSelectedCategory,
-                savedSelectedSubCategory = currentSelectedSubCategory
-            ) { getSelectedSubCategory ->
-                currentSelectedSubCategory = getSelectedSubCategory
-            }
-        }
-
-        CommunityPostsList2(
-            currentSelectedCategory,
-            currentSelectedSubCategory
-        )
-    }
-}
-
-@Composable
-fun CommunityPostsList2(
     currentSelectedCategory: CommunityCategories,
     currentSelectedSubCategory: Int
 ) {
@@ -458,8 +533,25 @@ fun CommunityPostsList2(
         postsList = generateTest(20)
     }
 
+    // 게시글이 없는 경우
     if (postsList.isEmpty()) {
 
+        if (true) {
+
+        }
+        else {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "게시글 없음",
+                    fontSize = dpToSp(dp = 24.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
     }
     else {
         LazyColumn(
