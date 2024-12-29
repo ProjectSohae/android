@@ -1,4 +1,4 @@
-package com.example.gongik.view.composables.jobReview
+package com.example.gongik.view.composables.jobreview
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.slideInHorizontally
@@ -24,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,8 +36,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -53,16 +55,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.R
 import com.example.gongik.model.data.JobReviewCategory
-import com.example.gongik.model.data.JobSearchCategory
-import com.example.gongik.model.viewmodel.CommunityCategories
+import com.example.gongik.model.viewmodel.JobInformationViewModel
 import com.example.gongik.model.viewmodel.JobReviewScoreNamesList
+import com.example.gongik.model.viewmodel.jobCompetitionRecordCategory
+import com.example.gongik.model.viewmodel.jobInfotmationDetails
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.community.CommunityNavController
-import com.example.gongik.view.composables.jobSearch.JobCompetitionItemsList
-import com.example.gongik.view.composables.jobSearch.JobSearchNavController
-import com.example.gongik.view.composables.jobSearch.JobSearchUpperCategory
-import com.example.gongik.view.composables.jobSearch.JobSearchViewBody
-import com.example.gongik.view.composables.jobSearch.JobSearchViewHeader
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking
@@ -100,15 +97,25 @@ fun JobReviewView() {
 
 @Composable
 fun JobReviewViewHeader() {
+    val tertiary = MaterialTheme.colorScheme.tertiary
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, bottom = 8.dp),
+            .drawBehind {
+                drawLine(
+                    color = tertiary,
+                    strokeWidth = 2f,
+                    start = Offset(0f, this.size.height),
+                    end = Offset(this.size.width, this.size.height)
+                )
+            }
+            .padding(horizontal = 24.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "복무지",
+            text = "복무지 정보",
             fontSize = dpToSp(dp = 24.dp),
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary
@@ -155,12 +162,14 @@ fun JobReviewBody(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        JobReviewUpperCategory(currentSelectedCategory)
+        JobReviewSimpleInformation()
+
+        JobReviewCategory(currentSelectedCategory)
 
         NavHost(
             modifier = Modifier.fillMaxSize(),
             navController = jobReviewNavController,
-            startDestination = JobReviewCategory.REVIEW.name,
+            startDestination = JobReviewCategory.INFORMATION.name,
             enterTransition = { slideInHorizontally( initialOffsetX = { transitionDir * it } ) },
             exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
         ) {
@@ -174,9 +183,83 @@ fun JobReviewBody(
     }
 }
 
-// 복무지 정보, 리뷰
 @Composable
-fun JobReviewUpperCategory(
+fun JobReviewSimpleInformation() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 12.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "서울교통공사",
+                fontWeight = FontWeight.SemiBold,
+                fontSize = dpToSp(dp = 24.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_star_24),
+                    tint = Color(0xFFFDCC0D),
+                    modifier = Modifier.size(24.dp),
+                    contentDescription = null
+                )
+                Text(
+                    text = " 4.0 ",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = dpToSp(dp = 16.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
+                    )
+                )
+                Text(
+                    text = "(999개 리뷰)",
+                    fontSize = dpToSp(dp = 12.dp),
+                    color = MaterialTheme.colorScheme.tertiary,
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
+                    )
+                )
+            }
+        }
+
+        Text(
+            text = "리뷰하기",
+            fontWeight = FontWeight.Medium,
+            fontSize = dpToSp(dp = 12.dp),
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier
+                .clickable {
+
+                }
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(25)
+                )
+                .padding(horizontal = 24.dp, vertical = 4.dp)
+        )
+    }
+}
+
+// 복무지 소개, 리뷰
+@Composable
+fun JobReviewCategory(
     currentSelectedCategory: JobReviewCategory
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -242,11 +325,193 @@ fun JobReviewUpperCategory(
 }
 
 @Composable
-fun JobInformation() {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
+fun JobInformation(
+    jobInformationViewModel: JobInformationViewModel = viewModel()
+) {
+    val jobInformationDetailsCount = jobInfotmationDetails.size
+    val tertiary = MaterialTheme.colorScheme.tertiary
 
+    LaunchedEffect(Unit) {
+
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp)
+    ) {
+        item {
+            Text(
+                text = "서울교통공사 복무지 소개",
+                fontSize = dpToSp(dp = 20.dp),
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 24.dp)
+            ) {
+                for (index: Int in 0..jobInformationDetailsCount / 2) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        if (index * 2 < jobInformationDetailsCount) {
+                            Row(
+                                modifier = Modifier
+                                    .fillParentMaxWidth(0.5f)
+                                    .padding(end = 12.dp),
+                            ) {
+                                Text(
+                                    text = jobInfotmationDetails[index * 2],
+                                    fontSize = dpToSp(dp = 12.dp),
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    textAlign = TextAlign.Start,
+                                )
+
+                                Text(
+                                    text = "사회복지시설",
+                                    fontSize = dpToSp(dp = 12.dp),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+
+                        if (index * 2 + 1 < jobInformationDetailsCount) {
+                            Row(
+                                modifier = Modifier
+                                    .fillParentMaxWidth(0.5f)
+                                    .padding(start = 12.dp),
+                            ) {
+                                Text(
+                                    text = jobInfotmationDetails[index * 2 + 1],
+                                    fontSize = dpToSp(dp = 12.dp),
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Text(
+                                    text = "서울",
+                                    fontSize = dpToSp(dp = 12.dp),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Text(
+                text = "지도",
+                fontSize = dpToSp(dp = 20.dp),
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 24.dp)
+            ) {
+                Surface(
+                    modifier = Modifier.fillParentMaxWidth().height(240.dp),
+                    shape = RoundedCornerShape(5)
+                ) {
+
+                }
+            }
+        }
+
+        item {
+            Text(
+                text = "재학생입영원 이력",
+                fontSize = dpToSp(dp = 20.dp),
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 24.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillParentMaxWidth()
+                        .padding(bottom = 4.dp)
+                        .drawBehind {
+                            drawLine(
+                                color = tertiary,
+                                start = Offset(0f, this.size.height),
+                                end = Offset(this.size.width, this.size.height)
+                            )
+                        }
+                        .padding(bottom = 4.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    jobCompetitionRecordCategory.forEachIndexed { index, item ->
+                        Text(
+                            text = item,
+                            fontSize = dpToSp(dp = 12.dp),
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Text(
+                text = "본인선택 이력",
+                fontSize = dpToSp(dp = 20.dp),
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 24.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillParentMaxWidth()
+                        .padding(bottom = 4.dp)
+                        .drawBehind {
+                            drawLine(
+                                color = tertiary,
+                                start = Offset(0f, this.size.height),
+                                end = Offset(this.size.width, this.size.height)
+                            )
+                        }
+                        .padding(bottom = 4.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    jobCompetitionRecordCategory.forEachIndexed { index, item ->
+                        Text(
+                            text = item,
+                            fontSize = dpToSp(dp = 12.dp),
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

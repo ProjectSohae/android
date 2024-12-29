@@ -1,4 +1,4 @@
-package com.example.gongik.view.composables.jobSearch
+package com.example.gongik.view.composables.jobsearch
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.slideInHorizontally
@@ -107,7 +107,7 @@ fun JobSearchViewHeader() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, bottom = 8.dp),
+            .padding(horizontal = 24.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -410,7 +410,7 @@ fun PreviewJobItem() {
                             right = this.size.width,
                             top = 0f,
                             bottom = this.size.height,
-                            cornerRadius = CornerRadius(25f, 25f)
+                            cornerRadius = CornerRadius(10f, 10f)
                         )
                     ),
                     color = tertiary,
@@ -482,7 +482,13 @@ fun JobCompetitionItemsList() {
                 year = getSelectedValue
                 openDialog = false
             },
-            title = "접수 년도 선택"
+            title = "접수 년도 선택",
+            optionsList = listOf(
+                "2021",
+                "2022",
+                "2023",
+                "2024"
+            )
         )
     }
 
@@ -535,9 +541,7 @@ fun JobCompetitionItemsList() {
                                         shape = RoundedCornerShape(100)
                                     )
                                     .padding(horizontal = 12.dp, vertical = 4.dp)
-                                    .clickable {
-                                        openDialog = true
-                                    }
+                                    .clickable { openDialog = true }
                             )
                         }
                         Spacer(modifier = Modifier.size(12.dp))

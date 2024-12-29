@@ -27,12 +27,7 @@ fun LazySelectDialog(
     onDissmissRequest: () -> Unit,
     onConfirmation: (String) -> Unit,
     title: String,
-    optionsList: List<String> = listOf(
-        "2021",
-        "2022",
-        "2023",
-        "2024"
-    )
+    optionsList: List<String>
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary

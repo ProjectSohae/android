@@ -1,5 +1,7 @@
 package com.example.gongik.view.composables.home
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +15,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -27,9 +36,10 @@ import com.example.gongik.model.viewmodel.HomeNavGraphBarItems
 import com.example.gongik.model.viewmodel.HomeNavGraphItemsList
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.community.CommunityView
-import com.example.gongik.view.composables.houseAccount.HouseAccountView
-import com.example.gongik.view.composables.jobSearch.JobSearchView
+import com.example.gongik.view.composables.houseaccount.HouseAccountView
+import com.example.gongik.view.composables.jobsearch.JobSearchView
 import com.example.gongik.view.composables.profile.ProfileView
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun HomeNavGraphView(
@@ -45,13 +55,32 @@ fun HomeNavGraphView(
             0.dp,
             it.calculateBottomPadding()
         )
+        var previousRoute by rememberSaveable {
+            mutableStateOf(HomeNavGraphBarItems.HOME)
+        }
+        val currentRoute = homeNavController.currentBackStackEntryAsState().value?.destination?.route?.let { route ->
+            HomeNavGraphBarItems.valueOf(route)
+        } ?: HomeNavGraphBarItems.HOME
+        var transitionDir by remember { mutableIntStateOf(1) }
+
+        LaunchedEffect(currentRoute) {
+            runBlocking {
+                (currentRoute.idx - previousRoute.idx).let {
+                    transitionDir = if (it > 0) { 1 } else { -1 }
+                }
+
+                previousRoute = currentRoute
+            }
+        }
 
         NavHost(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
             navController = homeNavController,
-            startDestination = HomeNavGraphBarItems.HOME.name
+            startDestination = HomeNavGraphBarItems.HOME.name,
+            enterTransition = { slideInHorizontally( initialOffsetX = { transitionDir * it } ) },
+            exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
         ) {
             composable(HomeNavGraphBarItems.HOME.name) {
                 HomeView()

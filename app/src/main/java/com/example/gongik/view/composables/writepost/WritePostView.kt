@@ -1,4 +1,4 @@
-package com.example.gongik.view.composables.writePost
+package com.example.gongik.view.composables.writepost
 
 import androidx.compose.runtime.Composable
 

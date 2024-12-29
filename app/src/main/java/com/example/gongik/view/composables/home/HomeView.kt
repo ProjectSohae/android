@@ -204,21 +204,21 @@ fun MyDetails() {
         )
 
         Text(
-            text = "사회복무요원",
+            text = "직무 미정/사회복무요원",
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
         )
 
         Text(
-            text = "이병",
+            text = "보수 등급 미정/이등병, 일등병, 상등병, 병장",
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
         )
 
         Text(
-            text = "서울교통공사",
+            text = "복무지 미정",
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
@@ -249,7 +249,7 @@ fun DateDetails() {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "9일",
+                text = "해당 없음",
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -273,7 +273,7 @@ fun DateDetails() {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "99일",
+                text = "해당 없음",
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface

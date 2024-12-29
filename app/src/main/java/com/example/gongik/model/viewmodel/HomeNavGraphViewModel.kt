@@ -2,12 +2,14 @@ package com.example.gongik.model.viewmodel
 
 import com.example.gongik.R
 
-enum class HomeNavGraphBarItems {
-    HOME,
-    COMMUNITY,
-    HOUSEACCOUNT,
-    JOBSEARCH,
-    PROFILE
+enum class HomeNavGraphBarItems(
+    val idx: Int
+) {
+    HOME(0),
+    COMMUNITY(1),
+    JOBSEARCH(2),
+    HOUSEACCOUNT(3),
+    PROFILE(4)
 }
 
 val HomeNavGraphItemsList : List<HomeNavGraphItem> = listOf(

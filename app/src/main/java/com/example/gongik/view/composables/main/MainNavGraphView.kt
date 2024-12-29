@@ -1,18 +1,24 @@
 package com.example.gongik.view.composables.main
 
-import androidx.compose.foundation.layout.Box
+import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.model.viewmodel.MainNavGraphBarItems
 import com.example.gongik.view.composables.home.HomeNavGraphView
-import com.example.gongik.view.composables.home.HomeView
-import com.example.gongik.view.composables.jobReview.JobReviewView
-import com.example.gongik.view.composables.writePost.WritePostView
+import com.example.gongik.view.composables.jobreview.JobReviewView
+import com.example.gongik.view.composables.writepost.WritePostView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,6 +37,7 @@ fun MainNavGraphView(
     mainNavController : NavHostController = rememberNavController()
 ) {
     val currentRoute = MainNavController.route.collectAsState().value
+    var transitionDir by remember { mutableIntStateOf(1) }
 
     LaunchedEffect(currentRoute) {
 
@@ -40,9 +47,19 @@ fun MainNavGraphView(
         }
     }
 
+    Log.d("test", "${transitionDir}")
+
+    BackHandler {
+        transitionDir = -1
+        mainNavController.popBackStack()
+        transitionDir = 1
+    }
+
     NavHost(
         navController = mainNavController,
-        startDestination = MainNavGraphBarItems.HOMENAV.name
+        startDestination = MainNavGraphBarItems.HOMENAV.name,
+        enterTransition = { slideInVertically { (-transitionDir) * it } },
+        exitTransition = { slideOutVertically { transitionDir * it } }
     ) {
         composable(MainNavGraphBarItems.HOMENAV.name) {
             HomeNavGraphView()
