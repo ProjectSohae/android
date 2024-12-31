@@ -31,9 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.gongik.model.viewmodel.CommunityViewModel
-import com.example.gongik.model.viewmodel.HomeNavGraphBarItems
-import com.example.gongik.model.viewmodel.HomeNavGraphItemsList
+import com.example.gongik.view.composables.community.CommunityViewModel
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.community.CommunityView
 import com.example.gongik.view.composables.houseaccount.HouseAccountView

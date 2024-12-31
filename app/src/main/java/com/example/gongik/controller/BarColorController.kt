@@ -1,4 +1,4 @@
-package com.example.gongik.model.viewmodel
+package com.example.gongik.controller
 
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.flow.MutableStateFlow

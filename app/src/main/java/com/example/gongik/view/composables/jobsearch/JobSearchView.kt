@@ -59,9 +59,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.R
-import com.example.gongik.model.data.JobSearchCategory
-import com.example.gongik.model.viewmodel.MainNavGraphBarItems
-import com.example.gongik.model.viewmodel.jobDetailsCategory
+import com.example.gongik.view.composables.main.MainNavGraphBarItems
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.LazySelectDialog
 import com.example.gongik.view.composables.main.MainNavController

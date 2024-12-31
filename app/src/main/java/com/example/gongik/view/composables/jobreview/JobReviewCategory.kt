@@ -1,4 +1,4 @@
-package com.example.gongik.model.data
+package com.example.gongik.view.composables.jobreview
 
 enum class JobReviewCategory(
     val idx: Int,

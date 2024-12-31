@@ -25,6 +25,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -41,8 +46,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.gongik.R
-import com.example.gongik.model.viewmodel.BarColorController
+import com.example.gongik.model.data.myinformation.MyInformation
+import com.example.gongik.model.data.myinformation.ranksList
+import com.example.gongik.controller.BarColorController
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.controller.MyInformationController
+import com.example.gongik.view.composables.dialog.LazySelectDialog
+import com.example.gongik.view.composables.main.MainNavController
 
 @Composable
 fun HomeView(
@@ -77,6 +87,25 @@ fun HomeViewHeader(
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
+    var openDialog by remember {
+        mutableStateOf(false)
+    }
+
+    if (openDialog) {
+        LazySelectDialog(
+            onDissmissRequest = { openDialog = false },
+            onConfirmation = { getSelectedValue ->
+                openDialog = false
+            },
+            title = "접수 년도 선택",
+            optionsList = listOf(
+                "2021",
+                "2022",
+                "2023",
+                "2024"
+            )
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -122,7 +151,7 @@ fun HomeViewHeader(
                     indication = null,
                     interactionSource = null
                 ) {
-
+                    openDialog = true
                 },
             color = onPrimary,
             shape = RoundedCornerShape(100)
@@ -171,32 +200,61 @@ fun HomeViewBody(
     leftPadding : Dp,
     rightPadding : Dp
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onPrimary)
-            .padding(start = leftPadding, end = rightPadding)
-    ) {
-        MyDetails()
+    var finishLoadDB by remember {
+        mutableStateOf(false)
+    }
+    var myInformation by remember {
+        mutableStateOf<MyInformation?>(null)
+    }
 
-        DateDetails()
-        Spacer(modifier = Modifier.size(12.dp))
+    LaunchedEffect(Unit) {
 
-        MyVacations()
-        Spacer(modifier = Modifier.size(12.dp))
+        MyInformationController.initMyInformation { getMyInformation ->
+            myInformation = getMyInformation
+            finishLoadDB = true
+        }
+    }
 
-        UseVacations()
-        Spacer(modifier = Modifier.size(24.dp))
+    if (myInformation == null) {
+        Text(text = "test")
+        
+        if (finishLoadDB) {
+            Text(text = "리로드")
+        }
+    }
+    else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.onPrimary)
+                .padding(start = leftPadding, end = rightPadding)
+        ) {
+            MyDetails(myInformation!!)
+
+            DateDetails(myInformation!!)
+            Spacer(modifier = Modifier.size(12.dp))
+
+            MyVacations(myInformation!!)
+            Spacer(modifier = Modifier.size(12.dp))
+
+            UseVacations(myInformation!!)
+            Spacer(modifier = Modifier.size(24.dp))
+        }
     }
 }
 
 @Composable
-fun MyDetails() {
+fun MyDetails(
+    myInformation: MyInformation
+) {
     Column(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         Text(
-            text = "에이전트",
+            text = myInformation.nickname.let {
+                if (it.isBlank()) { "로그인이 필요합니다." }
+                else { myInformation.nickname }
+            },
             fontSize = dpToSp(dp = 32.dp),
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -204,21 +262,30 @@ fun MyDetails() {
         )
 
         Text(
-            text = "직무 미정/사회복무요원",
+            text = myInformation.myWorkInformation.startWorkDay.let {
+                if (it < 0) { "직무 없음" }
+                else { "사회복무요원" }
+            },
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
         )
 
         Text(
-            text = "보수 등급 미정/이등병, 일등병, 상등병, 병장",
+            text = myInformation.myRank.currentRank.let {
+                if (it < 0) { "보수 등급 없음" }
+                else { ranksList[myInformation.myRank.currentRank] }
+            },
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
         )
 
         Text(
-            text = "복무지 미정",
+            text = myInformation.myWorkInformation.workPlace.let {
+                if (it.isBlank()) { "복무지 미정" }
+                else { myInformation.myWorkInformation.workPlace }
+            },
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
@@ -227,7 +294,9 @@ fun MyDetails() {
 }
 
 @Composable
-fun DateDetails() {
+fun DateDetails(
+    myInformation: MyInformation
+) {
     Column(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
@@ -249,7 +318,10 @@ fun DateDetails() {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "해당 없음",
+                text = myInformation.myWorkInformation.startWorkDay.let {
+                    if (it < 0) { "해당 없음" }
+                    else { myInformation.myWorkInformation.startWorkDay.toString() }
+                },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -273,7 +345,10 @@ fun DateDetails() {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "해당 없음",
+                text = myInformation.myWorkInformation.startWorkDay.let {
+                    if (it < 0) { "해당 없음" }
+                    else { myInformation.myWorkInformation.startWorkDay.toString() }
+                },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -297,7 +372,10 @@ fun DateDetails() {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "999일",
+                text = myInformation.myWorkInformation.startWorkDay.let {
+                    if (it < 0) { "해당 없음" }
+                    else { myInformation.myWorkInformation.startWorkDay.toString() }
+                },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -321,7 +399,16 @@ fun DateDetails() {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "해당 없음",
+                text = myInformation.myRank.currentRank.let {
+                    var nextPromotionDay: String = ""
+
+                    if (it == 0) { nextPromotionDay = myInformation.myRank.firstPromotionDay.toString() }
+                    else if (it == 1) { nextPromotionDay = myInformation.myRank.secondPromotionDay.toString() }
+                    else if (it == 2) { nextPromotionDay = myInformation.myRank.thirdPromotionDay.toString() }
+
+                    if (nextPromotionDay.isBlank()) { "해당 없음" }
+                    else { nextPromotionDay }
+                },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -335,7 +422,9 @@ fun DateDetails() {
 }
 
 @Composable
-fun MyVacations() {
+fun MyVacations(
+    myInformation: MyInformation
+) {
     val primary = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
 
@@ -484,7 +573,9 @@ fun MyVacations() {
 }
 
 @Composable
-fun UseVacations() {
+fun UseVacations(
+    myInformation: MyInformation
+) {
     val primary = MaterialTheme.colorScheme.primary
     val useVacationItemsList : List<Pair<String, Int>> = listOf(
         Pair("1년차 연차", R.drawable.outline_annual_leave_24),

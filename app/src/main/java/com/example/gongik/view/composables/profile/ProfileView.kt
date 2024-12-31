@@ -19,22 +19,44 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
+import com.example.gongik.model.data.myinformation.MyInformation
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.controller.MyInformationController
 
 @Composable
 fun ProfileView(
-
+    profileViewModel: ProfileViewModel = viewModel()
 ) {
+    var finishLoadDB by remember {
+        mutableStateOf(false)
+    }
+    var myInformation by remember {
+        mutableStateOf<MyInformation?>(null)
+    }
+
+    LaunchedEffect(Unit) {
+
+        MyInformationController.initMyInformation { getMyInformation ->
+            myInformation = getMyInformation
+            finishLoadDB = true
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -50,33 +72,43 @@ fun ProfileView(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            ProfileViewHeader()
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                item {
-                    PreviewProfileDetails()
+            if (myInformation == null) {
+                Text(text = "test")
+
+                if (finishLoadDB) {
+                    Text(text = "리로드")
                 }
+            }
+            else {
+                ProfileViewHeader()
 
-                item {
-                    MyActivities()
-                }
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    item {
+                        PreviewProfileDetails(myInformation!!)
+                    }
 
-                item {
-                    MilitaryServiceDate()
-                }
+                    item {
+                        MyActivities(myInformation!!)
+                    }
 
-                item {
-                    PromotionDate()
-                }
+                    item {
+                        MilitaryServiceDate(myInformation!!)
+                    }
 
-                item {
-                    SalaryDetails()
-                }
+                    item {
+                        PromotionDate(myInformation!!)
+                    }
 
-                item {
-                    RestTimeDetails()
+                    item {
+                        SalaryDetails(myInformation!!)
+                    }
+
+                    item {
+                        RestTimeDetails(myInformation!!)
+                    }
                 }
             }
         }
@@ -120,7 +152,7 @@ fun ProfileViewHeader(
 // 프로필
 @Composable
 fun PreviewProfileDetails(
-
+    myInformation: MyInformation
 ) {
     val primary = MaterialTheme.colorScheme.primary
 
@@ -160,12 +192,18 @@ fun PreviewProfileDetails(
 
             Column {
                 Text(
-                    text = "닉네임",
+                    text = myInformation.nickname.let {
+                        if (it.isBlank()) { "로그인이 필요합니다." }
+                        else { myInformation.nickname }
+                    },
                     fontSize = dpToSp(dp = 16.dp),
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "이메일",
+                    text = myInformation.emailAddress.let {
+                        if (it.isBlank()) { "이메일 없음" }
+                        else { myInformation.nickname }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
             }
@@ -182,7 +220,7 @@ fun PreviewProfileDetails(
 // 내가 작성한 글, 댓글
 @Composable
 fun MyActivities(
-
+    myInformation: MyInformation
 ) {
     val primary = MaterialTheme.colorScheme.primary
 
@@ -253,6 +291,7 @@ fun MyActivities(
 // 복무일
 @Composable
 fun MilitaryServiceDate(
+    myInformation: MyInformation
 ) {
     val primary = MaterialTheme.colorScheme.primary
 
@@ -292,7 +331,10 @@ fun MilitaryServiceDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "2024년 1월 1일",
+                    text = myInformation.myWorkInformation.startWorkDay.let {
+                        if (it < 0) { "해당 없음" }
+                        else { myInformation.myWorkInformation.startWorkDay.toString() }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -323,7 +365,10 @@ fun MilitaryServiceDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "2024년 1월 1일",
+                    text = myInformation.myRank.firstPromotionDay.let {
+                        if (it < 0) { "해당 없음" }
+                        else { myInformation.myWorkInformation.finishWorkDay.toString() }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -341,7 +386,7 @@ fun MilitaryServiceDate(
 // 진급일
 @Composable
 fun PromotionDate(
-
+    myInformation: MyInformation
 ) {
     val primary = MaterialTheme.colorScheme.primary
 
@@ -381,7 +426,10 @@ fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "2024년 1월 1일",
+                    text = myInformation.myRank.firstPromotionDay.let {
+                        if (it < 0) { "해당 없음" }
+                        else { myInformation.myRank.firstPromotionDay.toString() }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -412,7 +460,10 @@ fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "2024년 1월 1일",
+                    text = myInformation.myRank.secondPromotionDay.let {
+                        if (it < 0) { "해당 없음" }
+                        else { myInformation.myRank.secondPromotionDay.toString() }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -443,7 +494,10 @@ fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "2024년 1월 1일",
+                    text = myInformation.myRank.thirdPromotionDay.let {
+                        if (it < 0) { "해당 없음" }
+                        else { myInformation.myRank.thirdPromotionDay.toString() }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -461,7 +515,7 @@ fun PromotionDate(
 // 급여
 @Composable
 fun SalaryDetails(
-
+    myInformation: MyInformation
 ) {
     val primary = MaterialTheme.colorScheme.primary
 
@@ -501,7 +555,10 @@ fun SalaryDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "7000원",
+                    text = myInformation.myWelfare.foodCosts.let {
+                        if (it < 0) { "해당 없음" }
+                        else { myInformation.myWelfare.foodCosts.toString() }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -532,7 +589,10 @@ fun SalaryDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "7000원",
+                    text = myInformation.myWelfare.transportationCosts.let {
+                        if (it < 0) { "해당 없음" }
+                        else { myInformation.myWelfare.transportationCosts.toString() }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -563,7 +623,10 @@ fun SalaryDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "1일",
+                    text = myInformation.myWorkInformation.startWorkDay.let {
+                        if (it < 0) { "해당 없음" }
+                        else { myInformation.myWorkInformation.startWorkDay.toString() }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -581,7 +644,7 @@ fun SalaryDetails(
 // 휴가 일수
 @Composable
 fun RestTimeDetails(
-
+    myInformation: MyInformation
 ) {
     val primary = MaterialTheme.colorScheme.primary
 

@@ -48,7 +48,6 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.drawOutline
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.res.painterResource
@@ -63,10 +62,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.R
-import com.example.gongik.model.viewmodel.BarColorController
-import com.example.gongik.model.viewmodel.CommunityCategories
-import com.example.gongik.model.viewmodel.CommunityViewModel
-import com.example.gongik.model.viewmodel.MainNavGraphBarItems
+import com.example.gongik.controller.BarColorController
+import com.example.gongik.view.composables.main.MainNavGraphBarItems
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.main.MainNavController
 import kotlinx.coroutines.delay

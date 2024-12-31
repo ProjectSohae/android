@@ -19,9 +19,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.example.gongik.model.viewmodel.BarColorController
+import com.example.gongik.controller.BarColorController
 import com.example.gongik.ui.theme.GongikTheme
-import com.example.gongik.view.composables.home.HomeNavGraphView
 import com.example.gongik.view.composables.main.MainNavGraphView
 
 class MainActivity : ComponentActivity() {

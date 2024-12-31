@@ -1,4 +1,4 @@
-package com.example.gongik.model.viewmodel
+package com.example.gongik.view.composables.main
 
 enum class MainNavGraphBarItems {
     HOMENAV,
