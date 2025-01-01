@@ -46,13 +46,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.gongik.R
+import com.example.gongik.controller.BarColorController
+import com.example.gongik.controller.MyInformationController
 import com.example.gongik.model.data.myinformation.MyInformation
 import com.example.gongik.model.data.myinformation.ranksList
-import com.example.gongik.controller.BarColorController
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.controller.MyInformationController
-import com.example.gongik.view.composables.dialog.LazySelectDialog
-import com.example.gongik.view.composables.main.MainNavController
+import com.example.gongik.view.composables.dialog.TypingTextDialog
+import com.example.gongik.view.composables.dialog.WheelPickerDialog
 
 @Composable
 fun HomeView(
@@ -87,24 +87,14 @@ fun HomeViewHeader(
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
-    var openDialog by remember {
+    var test by remember {
         mutableStateOf(false)
     }
 
-    if (openDialog) {
-        LazySelectDialog(
-            onDissmissRequest = { openDialog = false },
-            onConfirmation = { getSelectedValue ->
-                openDialog = false
-            },
-            title = "접수 년도 선택",
-            optionsList = listOf(
-                "2021",
-                "2022",
-                "2023",
-                "2024"
-            )
-        )
+    if (test){
+        TypingTextDialog(){
+            test = false
+        }
     }
 
     Box(
@@ -151,7 +141,7 @@ fun HomeViewHeader(
                     indication = null,
                     interactionSource = null
                 ) {
-                    openDialog = true
+                    test = true
                 },
             color = onPrimary,
             shape = RoundedCornerShape(100)

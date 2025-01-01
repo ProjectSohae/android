@@ -61,7 +61,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gongik.R
 import com.example.gongik.view.composables.main.MainNavGraphBarItems
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.dialog.LazySelectDialog
+import com.example.gongik.view.composables.dialog.WheelPickerDialog
 import com.example.gongik.view.composables.main.MainNavController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -465,29 +465,57 @@ fun PreviewJobItem() {
 fun JobCompetitionItemsList() {
     val tertiary = MaterialTheme.colorScheme.tertiary
     var openDialog by rememberSaveable { mutableStateOf(false) }
+    var filterNum by rememberSaveable { mutableIntStateOf(0) }
     var year by rememberSaveable { mutableStateOf("") }
-    var recruitNumber by rememberSaveable { mutableStateOf("") }
+    var roundNumber by rememberSaveable { mutableIntStateOf(-1) }
     var intendance by rememberSaveable { mutableStateOf("") }
     var location by rememberSaveable { mutableStateOf("") }
+    val yearList = listOf(
+        "2021",
+        "2022",
+        "2023",
+    )
+    val roundList = listOf(
+        "재학생입영원",
+        "본인 선택"
+    )
+    val filterList = listOf(
+        yearList,
+        roundList
+    )
     val posts = listOf(
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
     )
 
     if (openDialog) {
-        LazySelectDialog(
-            onDissmissRequest = { openDialog = false },
-            onConfirmation = { getSelectedValue ->
-                year = getSelectedValue
-                openDialog = false
-            },
-            title = "접수 년도 선택",
-            optionsList = listOf(
-                "2021",
-                "2022",
-                "2023",
-                "2024"
+
+        if (filterNum < 2) {
+            WheelPickerDialog(
+                onDissmissRequest = { openDialog = false },
+                onConfirmation = { getSelectedValue ->
+
+                    when (filterNum) {
+                        // 접수 년도
+                        0 -> { year = getSelectedValue.toString() }
+                        // 회차
+                        1 -> {
+                            roundNumber = getSelectedValue.toString().let {
+                                if (it == roundList[0]) { 0 }
+                                else { 1 }
+                            }
+                        }
+                    }
+
+                    openDialog = false
+                },
+                optionsList = filterList[filterNum]
             )
-        )
+        }
+        else {
+            LaunchedEffect(Unit) {
+
+            }
+        }
     }
 
     Box(
@@ -513,53 +541,82 @@ fun JobCompetitionItemsList() {
             ) {
                 LazyRow {
                     item {
-                        if (year.isNotBlank()) {
-                            Text(
-                                text = year,
-                                fontSize = dpToSp(dp = 16.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier
-                                    .background(
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = RoundedCornerShape(100)
-                                    )
-                                    .padding(horizontal = 12.dp, vertical = 4.dp)
-                                    .clickable { openDialog = true }
-                            )
-                        }
-                        else {
-                            Text(
-                                text = "접수 년도",
-                                fontSize = dpToSp(dp = 16.dp),
-                                color = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.tertiary,
-                                        shape = RoundedCornerShape(100)
-                                    )
-                                    .padding(horizontal = 12.dp, vertical = 4.dp)
-                                    .clickable { openDialog = true }
-                            )
-                        }
+                        Text(
+                            text = year.ifBlank { "접수 년도" },
+                            fontSize = dpToSp(dp = 16.dp),
+                            color = year.let {
+                                if (it.isBlank()) { MaterialTheme.colorScheme.tertiary }
+                                else { MaterialTheme.colorScheme.onPrimary }
+                            },
+                            modifier = Modifier
+                                .border(
+                                    width = 1.dp,
+                                    color = year.let {
+                                        if (it.isBlank()) {
+                                            MaterialTheme.colorScheme.tertiary
+                                        } else {
+                                            Color.Transparent
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(100)
+                                )
+                                .background(
+                                    color = year.let {
+                                        if (it.isBlank()) {
+                                            Color.Transparent
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(100)
+                                )
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                                .clickable {
+                                    filterNum = 0
+                                    openDialog = true
+                                }
+                        )
                         Spacer(modifier = Modifier.size(12.dp))
                     }
 
                     // 재학생 입영원, 본인 선택
                     item {
                         Text(
-                            text = "회차",
+                            text = roundNumber.let {
+                                if (it in 0..1) { roundList[it] }
+                                else { "회차" }
+                            },
                             fontSize = dpToSp(dp = 16.dp),
-                            color = MaterialTheme.colorScheme.tertiary,
+                            color = roundNumber.let {
+                                if (it < 0) { MaterialTheme.colorScheme.tertiary }
+                                else { MaterialTheme.colorScheme.onPrimary }
+                            },
                             modifier = Modifier
                                 .border(
                                     width = 1.dp,
-                                    color = MaterialTheme.colorScheme.tertiary,
+                                    color = roundNumber.let {
+                                        if (it < 0) {
+                                            MaterialTheme.colorScheme.tertiary
+                                        } else {
+                                            Color.Transparent
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(100)
+                                )
+                                .background(
+                                    color = roundNumber.let {
+                                        if (it < 0) {
+                                            Color.Transparent
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        }
+                                    },
                                     shape = RoundedCornerShape(100)
                                 )
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
                                 .clickable {
-
+                                    filterNum = 1
+                                    openDialog = true
                                 }
                         )
                         Spacer(modifier = Modifier.size(12.dp))
@@ -567,18 +624,38 @@ fun JobCompetitionItemsList() {
 
                     item {
                         Text(
-                            text = "관할 지방청",
+                            text = intendance.ifBlank { "관할 지방청" },
                             fontSize = dpToSp(dp = 16.dp),
-                            color = MaterialTheme.colorScheme.tertiary,
+                            color = intendance.let {
+                                if (it.isBlank()) { MaterialTheme.colorScheme.tertiary }
+                                else { MaterialTheme.colorScheme.onPrimary }
+                            },
                             modifier = Modifier
                                 .border(
                                     width = 1.dp,
-                                    color = MaterialTheme.colorScheme.tertiary,
+                                    color = intendance.let {
+                                        if (it.isBlank()) {
+                                            MaterialTheme.colorScheme.tertiary
+                                        } else {
+                                            Color.Transparent
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(100)
+                                )
+                                .background(
+                                    color = intendance.let {
+                                        if (it.isBlank()) {
+                                            Color.Transparent
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        }
+                                    },
                                     shape = RoundedCornerShape(100)
                                 )
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
                                 .clickable {
-
+                                    filterNum = 2
+                                    openDialog = true
                                 }
                         )
                         Spacer(modifier = Modifier.size(12.dp))
@@ -586,18 +663,38 @@ fun JobCompetitionItemsList() {
 
                     item {
                         Text(
-                            text = "시 • 군 • 구",
+                            text = location.ifBlank { "시 • 군 • 구" },
                             fontSize = dpToSp(dp = 16.dp),
-                            color = MaterialTheme.colorScheme.tertiary,
+                            color = location.let {
+                                if (it.isBlank()) { MaterialTheme.colorScheme.tertiary }
+                                else { MaterialTheme.colorScheme.onPrimary }
+                            },
                             modifier = Modifier
                                 .border(
                                     width = 1.dp,
-                                    color = MaterialTheme.colorScheme.tertiary,
+                                    color = location.let {
+                                        if (it.isBlank()) {
+                                            MaterialTheme.colorScheme.tertiary
+                                        } else {
+                                            Color.Transparent
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(100)
+                                )
+                                .background(
+                                    color = location.let {
+                                        if (it.isBlank()) {
+                                            Color.Transparent
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        }
+                                    },
                                     shape = RoundedCornerShape(100)
                                 )
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
                                 .clickable {
-
+                                    filterNum = 3
+                                    openDialog = true
                                 }
                         )
                     }
@@ -606,7 +703,7 @@ fun JobCompetitionItemsList() {
 
             if (
                 year.isBlank()
-                || recruitNumber.isBlank()
+                || roundNumber < 0
                 || intendance.isBlank()
                 || location.isBlank()
             ) {

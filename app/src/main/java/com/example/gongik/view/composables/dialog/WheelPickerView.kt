@@ -68,10 +68,9 @@ import dev.chrisbanes.haze.hazeChild
 import kotlin.math.abs
 
 @Composable
-fun LazySelectDialog(
+fun WheelPickerDialog(
     onDissmissRequest: () -> Unit,
-    onConfirmation: (String) -> Unit,
-    title: String,
+    onConfirmation: (Any) -> Unit,
     optionsList: List<String>
 ) {
     val inputListSize = optionsList.size
@@ -147,64 +146,38 @@ fun LazySelectDialog(
 
                     // 위로 스크롤
                     if (scrollDelta < 0) {
-
                         currentIdx[idx] = (7 + currentIdx[idx] - ((scrollTotalDelta / 100) % 7)) % 7
                         targetIdx[idx] = (7 + currentIdx[idx] - 1) % 7
-
-                        currentZIndexes[idx] = initialZIndexes[currentIdx[idx]] +
-                                (
-                                        (initialZIndexes[targetIdx[idx]] - initialZIndexes[currentIdx[idx]])
-                                                * (scrollTotalDelta % 100)
-                                        ) / 100
-
-                        currentAlpha[idx] = initialAlpha[currentIdx[idx]] +
-                                (
-                                        (initialAlpha[targetIdx[idx]] - initialAlpha[currentIdx[idx]])
-                                                * (scrollTotalDelta % 100)
-                                        ) / 100f
-
-                        currentScaleXY[idx] = initialScaleXY[currentIdx[idx]] +
-                                (
-                                        (initialScaleXY[targetIdx[idx]] - initialScaleXY[currentIdx[idx]])
-                                                * ((scrollTotalDelta % 100).toFloat() / 100f)
-                                        )
-
-                        currentOffsetY[idx] = initialOffsetY[currentIdx[idx]] +
-                                (
-                                        (initialOffsetY[targetIdx[idx]] - initialOffsetY[currentIdx[idx]])
-                                                * (scrollTotalDelta % 100)
-                                        ) / 100
                     }
                     // 아래로 스크롤
                     else {
-
                         currentIdx[idx] = (currentIdx[idx] + (scrollTotalDelta / 100)) % 7
                         targetIdx[idx] = (currentIdx[idx] + 1) % 7
-
-                        currentZIndexes[idx] = initialZIndexes[currentIdx[idx]] +
-                                (
-                                        (initialZIndexes[targetIdx[idx]] - initialZIndexes[currentIdx[idx]])
-                                                * (scrollTotalDelta % 100)
-                                        ) / 100
-
-                        currentAlpha[idx] = initialAlpha[currentIdx[idx]] +
-                                (
-                                        (initialAlpha[targetIdx[idx]] - initialAlpha[currentIdx[idx]])
-                                                * (scrollTotalDelta % 100)
-                                        ) / 100f
-
-                        currentScaleXY[idx] = initialScaleXY[currentIdx[idx]] +
-                                (
-                                        (initialScaleXY[targetIdx[idx]] - initialScaleXY[currentIdx[idx]])
-                                                * ((scrollTotalDelta % 100).toFloat() / 100f)
-                                        )
-
-                        currentOffsetY[idx] = initialOffsetY[currentIdx[idx]] +
-                                (
-                                        (initialOffsetY[targetIdx[idx]] - initialOffsetY[currentIdx[idx]])
-                                                * (scrollTotalDelta % 100)
-                                        ) / 100
                     }
+
+                    currentZIndexes[idx] = initialZIndexes[currentIdx[idx]] +
+                            (
+                                    (initialZIndexes[targetIdx[idx]] - initialZIndexes[currentIdx[idx]])
+                                            * (scrollTotalDelta % 100)
+                                    ) / 100
+
+                    currentAlpha[idx] = initialAlpha[currentIdx[idx]] +
+                            (
+                                    (initialAlpha[targetIdx[idx]] - initialAlpha[currentIdx[idx]])
+                                            * (scrollTotalDelta % 100)
+                                    ) / 100f
+
+                    currentScaleXY[idx] = initialScaleXY[currentIdx[idx]] +
+                            (
+                                    (initialScaleXY[targetIdx[idx]] - initialScaleXY[currentIdx[idx]])
+                                            * ((scrollTotalDelta % 100).toFloat() / 100f)
+                                    )
+
+                    currentOffsetY[idx] = initialOffsetY[currentIdx[idx]] +
+                            (
+                                    (initialOffsetY[targetIdx[idx]] - initialOffsetY[currentIdx[idx]])
+                                            * (scrollTotalDelta % 100)
+                                    ) / 100
                 }
 
                 Column(
@@ -265,7 +238,8 @@ fun LazySelectDialog(
                             )
                         }
                         .shadow(
-                            elevation = 20.dp,
+                            elevation = 12.dp,
+                            shape = RoundedCornerShape(20),
                             ambientColor = MaterialTheme.colorScheme.primary,
                             spotColor = MaterialTheme.colorScheme.primary
                         )
@@ -282,9 +256,7 @@ fun LazySelectDialog(
                         ) {
                             progressive =
                                 HazeProgressive.LinearGradient(
-                                    start = Offset.Zero,
                                     startIntensity = 0.6f,
-                                    end = Offset.Infinite,
                                     endIntensity = 0.6f,
                                     preferPerformance = true
                                 )

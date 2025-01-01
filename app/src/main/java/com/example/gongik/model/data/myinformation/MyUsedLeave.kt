@@ -5,6 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 val leaveType = listOf(
+    "1년차 연가",
+    "2년차 연가",
+    "병가",
     "특별 휴가",
     "청원 휴가",
     "공가",
@@ -13,13 +16,16 @@ val leaveType = listOf(
     "복무 이탈"
 )
 
-val leaveTypeIdx = mapOf(
-    Pair("특별 휴가", 0),
-    Pair("청원 휴가", 1),
-    Pair("공가", 2),
-    Pair("외출", 3),
-    Pair("조퇴", 4),
-    Pair("복무 이탈", 5)
+val leaveTypeIdx = hashMapOf(
+    Pair("1년차 연가", 0),
+    Pair("2년차 연가", 1),
+    Pair("병가", 2),
+    Pair("특별 휴가", 3),
+    Pair("청원 휴가", 4),
+    Pair("공가", 5),
+    Pair("외출", 6),
+    Pair("조퇴", 7),
+    Pair("복무 이탈", 8)
 )
 
 @Entity(tableName = "my_used_leave")
