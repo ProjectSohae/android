@@ -491,7 +491,8 @@ fun JobCompetitionItemsList() {
 
         if (filterNum < 2) {
             WheelPickerDialog(
-                onDissmissRequest = { openDialog = false },
+                intensity = 0.6f,
+                onDismissRequest = { openDialog = false },
                 onConfirmation = { getSelectedValue ->
 
                     when (filterNum) {

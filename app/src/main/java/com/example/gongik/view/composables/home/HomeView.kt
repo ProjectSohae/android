@@ -51,8 +51,6 @@ import com.example.gongik.controller.MyInformationController
 import com.example.gongik.model.data.myinformation.MyInformation
 import com.example.gongik.model.data.myinformation.ranksList
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.dialog.TypingTextDialog
-import com.example.gongik.view.composables.dialog.WheelPickerDialog
 
 @Composable
 fun HomeView(
@@ -92,9 +90,6 @@ fun HomeViewHeader(
     }
 
     if (test){
-        TypingTextDialog(){
-            test = false
-        }
     }
 
     Box(
@@ -390,7 +385,7 @@ fun DateDetails(
             )
             Text(
                 text = myInformation.myRank.currentRank.let {
-                    var nextPromotionDay: String = ""
+                    var nextPromotionDay = ""
 
                     if (it == 0) { nextPromotionDay = myInformation.myRank.firstPromotionDay.toString() }
                     else if (it == 1) { nextPromotionDay = myInformation.myRank.secondPromotionDay.toString() }

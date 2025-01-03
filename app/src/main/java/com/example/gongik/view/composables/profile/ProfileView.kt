@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,9 +35,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
+import com.example.gongik.controller.MyInformationController
 import com.example.gongik.model.data.myinformation.MyInformation
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.controller.MyInformationController
+import com.example.gongik.view.composables.dialog.TypingTextDialog
+import com.example.gongik.view.composables.dialog.WheelPickerDialog
 
 @Composable
 fun ProfileView(
@@ -86,26 +89,32 @@ fun ProfileView(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    // 프로필
                     item {
                         PreviewProfileDetails(myInformation!!)
                     }
 
+                    // 나의 활동
                     item {
                         MyActivities(myInformation!!)
                     }
 
+                    // 복무일
                     item {
                         MilitaryServiceDate(myInformation!!)
                     }
 
+                    // 진급일
                     item {
                         PromotionDate(myInformation!!)
                     }
 
+                    // 복지
                     item {
                         SalaryDetails(myInformation!!)
                     }
 
+                    // 휴가 일수
                     item {
                         RestTimeDetails(myInformation!!)
                     }
@@ -512,12 +521,70 @@ fun PromotionDate(
     }
 }
 
-// 급여
+// 복지
 @Composable
 fun SalaryDetails(
     myInformation: MyInformation
 ) {
     val primary = MaterialTheme.colorScheme.primary
+    val title = listOf(
+        "식비",
+        "교통비",
+    )
+    val content = listOf(
+        "지원 받는 식비 액수를 입력 하세요.",
+        "지원 받는 교통비 액수를 입력 하세요."
+    )
+    val inputForm = listOf(
+        listOf(
+            Pair("금액 입력", "원")
+        ),
+        listOf(
+            Pair("금액 입력", "원")
+        )
+    )
+    val initialValuesList = listOf(
+        listOf(
+            "99,999"
+        ),
+        listOf(
+            "99,999"
+        )
+    )
+    var openDialog by remember { mutableIntStateOf(-1) }
+
+    if (openDialog >= 0) {
+
+        if (openDialog != 2) {
+            TypingTextDialog(
+                title = title[openDialog],
+                content = content[openDialog],
+                inputsList = inputForm[openDialog],
+                initialValuesList = initialValuesList[openDialog],
+                onDismissRequest = { openDialog = -1 },
+                onConfirmation = { openDialog = -1 }
+            )
+        }
+        else {
+            WheelPickerDialog(
+                intensity = 0.95f,
+                onDismissRequest = { openDialog = -1 },
+                onConfirmation = {},
+                optionsList = listOf(
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "10"
+                )
+            )
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -532,7 +599,7 @@ fun SalaryDetails(
             .padding(16.dp)
     ) {
         Text(
-            text = "급여",
+            text = "복지",
             fontWeight = FontWeight.SemiBold,
             fontSize = dpToSp(dp = 20.dp)
         )
@@ -541,9 +608,7 @@ fun SalaryDetails(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 0 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -575,9 +640,7 @@ fun SalaryDetails(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 1 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -609,9 +672,7 @@ fun SalaryDetails(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 2 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
