@@ -1,6 +1,5 @@
 package com.example.gongik.view.composables.dialog
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
@@ -70,7 +69,10 @@ fun WheelPickerDialog(
     val currentAlpha = mutableListOf( 0.55f, 0.65f, 0.8f, 1f, 0.8f, 0.65f, 0.55f)
     // currentIdx(i): i번째 item이 ui 상에서 currentIdx(i)번째에 위치함.
     val currentIdx = mutableListOf( 0, 1, 2, 3, 4, 5, 6 )
+    val reverseCurrentIdx = mutableListOf( 0, 1, 2, 3, 4, 5, 6 )
     val targetIdx = mutableListOf( 0, 1, 2, 3, 4, 5, 6 )
+    var startOptionValueIdx: Int
+    var lastOptionValueIdx: Int
     val currentOptionValueIdx = mutableListOf(
         (inputListSize - 1) - (2 % inputListSize),
         (inputListSize - 1) - (1 % inputListSize),
@@ -127,6 +129,11 @@ fun WheelPickerDialog(
                 ),
             contentAlignment = Alignment.TopCenter
         ) {
+            // ui 위치상 가장 위
+            startOptionValueIdx = reverseCurrentIdx[0]
+            // ui 위치상 가장 아래
+            lastOptionValueIdx = reverseCurrentIdx[6]
+
             for (idx: Int in 0..6) {
 
                 if (isUndo) { currentIdx[idx] = targetIdx[idx] }
@@ -137,8 +144,10 @@ fun WheelPickerDialog(
                     if (scrollDelta < 0) {
 
                         if (currentIdx[idx] - (scrollTotalDelta / 100) < 0) {
-                            currentOptionValueIdx[idx] = (currentOptionValueIdx[(7 + idx - 1) % 7]
-                                    + 1) % inputListSize
+                            currentOptionValueIdx[idx] = (currentOptionValueIdx[lastOptionValueIdx] +
+                                    (7 * (((scrollTotalDelta / 100) - currentIdx[idx]) / 7)) +
+                                    (lastOptionValueIdx > idx).let { if (it) { 7 - lastOptionValueIdx + idx } else { idx - lastOptionValueIdx } }) %
+                                    inputListSize
                         }
 
                         currentIdx[idx] = (7 + currentIdx[idx] - ((scrollTotalDelta / 100) % 7)) % 7
@@ -148,13 +157,18 @@ fun WheelPickerDialog(
                     else {
 
                         if (currentIdx[idx] + (scrollTotalDelta / 100) > 6) {
-                            currentOptionValueIdx[idx] = (inputListSize
-                                    + currentOptionValueIdx[(idx + 1) % 7] - 1) % inputListSize
+                            currentOptionValueIdx[idx] = ((currentOptionValueIdx[startOptionValueIdx] -
+                                    (7 * ((((scrollTotalDelta / 100) + currentIdx[idx]) / 7) - 1)) -
+                                    (startOptionValueIdx < idx).let { if (it) { 7 - idx + startOptionValueIdx } else { startOptionValueIdx - idx } }) %
+                                    inputListSize)
+                                .let { if (it < 0) { it + inputListSize } else { it } }
                         }
 
                         currentIdx[idx] = (currentIdx[idx] + (scrollTotalDelta / 100)) % 7
                         targetIdx[idx] = (currentIdx[idx] + 1) % 7
                     }
+
+                    reverseCurrentIdx[currentIdx[idx]] = idx
 
                     currentZIndex[idx] = calcCurrentIntValue(
                         initialZIndex[currentIdx[idx]],
@@ -195,7 +209,7 @@ fun WheelPickerDialog(
                     }
                 )
             }
-Log.d("idxes", "delta ${scrollDelta}\ncurrent ${currentIdx}\ntarget ${targetIdx}\noption ${currentOptionValueIdx}")
+
             isUndo = false
             scrollTotalDelta %= 100
         }
