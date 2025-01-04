@@ -107,15 +107,15 @@ fun TypingTextDialog(
                 Text(
                     modifier = Modifier.padding(start = 48.dp, end = 48.dp),
                     text = title,
-                    fontSize = dpToSp(dp = 20.dp),
+                    fontSize = dpToSp(dp = 24.dp),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    modifier = Modifier.padding(start = 44.dp, end = 44.dp),
+                    modifier = Modifier.padding(start = 36.dp, end = 36.dp),
                     text = content,
-                    fontSize = dpToSp(dp = 12.dp),
+                    fontSize = dpToSp(dp = 16.dp),
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )

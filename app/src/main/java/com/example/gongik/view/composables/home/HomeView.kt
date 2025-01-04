@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
 import com.example.gongik.controller.MyInformationController
@@ -54,7 +56,7 @@ import com.example.gongik.util.font.dpToSp
 
 @Composable
 fun HomeView(
-
+    homeViewModel: HomeViewModel = viewModel()
 ){
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
@@ -72,7 +74,11 @@ fun HomeView(
             }
 
             item {
-                HomeViewBody(leftPadding, rightPadding)
+                HomeViewBody(
+                    leftPadding,
+                    rightPadding,
+                    homeViewModel
+                )
             }
         }
     }
@@ -183,24 +189,13 @@ fun HomeViewHeader(
 @Composable
 fun HomeViewBody(
     leftPadding : Dp,
-    rightPadding : Dp
+    rightPadding : Dp,
+    homeViewModel: HomeViewModel
 ) {
-    var finishLoadDB by remember {
-        mutableStateOf(false)
-    }
-    var myInformation by remember {
-        mutableStateOf<MyInformation?>(null)
-    }
+    val isReadyInfo = homeViewModel.isReadyInfo.collectAsState().value
+    val finishLoadDB = homeViewModel.finishLoadDB.collectAsState().value
 
-    LaunchedEffect(Unit) {
-
-        MyInformationController.initMyInformation { getMyInformation ->
-            myInformation = getMyInformation
-            finishLoadDB = true
-        }
-    }
-
-    if (myInformation == null) {
+    if (!isReadyInfo) {
         Text(text = "test")
         
         if (finishLoadDB) {
@@ -214,15 +209,15 @@ fun HomeViewBody(
                 .background(MaterialTheme.colorScheme.onPrimary)
                 .padding(start = leftPadding, end = rightPadding)
         ) {
-            MyDetails(myInformation!!)
+            MyDetails(homeViewModel)
 
-            DateDetails(myInformation!!)
+            DateDetails(homeViewModel)
             Spacer(modifier = Modifier.size(12.dp))
 
-            MyVacations(myInformation!!)
+            MyVacations(homeViewModel)
             Spacer(modifier = Modifier.size(12.dp))
 
-            UseVacations(myInformation!!)
+            UseVacations(homeViewModel)
             Spacer(modifier = Modifier.size(24.dp))
         }
     }
@@ -230,15 +225,19 @@ fun HomeViewBody(
 
 @Composable
 fun MyDetails(
-    myInformation: MyInformation
+    homeViewModel: HomeViewModel
 ) {
+    val myInfo = homeViewModel.myInformation.collectAsState().value!!
+    val myWorkInfo = homeViewModel.myWorkInformation.collectAsState().value!!
+    val myRank = homeViewModel.myRank.collectAsState().value!!
+
     Column(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         Text(
-            text = myInformation.nickname.let {
+            text = myInfo.nickname.let {
                 if (it.isBlank()) { "로그인이 필요합니다." }
-                else { myInformation.nickname }
+                else { myInfo.nickname }
             },
             fontSize = dpToSp(dp = 32.dp),
             fontWeight = FontWeight.SemiBold,
@@ -247,7 +246,7 @@ fun MyDetails(
         )
 
         Text(
-            text = myInformation.myWorkInformation.startWorkDay.let {
+            text = myWorkInfo.startWorkDay.let {
                 if (it < 0) { "직무 없음" }
                 else { "사회복무요원" }
             },
@@ -257,9 +256,9 @@ fun MyDetails(
         )
 
         Text(
-            text = myInformation.myRank.currentRank.let {
+            text = myRank.currentRank.let {
                 if (it < 0) { "보수 등급 없음" }
-                else { ranksList[myInformation.myRank.currentRank] }
+                else { ranksList[myRank.currentRank] }
             },
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
@@ -267,9 +266,9 @@ fun MyDetails(
         )
 
         Text(
-            text = myInformation.myWorkInformation.workPlace.let {
+            text = myWorkInfo.workPlace.let {
                 if (it.isBlank()) { "복무지 미정" }
-                else { myInformation.myWorkInformation.workPlace }
+                else { myWorkInfo.workPlace }
             },
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
@@ -280,8 +279,11 @@ fun MyDetails(
 
 @Composable
 fun DateDetails(
-    myInformation: MyInformation
+    homeViewModel: HomeViewModel
 ) {
+    val myWorkInfo = homeViewModel.myWorkInformation.collectAsState().value!!
+    val myRank = homeViewModel.myRank.collectAsState().value!!
+
     Column(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
@@ -303,9 +305,9 @@ fun DateDetails(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = myInformation.myWorkInformation.startWorkDay.let {
+                text = myWorkInfo.startWorkDay.let {
                     if (it < 0) { "해당 없음" }
-                    else { myInformation.myWorkInformation.startWorkDay.toString() }
+                    else { myWorkInfo.startWorkDay.toString() }
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
@@ -330,9 +332,9 @@ fun DateDetails(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = myInformation.myWorkInformation.startWorkDay.let {
+                text = myWorkInfo.startWorkDay.let {
                     if (it < 0) { "해당 없음" }
-                    else { myInformation.myWorkInformation.startWorkDay.toString() }
+                    else { myWorkInfo.startWorkDay.toString() }
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
@@ -357,9 +359,9 @@ fun DateDetails(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = myInformation.myWorkInformation.startWorkDay.let {
+                text = myWorkInfo.startWorkDay.let {
                     if (it < 0) { "해당 없음" }
-                    else { myInformation.myWorkInformation.startWorkDay.toString() }
+                    else { myWorkInfo.startWorkDay.toString() }
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
@@ -384,12 +386,12 @@ fun DateDetails(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = myInformation.myRank.currentRank.let {
+                text = myRank.currentRank.let {
                     var nextPromotionDay = ""
 
-                    if (it == 0) { nextPromotionDay = myInformation.myRank.firstPromotionDay.toString() }
-                    else if (it == 1) { nextPromotionDay = myInformation.myRank.secondPromotionDay.toString() }
-                    else if (it == 2) { nextPromotionDay = myInformation.myRank.thirdPromotionDay.toString() }
+                    if (it == 0) { nextPromotionDay = myRank.firstPromotionDay.toString() }
+                    else if (it == 1) { nextPromotionDay = myRank.secondPromotionDay.toString() }
+                    else if (it == 2) { nextPromotionDay = myRank.thirdPromotionDay.toString() }
 
                     if (nextPromotionDay.isBlank()) { "해당 없음" }
                     else { nextPromotionDay }
@@ -408,7 +410,7 @@ fun DateDetails(
 
 @Composable
 fun MyVacations(
-    myInformation: MyInformation
+    homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
@@ -559,7 +561,7 @@ fun MyVacations(
 
 @Composable
 fun UseVacations(
-    myInformation: MyInformation
+    homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val useVacationItemsList : List<Pair<String, Int>> = listOf(

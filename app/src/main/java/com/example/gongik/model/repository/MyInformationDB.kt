@@ -17,7 +17,8 @@ import com.example.gongik.model.data.myinformation.MyWorkInformation
         MyWelfare::class,
         MyLeave::class,
         MyUsedLeave::class ],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 abstract class MyInformationDB: RoomDatabase() {
     abstract fun myInformationDAO(): MyInformationDAO

@@ -15,19 +15,4 @@ data class MyInformation (
     @ColumnInfo(name = "nickname") val nickname: String,
     // 이메일
     @ColumnInfo(name = "email_address") val emailAddress: String,
-) {
-    @Ignore
-    lateinit var myWorkInformation: MyWorkInformation
-
-    @Ignore
-    lateinit var myRank: MyRank
-
-    @Ignore
-    lateinit var myWelfare: MyWelfare
-
-    @Ignore
-    lateinit var myLeave: MyLeave
-
-    @Ignore
-    lateinit var myUsedLeaveList: List<MyUsedLeave>
-}
+)

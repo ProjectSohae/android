@@ -20,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,30 +36,19 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
-import com.example.gongik.controller.MyInformationController
-import com.example.gongik.model.data.myinformation.MyInformation
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.TypingTextDialog
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileView(
     profileViewModel: ProfileViewModel = viewModel()
 ) {
-    var finishLoadDB by remember {
-        mutableStateOf(false)
-    }
-    var myInformation by remember {
-        mutableStateOf<MyInformation?>(null)
-    }
-
-    LaunchedEffect(Unit) {
-
-        MyInformationController.initMyInformation { getMyInformation ->
-            myInformation = getMyInformation
-            finishLoadDB = true
-        }
-    }
+    val finishLoadDB = profileViewModel.finishLoadDB.collectAsState().value
+    val isReadyInfo = profileViewModel.isReadyInfo.collectAsState().value
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -76,7 +66,7 @@ fun ProfileView(
                 .padding(innerPadding)
         ) {
 
-            if (myInformation == null) {
+            if (!isReadyInfo) {
                 Text(text = "test")
 
                 if (finishLoadDB) {
@@ -91,32 +81,32 @@ fun ProfileView(
                 ) {
                     // 프로필
                     item {
-                        PreviewProfileDetails(myInformation!!)
+                        PreviewProfileDetails(profileViewModel)
                     }
 
                     // 나의 활동
                     item {
-                        MyActivities(myInformation!!)
+                        MyActivities(profileViewModel)
                     }
 
                     // 복무일
                     item {
-                        MilitaryServiceDate(myInformation!!)
+                        MilitaryServiceDate(profileViewModel)
                     }
 
                     // 진급일
                     item {
-                        PromotionDate(myInformation!!)
+                        PromotionDate(profileViewModel)
                     }
 
                     // 복지
                     item {
-                        SalaryDetails(myInformation!!)
+                        SalaryDetails(profileViewModel)
                     }
 
                     // 휴가 일수
                     item {
-                        RestTimeDetails(myInformation!!)
+                        RestTimeDetails(profileViewModel)
                     }
                 }
             }
@@ -161,8 +151,9 @@ fun ProfileViewHeader(
 // 프로필
 @Composable
 fun PreviewProfileDetails(
-    myInformation: MyInformation
+    profileViewModel: ProfileViewModel
 ) {
+    val myInfo = profileViewModel.myInformation.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
 
     Row(
@@ -201,17 +192,17 @@ fun PreviewProfileDetails(
 
             Column {
                 Text(
-                    text = myInformation.nickname.let {
+                    text = myInfo.nickname.let {
                         if (it.isBlank()) { "로그인이 필요합니다." }
-                        else { myInformation.nickname }
+                        else { myInfo.nickname }
                     },
                     fontSize = dpToSp(dp = 16.dp),
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = myInformation.emailAddress.let {
+                    text = myInfo.emailAddress.let {
                         if (it.isBlank()) { "이메일 없음" }
-                        else { myInformation.nickname }
+                        else { myInfo.nickname }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -229,7 +220,7 @@ fun PreviewProfileDetails(
 // 내가 작성한 글, 댓글
 @Composable
 fun MyActivities(
-    myInformation: MyInformation
+    profileViewModel: ProfileViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
 
@@ -300,8 +291,10 @@ fun MyActivities(
 // 복무일
 @Composable
 fun MilitaryServiceDate(
-    myInformation: MyInformation
+    profileViewModel: ProfileViewModel
 ) {
+    val myWorkInfo = profileViewModel.myWorkInformation.collectAsState().value!!
+    val myRank = profileViewModel.myRank.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
 
     Column(
@@ -340,9 +333,9 @@ fun MilitaryServiceDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myInformation.myWorkInformation.startWorkDay.let {
+                    text = myWorkInfo.startWorkDay.let {
                         if (it < 0) { "해당 없음" }
-                        else { myInformation.myWorkInformation.startWorkDay.toString() }
+                        else { myWorkInfo.startWorkDay.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -374,9 +367,9 @@ fun MilitaryServiceDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myInformation.myRank.firstPromotionDay.let {
+                    text = myRank.firstPromotionDay.let {
                         if (it < 0) { "해당 없음" }
-                        else { myInformation.myWorkInformation.finishWorkDay.toString() }
+                        else { myWorkInfo.finishWorkDay.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -395,8 +388,9 @@ fun MilitaryServiceDate(
 // 진급일
 @Composable
 fun PromotionDate(
-    myInformation: MyInformation
+    profileViewModel: ProfileViewModel
 ) {
+    val myRank = profileViewModel.myRank.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
 
     Column(
@@ -435,9 +429,9 @@ fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myInformation.myRank.firstPromotionDay.let {
+                    text = myRank.firstPromotionDay.let {
                         if (it < 0) { "해당 없음" }
-                        else { myInformation.myRank.firstPromotionDay.toString() }
+                        else { myRank.firstPromotionDay.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -469,9 +463,9 @@ fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myInformation.myRank.secondPromotionDay.let {
+                    text = myRank.secondPromotionDay.let {
                         if (it < 0) { "해당 없음" }
-                        else { myInformation.myRank.secondPromotionDay.toString() }
+                        else { myRank.secondPromotionDay.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -503,9 +497,9 @@ fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myInformation.myRank.thirdPromotionDay.let {
+                    text = myRank.thirdPromotionDay.let {
                         if (it < 0) { "해당 없음" }
-                        else { myInformation.myRank.thirdPromotionDay.toString() }
+                        else { myRank.thirdPromotionDay.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -524,8 +518,9 @@ fun PromotionDate(
 // 복지
 @Composable
 fun SalaryDetails(
-    myInformation: MyInformation
+    profileViewModel: ProfileViewModel
 ) {
+    val myWelfare = profileViewModel.myWelfare.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
     val title = listOf(
         "식비",
@@ -552,6 +547,9 @@ fun SalaryDetails(
         )
     )
     var openDialog by remember { mutableIntStateOf(-1) }
+    var test by remember {
+        mutableStateOf(-1)
+    }
 
     if (openDialog >= 0) {
 
@@ -569,19 +567,11 @@ fun SalaryDetails(
             WheelPickerDialog(
                 intensity = 0.95f,
                 onDismissRequest = { openDialog = -1 },
-                onConfirmation = {},
-                optionsList = listOf(
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5",
-                    "6",
-                    "7",
-                    "8",
-                    "9",
-                    "10"
-                )
+                onConfirmation = { getStartPayDay ->
+                    test = getStartPayDay.toString().toInt()
+                    openDialog = - 1
+                },
+                optionsList = profileViewModel.startPayDayList
             )
         }
     }
@@ -620,9 +610,9 @@ fun SalaryDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myInformation.myWelfare.foodCosts.let {
+                    text = myWelfare.foodCosts.let {
                         if (it < 0) { "해당 없음" }
-                        else { myInformation.myWelfare.foodCosts.toString() }
+                        else { myWelfare.foodCosts.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -652,9 +642,9 @@ fun SalaryDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myInformation.myWelfare.transportationCosts.let {
+                    text = myWelfare.transportationCosts.let {
                         if (it < 0) { "해당 없음" }
-                        else { myInformation.myWelfare.transportationCosts.toString() }
+                        else { myWelfare.transportationCosts.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -684,9 +674,9 @@ fun SalaryDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myInformation.myWorkInformation.startWorkDay.let {
+                    text = test.let {
                         if (it < 0) { "해당 없음" }
-                        else { myInformation.myWorkInformation.startWorkDay.toString() }
+                        else { "${test}일" }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -705,9 +695,26 @@ fun SalaryDetails(
 // 휴가 일수
 @Composable
 fun RestTimeDetails(
-    myInformation: MyInformation
+    profileViewModel: ProfileViewModel
 ) {
+    val myLeave = profileViewModel.myLeave.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
+    var openDialog by remember { mutableIntStateOf(-1) }
+
+    if (openDialog >= 0) {
+        WheelPickerDialog(
+            intensity = 0.95f,
+            onDismissRequest = { openDialog = -1 },
+            onConfirmation = { getDays ->
+                profileViewModel.updateMyLeave(
+                    openDialog,
+                    getDays.toString().toInt()
+                )
+                openDialog = -1
+            },
+            optionsList = profileViewModel.leaveDayList
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -731,9 +738,7 @@ fun RestTimeDetails(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 0 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -745,7 +750,10 @@ fun RestTimeDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "15일",
+                    text = myLeave.firstAnnualLeave.let {
+                        if (it < 0) { "해당 없음" }
+                        else { "${it}일" }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -762,9 +770,7 @@ fun RestTimeDetails(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 1 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -776,7 +782,10 @@ fun RestTimeDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "15일",
+                    text = myLeave.secondAnnualLeave.let {
+                        if (it < 0) { "해당 없음" }
+                        else { "${it}일" }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
@@ -793,9 +802,7 @@ fun RestTimeDetails(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 2 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -807,7 +814,10 @@ fun RestTimeDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "30일",
+                    text = myLeave.sickLeave.let {
+                        if (it < 0) { "해당 없음" }
+                        else { "${it}일" }
+                    },
                     fontSize = dpToSp(dp = 16.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))

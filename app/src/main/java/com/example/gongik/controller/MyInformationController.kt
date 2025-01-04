@@ -27,19 +27,33 @@ object MyInformationController {
     private val myLeaveDAO: MyLeaveDAO = MyInformationRepository.database.myLeaveDAO()
     private val myUsedLeaveDAO: MyUsedLeaveDAO = MyInformationRepository.database.myUsedLeaveDAO()
 
-    fun initMyInformation(
-        callback: (MyInformation?) -> Unit
-    ) {
-        var myInfo: MyInformation?
+    suspend fun  initMyInformation(): MyInformation? {
+        var myInfo: MyInformation? = null
+
+        runBlocking {
+            CoroutineScope(Dispatchers.IO).launch {
+                myInfo = myInfoDAO.selectAll()
+
+                if (myInfo == null) {
+                    myInfo = MyInformation(
+                        realName = "",
+                        nickname = "",
+                        emailAddress = ""
+                    )
+
+                    myInfoDAO.insert(myInfo!!)
+                }
+            }.join()
+        }
+
+        return myInfo
+    }
+
+    suspend fun  initMyWorkInformation(): MyWorkInformation? {
         var myWorkInfo: MyWorkInformation? = null
-        var myRank: MyRank? = null
-        var myWelfare: MyWelfare? = null
-        var myLeave: MyLeave? = null
-        var myUsedLeaveList: List<MyUsedLeave>? = null
 
-        CoroutineScope(Dispatchers.IO).launch {
-
-            val myWorkInfoJob = CoroutineScope(Dispatchers.IO).launch {
+        runBlocking {
+            CoroutineScope(Dispatchers.IO).launch {
                 myWorkInfo = myWorkInfoDAO.selectAll()
 
                 if (myWorkInfo == null) {
@@ -51,9 +65,17 @@ object MyInformationController {
 
                     myWorkInfoDAO.insert(myWorkInfo!!)
                 }
-            }
+            }.join()
+        }
 
-            val myRankJob = CoroutineScope(Dispatchers.IO).launch {
+        return myWorkInfo
+    }
+
+    suspend fun  initMyRank(): MyRank? {
+        var myRank: MyRank? = null
+
+        runBlocking {
+            CoroutineScope(Dispatchers.IO).launch {
                 myRank = myRankDAO.selectAll()
 
                 if (myRank == null) {
@@ -66,9 +88,17 @@ object MyInformationController {
 
                     myRankDAO.insert(myRank!!)
                 }
-            }
+            }.join()
+        }
 
-            val myWelfareJob = CoroutineScope(Dispatchers.IO).launch {
+        return myRank
+    }
+
+    suspend fun  initMyWelfare(): MyWelfare? {
+        var myWelfare: MyWelfare? = null
+
+        runBlocking {
+            CoroutineScope(Dispatchers.IO).launch {
                 myWelfare = myWelfareDAO.selectAll()
 
                 if (myWelfareDAO.selectAll() == null) {
@@ -80,9 +110,17 @@ object MyInformationController {
 
                     myWelfareDAO.insert(myWelfare!!)
                 }
-            }
+            }.join()
+        }
 
-            val myLeaveJob = CoroutineScope(Dispatchers.IO).launch {
+        return myWelfare
+    }
+
+    suspend fun initMyLeave(): MyLeave? {
+        var myLeave: MyLeave? = null
+
+        runBlocking {
+            CoroutineScope(Dispatchers.IO).launch {
                 myLeave = myLeaveDAO.selectAll()
 
                 if (myLeave == null) {
@@ -94,57 +132,33 @@ object MyInformationController {
 
                     myLeaveDAO.insert(myLeave!!)
                 }
-            }
+            }.join()
+        }
 
-            val myUsedLeaveListJob = CoroutineScope(Dispatchers.IO).launch {
+        return myLeave
+    }
+
+    suspend fun insertMyLeave(inputMyLeave: MyLeave) {
+        runBlocking {
+            CoroutineScope(Dispatchers.IO).launch {
+                myLeaveDAO.insert(inputMyLeave)
+            }.join()
+        }
+    }
+
+    suspend fun initMyUsedLeaveList(): List<MyUsedLeave> {
+        var myUsedLeaveList: List<MyUsedLeave>? = null
+
+        runBlocking {
+            CoroutineScope(Dispatchers.IO).launch {
                 myUsedLeaveList = myUsedLeaveDAO.selectAll()
 
                 if (myUsedLeaveList == null) {
                     myUsedLeaveList = emptyList()
                 }
-            }
-
-            // 모든 db 작업이 끝날 때까지 대기
-            runBlocking {
-                myWorkInfoJob.join()
-                myRankJob.join()
-                myWelfareJob.join()
-                myLeaveJob.join()
-                myUsedLeaveListJob.join()
-            }
-
-            // 내 정보 불러오기 실패
-            if (
-                myWorkInfo == null
-                || myRank == null
-                || myWelfare == null
-                || myLeave == null
-                || myUsedLeaveList == null )
-            {
-                callback(null)
-            }
-            // 내 정보 불러오기 성공
-            else {
-                myInfo = myInfoDAO.selectAll()
-
-                if (myInfo == null) {
-                    myInfo = MyInformation(
-                        realName = "",
-                        nickname = "",
-                        emailAddress = ""
-                    )
-                }
-
-                myInfo!!.myWorkInformation = myWorkInfo!!
-                myInfo!!.myRank = myRank!!
-                myInfo!!.myWelfare = myWelfare!!
-                myInfo!!.myLeave = myLeave!!
-                myInfo!!.myUsedLeaveList = myUsedLeaveList!!
-
-                myInfoDAO.insert(myInfo!!)
-
-                callback(myInfo!!)
-            }
+            }.join()
         }
+
+        return myUsedLeaveList!!
     }
 }
