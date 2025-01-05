@@ -2,6 +2,8 @@ package com.example.gongik.model.repository
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.example.gongik.model.converter.DateConverter
 import com.example.gongik.model.data.myinformation.MyInformation
 import com.example.gongik.model.data.myinformation.MyLeave
 import com.example.gongik.model.data.myinformation.MyRank
@@ -20,6 +22,7 @@ import com.example.gongik.model.data.myinformation.MyWorkInformation
     version = 1,
     exportSchema = false
 )
+@TypeConverters(DateConverter::class)
 abstract class MyInformationDB: RoomDatabase() {
     abstract fun myInformationDAO(): MyInformationDAO
 

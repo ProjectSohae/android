@@ -25,7 +25,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,8 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
-import com.example.gongik.controller.MyInformationController
-import com.example.gongik.model.data.myinformation.MyInformation
+import com.example.gongik.controller.displayAsAmount
 import com.example.gongik.model.data.myinformation.ranksList
 import com.example.gongik.util.font.dpToSp
 
@@ -414,6 +412,7 @@ fun MyVacations(
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
+    val salary = 200000
 
     Column(
         modifier = Modifier
@@ -462,7 +461,7 @@ fun MyVacations(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "200,000",
+                        text = salary.displayAsAmount(),
                         fontSize = dpToSp(dp = 32.dp),
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onPrimary

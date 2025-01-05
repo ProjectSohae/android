@@ -18,26 +18,13 @@ import kotlinx.coroutines.runBlocking
 
 class ProfileViewModel: ViewModel() {
 
-    private var _myInformation = MutableStateFlow<MyInformation?>(null)
-    val myInformation = _myInformation.asStateFlow()
-
-    private var _myWorkInformation = MutableStateFlow<MyWorkInformation?>(null)
-    val myWorkInformation = _myWorkInformation.asStateFlow()
-
-    private var _myRank = MutableStateFlow<MyRank?>(null)
-    val myRank = _myRank.asStateFlow()
-
-    private var _myWelfare = MutableStateFlow<MyWelfare?>(null)
-    val myWelfare = _myWelfare.asStateFlow()
-
-    private var _myLeave = MutableStateFlow<MyLeave?>(null)
-    val myLeave = _myLeave.asStateFlow()
-
-    private var _finishLoadDB = MutableStateFlow(false)
-    val finishLoadDB = _finishLoadDB.asStateFlow()
-
-    private var _isReadyInfo = MutableStateFlow(false)
-    val isReadyInfo = _isReadyInfo.asStateFlow()
+    val myInformation = MyInformationController.myInformation
+    val myWorkInformation = MyInformationController.myWorkInformation
+    val myRank = MyInformationController.myRank
+    val myWelfare = MyInformationController.myWelfare
+    val myLeave = MyInformationController.myLeave
+    val finishLoadDB = MyInformationController.finishLoadDB
+    val isReadyInfo = MyInformationController.isReadyInfo
 
     val startPayDayList = mutableListOf<String>()
     val leaveDayList = mutableListOf<String>()
@@ -50,24 +37,6 @@ class ProfileViewModel: ViewModel() {
         for (idx in 1..60){
             leaveDayList.add(idx.toString())
         }
-
-        viewModelScope.launch {
-            _myInformation.value = MyInformationController.initMyInformation()
-            _myWorkInformation.value = MyInformationController.initMyWorkInformation()
-            _myRank.value = MyInformationController.initMyRank()
-            _myWelfare.value = MyInformationController.initMyWelfare()
-            _myLeave.value = MyInformationController.initMyLeave()
-            _finishLoadDB.value = true
-
-            if (_myInformation.value != null
-                && _myWorkInformation.value != null
-                && _myRank.value != null
-                && _myWelfare.value != null
-                && _myLeave.value != null
-                ) {
-                _isReadyInfo.value = true
-            }
-        }
     }
 
     fun updateMyWorkInfo() {
@@ -78,8 +47,24 @@ class ProfileViewModel: ViewModel() {
 
     }
 
-    fun updateMyWelfare() {
+    fun updateMyWelfare(idx: Int, value: Int) {
+        val tmpMyWelfare = mutableListOf(
+            myWelfare.value!!.foodCosts,
+            myWelfare.value!!.transportationCosts,
+            myWelfare.value!!.payday
+        )
 
+        tmpMyWelfare[idx] = value
+
+        viewModelScope.launch {
+            MyInformationController.updateMyWelfare(
+                MyWelfare(
+                    foodCosts = tmpMyWelfare[0],
+                    transportationCosts = tmpMyWelfare[1],
+                    payday = tmpMyWelfare[2]
+                )
+            )
+        }
     }
 
     fun updateMyLeave(idx: Int, days: Int) {
@@ -92,15 +77,13 @@ class ProfileViewModel: ViewModel() {
         tmpMyLeave[idx] = days
 
         viewModelScope.launch {
-            MyInformationController.insertMyLeave(
+            MyInformationController.updateMyLeave(
                 MyLeave(
                     firstAnnualLeave = tmpMyLeave[0],
                     secondAnnualLeave = tmpMyLeave[1],
                     sickLeave = tmpMyLeave[2]
                 )
             )
-
-            _myLeave.value = MyInformationController.initMyLeave()
         }
     }
 }

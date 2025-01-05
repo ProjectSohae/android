@@ -470,19 +470,8 @@ fun JobCompetitionItemsList() {
     var roundNumber by rememberSaveable { mutableIntStateOf(-1) }
     var intendance by rememberSaveable { mutableStateOf("") }
     var location by rememberSaveable { mutableStateOf("") }
-    val yearList = listOf(
-        "2021",
-        "2022",
-        "2023",
-    )
-    val roundList = listOf(
-        "재학생입영원",
-        "본인 선택"
-    )
-    val filterList = listOf(
-        yearList,
-        roundList
-    )
+    val yearList = listOf("2021", "2022", "2023",)
+    val roundList = listOf("재학생입영원", "본인 선택")
     val posts = listOf(
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
     )
@@ -491,6 +480,7 @@ fun JobCompetitionItemsList() {
 
         if (filterNum < 2) {
             WheelPickerDialog(
+                suffix = filterNum.let { if (it == 0) { "년" } else { "" } },
                 intensity = 0.6f,
                 onDismissRequest = { openDialog = false },
                 onConfirmation = { getSelectedValue ->
@@ -509,7 +499,7 @@ fun JobCompetitionItemsList() {
 
                     openDialog = false
                 },
-                optionsList = filterList[filterNum]
+                optionsList = filterNum.let { if (it == 0) { yearList } else { roundList } }
             )
         }
         else {

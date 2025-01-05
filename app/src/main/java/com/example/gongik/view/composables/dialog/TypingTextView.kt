@@ -220,7 +220,7 @@ fun TypingTextDialog(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onConfirmation("") }
+                        .clickable { onConfirmation(inputText) }
                 )
             }
         }

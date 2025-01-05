@@ -11,11 +11,11 @@ import com.example.gongik.model.data.myinformation.MyRank
 interface MyRankDAO {
 
     @Query("select * from my_rank where uid = 0")
-    fun selectAll(): MyRank?
+    suspend fun selectAll(): MyRank?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(inputMyRank: MyRank)
+    suspend fun insert(inputMyRank: MyRank)
 
     @Query("delete from my_rank")
-    fun deleteAll()
+    suspend fun deleteAll()
 }

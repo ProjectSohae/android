@@ -19,11 +19,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,12 +34,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
+import com.example.gongik.controller.displayAsAmount
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.TypingTextDialog
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileView(
@@ -367,8 +363,8 @@ fun MilitaryServiceDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myRank.firstPromotionDay.let {
-                        if (it < 0) { "해당 없음" }
+                    text = myRank.firstPromotionDay.time.let {
+                        if (it < 1) { "해당 없음" }
                         else { myWorkInfo.finishWorkDay.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
@@ -429,8 +425,8 @@ fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myRank.firstPromotionDay.let {
-                        if (it < 0) { "해당 없음" }
+                    text = myRank.firstPromotionDay.time.let {
+                        if (it < 1) { "해당 없음" }
                         else { myRank.firstPromotionDay.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
@@ -463,8 +459,8 @@ fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myRank.secondPromotionDay.let {
-                        if (it < 0) { "해당 없음" }
+                    text = myRank.secondPromotionDay.time.let {
+                        if (it < 1) { "해당 없음" }
                         else { myRank.secondPromotionDay.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
@@ -497,8 +493,8 @@ fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myRank.thirdPromotionDay.let {
-                        if (it < 0) { "해당 없음" }
+                    text = myRank.thirdPromotionDay.time.let {
+                        if (it < 1) { "해당 없음" }
                         else { myRank.thirdPromotionDay.toString() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
@@ -522,34 +518,16 @@ fun SalaryDetails(
 ) {
     val myWelfare = profileViewModel.myWelfare.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
-    val title = listOf(
-        "식비",
-        "교통비",
-    )
+    val title = listOf("식비", "교통비",)
     val content = listOf(
         "지원 받는 식비 액수를 입력 하세요.",
         "지원 받는 교통비 액수를 입력 하세요."
     )
     val inputForm = listOf(
-        listOf(
-            Pair("금액 입력", "원")
-        ),
-        listOf(
-            Pair("금액 입력", "원")
-        )
-    )
-    val initialValuesList = listOf(
-        listOf(
-            "99,999"
-        ),
-        listOf(
-            "99,999"
-        )
+        listOf(Pair("금액 입력", "원")),
+        listOf(Pair("금액 입력", "원"))
     )
     var openDialog by remember { mutableIntStateOf(-1) }
-    var test by remember {
-        mutableStateOf(-1)
-    }
 
     if (openDialog >= 0) {
 
@@ -558,17 +536,33 @@ fun SalaryDetails(
                 title = title[openDialog],
                 content = content[openDialog],
                 inputsList = inputForm[openDialog],
-                initialValuesList = initialValuesList[openDialog],
+                initialValuesList = openDialog.let {
+                    when (it) {
+                        0 -> { listOf( myWelfare.foodCosts.toString() ) }
+                        1 -> { listOf( myWelfare.transportationCosts.toString() ) }
+                        else -> { listOf( "" ) }
+                    }
+                },
                 onDismissRequest = { openDialog = -1 },
-                onConfirmation = { openDialog = -1 }
+                onConfirmation = { getValue ->
+                    profileViewModel.updateMyWelfare(
+                        openDialog,
+                        getValue.toInt()
+                    )
+                    openDialog = -1
+                }
             )
         }
         else {
             WheelPickerDialog(
+                suffix = "일",
                 intensity = 0.95f,
                 onDismissRequest = { openDialog = -1 },
-                onConfirmation = { getStartPayDay ->
-                    test = getStartPayDay.toString().toInt()
+                onConfirmation = { getValue ->
+                    profileViewModel.updateMyWelfare(
+                        openDialog,
+                        getValue.toString().toInt()
+                    )
                     openDialog = - 1
                 },
                 optionsList = profileViewModel.startPayDayList
@@ -612,7 +606,7 @@ fun SalaryDetails(
                 Text(
                     text = myWelfare.foodCosts.let {
                         if (it < 0) { "해당 없음" }
-                        else { myWelfare.foodCosts.toString() }
+                        else { myWelfare.foodCosts.displayAsAmount() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -644,7 +638,7 @@ fun SalaryDetails(
                 Text(
                     text = myWelfare.transportationCosts.let {
                         if (it < 0) { "해당 없음" }
-                        else { myWelfare.transportationCosts.toString() }
+                        else { myWelfare.transportationCosts.displayAsAmount() }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -674,9 +668,9 @@ fun SalaryDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = test.let {
+                    text = myWelfare.payday.let {
                         if (it < 0) { "해당 없음" }
-                        else { "${test}일" }
+                        else { "${it}일" }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -703,6 +697,7 @@ fun RestTimeDetails(
 
     if (openDialog >= 0) {
         WheelPickerDialog(
+            suffix = "일",
             intensity = 0.95f,
             onDismissRequest = { openDialog = -1 },
             onConfirmation = { getDays ->

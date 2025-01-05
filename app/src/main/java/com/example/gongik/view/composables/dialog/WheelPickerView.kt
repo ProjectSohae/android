@@ -49,6 +49,7 @@ import kotlin.math.abs
 
 @Composable
 fun WheelPickerDialog(
+    suffix: String = "",
     intensity: Float,
     onDismissRequest: () -> Unit,
     onConfirmation: (Any) -> Unit,
@@ -118,8 +119,7 @@ fun WheelPickerDialog(
                             }
 
                             scrollDir = 1
-                        }
-                        else {
+                        } else {
                             isUndo = false
                         }
 
@@ -196,6 +196,7 @@ fun WheelPickerDialog(
                 }
 
                 WheelPickerItem(
+                    suffix = suffix,
                     intensity = intensity,
                     currentZIndex = currentZIndex[idx],
                     currentScaleXY = currentScaleXY[idx],
@@ -218,6 +219,7 @@ fun WheelPickerDialog(
 
 @Composable
 private fun WheelPickerItem(
+    suffix: String,
     intensity: Float,
     currentZIndex: Int,
     currentScaleXY: Float,
@@ -313,7 +315,7 @@ private fun WheelPickerItem(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = optionValue,
+            text = optionValue + suffix,
             fontSize = dpToSp(dp = 20.dp),
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,

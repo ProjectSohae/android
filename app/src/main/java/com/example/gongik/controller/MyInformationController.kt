@@ -15,8 +15,11 @@ import com.example.gongik.model.repository.MyWelfareDAO
 import com.example.gongik.model.repository.MyWorkInformationDAO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.sql.Timestamp
 
 object MyInformationController {
 
@@ -27,7 +30,52 @@ object MyInformationController {
     private val myLeaveDAO: MyLeaveDAO = MyInformationRepository.database.myLeaveDAO()
     private val myUsedLeaveDAO: MyUsedLeaveDAO = MyInformationRepository.database.myUsedLeaveDAO()
 
-    suspend fun  initMyInformation(): MyInformation? {
+    private var _myInformation = MutableStateFlow<MyInformation?>(null)
+    val myInformation = _myInformation.asStateFlow()
+
+    private var _myWorkInformation = MutableStateFlow<MyWorkInformation?>(null)
+    val myWorkInformation = _myWorkInformation.asStateFlow()
+
+    private var _myRank = MutableStateFlow<MyRank?>(null)
+    val myRank = _myRank.asStateFlow()
+
+    private var _myWelfare = MutableStateFlow<MyWelfare?>(null)
+    val myWelfare = _myWelfare.asStateFlow()
+
+    private var _myLeave = MutableStateFlow<MyLeave?>(null)
+    val myLeave = _myLeave.asStateFlow()
+
+    private var _myUsedLeaveList = MutableStateFlow<List<MyUsedLeave>>(emptyList())
+    val myUsedLeave = _myUsedLeaveList.asStateFlow()
+
+    private var _finishLoadDB = MutableStateFlow(false)
+    val finishLoadDB = _finishLoadDB.asStateFlow()
+
+    private var _isReadyInfo = MutableStateFlow(false)
+    val isReadyInfo = _isReadyInfo.asStateFlow()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            _myInformation.value = initMyInformation()
+            _myWorkInformation.value = initMyWorkInformation()
+            _myRank.value = initMyRank()
+            _myWelfare.value = initMyWelfare()
+            _myLeave.value = initMyLeave()
+            _myUsedLeaveList.value = initMyUsedLeaveList()
+            _finishLoadDB.value = true
+
+            if (_myInformation.value != null
+                && _myWorkInformation.value != null
+                && _myRank.value != null
+                && _myWelfare.value != null
+                && _myLeave.value != null
+            ) {
+                _isReadyInfo.value = true
+            }
+        }
+    }
+
+    private suspend fun initMyInformation(): MyInformation? {
         var myInfo: MyInformation? = null
 
         runBlocking {
@@ -49,7 +97,12 @@ object MyInformationController {
         return myInfo
     }
 
-    suspend fun  initMyWorkInformation(): MyWorkInformation? {
+    suspend fun updateMyInformation(inputMyInformation: MyInformation) {
+        myInfoDAO.insert(inputMyInformation)
+        _myInformation.value = initMyInformation()
+    }
+
+    private suspend fun initMyWorkInformation(): MyWorkInformation? {
         var myWorkInfo: MyWorkInformation? = null
 
         runBlocking {
@@ -71,7 +124,12 @@ object MyInformationController {
         return myWorkInfo
     }
 
-    suspend fun  initMyRank(): MyRank? {
+    suspend fun updateMyWorkInformation(inputMyWorkInformation: MyWorkInformation) {
+        myWorkInfoDAO.insert(inputMyWorkInformation)
+        _myWorkInformation.value = initMyWorkInformation()
+    }
+
+    private suspend fun initMyRank(): MyRank? {
         var myRank: MyRank? = null
 
         runBlocking {
@@ -81,9 +139,9 @@ object MyInformationController {
                 if (myRank == null) {
                     myRank = MyRank(
                         currentRank = -1,
-                        firstPromotionDay = -1,
-                        secondPromotionDay = -1,
-                        thirdPromotionDay = -1
+                        firstPromotionDay = Timestamp(0),
+                        secondPromotionDay = Timestamp(0),
+                        thirdPromotionDay = Timestamp(0)
                     )
 
                     myRankDAO.insert(myRank!!)
@@ -94,7 +152,12 @@ object MyInformationController {
         return myRank
     }
 
-    suspend fun  initMyWelfare(): MyWelfare? {
+    suspend fun updateMyRank(inputMyRank: MyRank) {
+        myRankDAO.insert(inputMyRank)
+        _myRank.value = initMyRank()
+    }
+
+    private suspend fun initMyWelfare(): MyWelfare? {
         var myWelfare: MyWelfare? = null
 
         runBlocking {
@@ -116,7 +179,12 @@ object MyInformationController {
         return myWelfare
     }
 
-    suspend fun initMyLeave(): MyLeave? {
+    suspend fun updateMyWelfare(inputMyWelfare: MyWelfare) {
+        myWelfareDAO.insert(inputMyWelfare)
+        _myWelfare.value = initMyWelfare()
+    }
+
+    private suspend fun initMyLeave(): MyLeave? {
         var myLeave: MyLeave? = null
 
         runBlocking {
@@ -138,15 +206,12 @@ object MyInformationController {
         return myLeave
     }
 
-    suspend fun insertMyLeave(inputMyLeave: MyLeave) {
-        runBlocking {
-            CoroutineScope(Dispatchers.IO).launch {
-                myLeaveDAO.insert(inputMyLeave)
-            }.join()
-        }
+    suspend fun updateMyLeave(inputMyLeave: MyLeave) {
+        myLeaveDAO.insert(inputMyLeave)
+        _myLeave.value = initMyLeave()
     }
 
-    suspend fun initMyUsedLeaveList(): List<MyUsedLeave> {
+    private suspend fun initMyUsedLeaveList(): List<MyUsedLeave> {
         var myUsedLeaveList: List<MyUsedLeave>? = null
 
         runBlocking {
