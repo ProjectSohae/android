@@ -461,7 +461,7 @@ fun MyVacations(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = salary.displayAsAmount(),
+                        text = displayAsAmount(salary.toString()),
                         fontSize = dpToSp(dp = 32.dp),
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onPrimary

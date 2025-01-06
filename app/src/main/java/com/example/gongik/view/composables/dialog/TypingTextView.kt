@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.insert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -20,10 +24,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults.Container
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,10 +58,11 @@ fun TypingTextDialog(
     // placeholder, suffix
     inputsList: List<Pair<String, String>>,
     initialValuesList: List<String>,
+    isIntegerList: List<Boolean>,
+    keyboardOptionsList: List<KeyboardOptions>,
     onDismissRequest: () -> Unit,
     onConfirmation: (String) -> Unit
 ) {
-    val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
     val textFieldColors = TextFieldDefaults.colors(
         focusedIndicatorColor = MaterialTheme.colorScheme.primary,
@@ -69,159 +74,191 @@ fun TypingTextDialog(
         disabledContainerColor = Color.Transparent
     )
     val inputsListSize = inputsList.size
-    var inputText by rememberSaveable { mutableStateOf("") }
+    var inputTextsList by remember { mutableStateOf<List<TextFieldState>>(emptyList()) }
 
-    Dialog(
-        onDismissRequest = { onDismissRequest() }
-    ) {
-        Column(
-            modifier = Modifier
-                .shadow(
-                    elevation = 12.dp,
-                    shape = RoundedCornerShape(10)
-                )
-                .clip(RoundedCornerShape(10))
-                .hazeChild(
-                    state = MainNavController.hazeState,
-                    style = HazeStyle(
-                        backgroundColor = MaterialTheme.colorScheme.onPrimary,
-                        tint = HazeTint(
-                            color = MaterialTheme.colorScheme.onPrimary
-                        ),
-                        blurRadius = 25.dp
-                    )
-                ) {
-                    progressive = HazeProgressive.LinearGradient(
-                        startIntensity = 0.9f,
-                        endIntensity = 0.9f,
-                        preferPerformance = true
-                    )
-                },
-            horizontalAlignment = Alignment.CenterHorizontally
+    LaunchedEffect(Unit) {
+        val tmpList = mutableListOf<TextFieldState>()
+
+        for (idx: Int in 0..<inputsListSize) {
+            tmpList.add(TextFieldState(initialText = initialValuesList[idx]))
+        }
+
+        inputTextsList = tmpList
+    }
+
+    if (inputTextsList.isNotEmpty()) {
+        Dialog(
+            onDismissRequest = { onDismissRequest() }
         ) {
-            // dialog title 및 content
             Column(
-                modifier = Modifier.padding(top = 24.dp),
+                modifier = Modifier
+                    .shadow(
+                        elevation = 12.dp,
+                        shape = RoundedCornerShape(10)
+                    )
+                    .clip(RoundedCornerShape(10))
+                    .hazeChild(
+                        state = MainNavController.hazeState,
+                        style = HazeStyle(
+                            backgroundColor = MaterialTheme.colorScheme.onPrimary,
+                            tint = HazeTint(
+                                color = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            blurRadius = 25.dp
+                        )
+                    ) {
+                        progressive = HazeProgressive.LinearGradient(
+                            startIntensity = 0.9f,
+                            endIntensity = 0.9f,
+                            preferPerformance = true
+                        )
+                    },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    modifier = Modifier.padding(start = 48.dp, end = 48.dp),
-                    text = title,
-                    fontSize = dpToSp(dp = 24.dp),
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    modifier = Modifier.padding(start = 36.dp, end = 36.dp),
-                    text = content,
-                    fontSize = dpToSp(dp = 16.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.size(20.dp))
-
-                // 텍스트 입력 필드들
-                for (idx in 0..<inputsListSize) {
-                    val interactionSource = remember { MutableInteractionSource() }
-
-                    BasicTextField(
-                        modifier = Modifier
-                            .fillMaxWidth(0.85f)
-                            .offset(0.dp, (-idx).dp),
-                        value = inputText,
-                        onValueChange = { inputText = it },
-                        enabled = true,
-                        textStyle = TextStyle(
-                            fontSize = dpToSp(dp = 16.dp),
-                            platformStyle = PlatformTextStyle(
-                                includeFontPadding = false
-                            )
-                        ),
-                        interactionSource = interactionSource,
-                        singleLine = true,
-                        decorationBox = { innerTextField ->
-                            OutlinedTextFieldDefaults.DecorationBox(
-                                value = inputText,
-                                visualTransformation = VisualTransformation.None,
-                                innerTextField = innerTextField,
-                                contentPadding = PaddingValues(
-                                    start = 12.dp,
-                                    end = 12.dp,
-                                    top = 6.dp,
-                                    bottom = 6.dp
-                                ),
-                                placeholder = {
-                                    Text(
-                                        text = inputsList[idx].first,
-                                        fontSize = dpToSp(dp = 16.dp),
-                                        textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.tertiary,
-                                    )
-                                },
-                                suffix = {
-                                    Text(
-                                        text = inputsList[idx].second,
-                                        fontSize = dpToSp(dp = 16.dp),
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                },
-                                container = @Composable {
-                                    Container(
-                                        enabled = true,
-                                        isError = false,
-                                        interactionSource = interactionSource,
-                                        modifier = Modifier,
-                                        colors = textFieldColors,
-                                        shape = RoundedCornerShape(
-                                            topStartPercent = if (idx == 0) { 25 } else { 0 },
-                                            topEndPercent = if (idx == 0) { 25 } else { 0 },
-                                            bottomStartPercent = if (idx == inputsListSize - 1) { 25 } else { 0 },
-                                            bottomEndPercent = if (idx == inputsListSize - 1) { 25 } else { 0 }
-                                        ),
-                                        focusedBorderThickness = 2.dp,
-                                        unfocusedBorderThickness = 1.dp,
-                                    )
-                                },
-                                singleLine = true,
-                                enabled = true,
-                                isError = false,
-                                interactionSource = interactionSource,
-                                colors = textFieldColors
-                            )
-                        }
+                // dialog title 및 content
+                Column(
+                    modifier = Modifier.padding(top = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier.padding(start = 48.dp, end = 48.dp),
+                        text = title,
+                        fontSize = dpToSp(dp = 24.dp),
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center
                     )
-                }
-            }
-            Spacer(modifier = Modifier.size(16.dp))
+                    Text(
+                        modifier = Modifier.padding(start = 36.dp, end = 36.dp),
+                        text = content,
+                        fontSize = dpToSp(dp = 16.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.size(20.dp))
 
-            // 버튼
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .drawWithContent {
-                        drawContent()
-                        drawLine(
-                            color = tertiary,
-                            strokeWidth = 1f,
-                            start = Offset.Zero,
-                            end = Offset(this.size.width, 0f)
+                    // 텍스트 입력 필드들
+                    for (idx in 0..<inputsListSize) {
+                        val interactionSource = remember { MutableInteractionSource() }
+
+                        BasicTextField(
+                            modifier = Modifier
+                                .fillMaxWidth(0.85f)
+                                .offset(0.dp, (-idx).dp),
+                            state = inputTextsList[idx],
+                            inputTransformation = {
+
+                                if (isIntegerList[idx]) {
+
+                                    if (
+                                        asCharSequence().any { !it.isDigit() }
+                                        || length > 5
+                                    ) { revertAllChanges() }
+                                }
+                            },
+                            outputTransformation = {
+                                var inputLength = length - 3
+
+                                if (isIntegerList[idx]) {
+                                    while (inputLength > 0) {
+                                        insert(inputLength, ",")
+                                        inputLength -= 3
+                                    }
+                                }
+                            },
+                            enabled = true,
+                            textStyle = TextStyle(
+                                fontSize = dpToSp(dp = 16.dp),
+                                platformStyle = PlatformTextStyle(
+                                    includeFontPadding = false
+                                )
+                            ),
+                            keyboardOptions = keyboardOptionsList[idx],
+                            interactionSource = interactionSource,
+                            lineLimits = TextFieldLineLimits.SingleLine,
+                            decorator = { innerTextField ->
+                                OutlinedTextFieldDefaults.DecorationBox(
+                                    value = inputTextsList[idx].text.toString(),
+                                    visualTransformation = VisualTransformation.None,
+                                    innerTextField = innerTextField,
+                                    contentPadding = PaddingValues(
+                                        start = 12.dp,
+                                        end = 12.dp,
+                                        top = 6.dp,
+                                        bottom = 6.dp
+                                    ),
+                                    placeholder = {
+                                        Text(
+                                            text = inputsList[idx].first,
+                                            fontSize = dpToSp(dp = 16.dp),
+                                            textAlign = TextAlign.Center,
+                                            color = MaterialTheme.colorScheme.tertiary,
+                                        )
+                                    },
+                                    suffix = {
+                                        Text(
+                                            text = inputsList[idx].second,
+                                            fontSize = dpToSp(dp = 16.dp),
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    },
+                                    container = @Composable {
+                                        Container(
+                                            enabled = true,
+                                            isError = false,
+                                            interactionSource = interactionSource,
+                                            modifier = Modifier,
+                                            colors = textFieldColors,
+                                            shape = RoundedCornerShape(
+                                                topStartPercent = if (idx == 0) { 25 } else { 0 },
+                                                topEndPercent = if (idx == 0) { 25 } else { 0 },
+                                                bottomStartPercent = if (idx == inputsListSize - 1) { 25 } else { 0 },
+                                                bottomEndPercent = if (idx == inputsListSize - 1) { 25 } else { 0 }
+                                            ),
+                                            focusedBorderThickness = 2.dp,
+                                            unfocusedBorderThickness = 1.dp,
+                                        )
+                                    },
+                                    singleLine = true,
+                                    enabled = true,
+                                    isError = false,
+                                    interactionSource = interactionSource,
+                                    colors = textFieldColors
+                                )
+                            }
                         )
                     }
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "확인",
-                    fontSize = dpToSp(dp = 16.dp),
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary,
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+
+                // 버튼
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onConfirmation(inputText) }
-                )
+                        .drawWithContent {
+                            drawContent()
+                            drawLine(
+                                color = tertiary,
+                                strokeWidth = 1f,
+                                start = Offset.Zero,
+                                end = Offset(this.size.width, 0f)
+                            )
+                        }
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "확인",
+                        fontSize = dpToSp(dp = 16.dp),
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onConfirmation(inputTextsList[0].text.toString()) }
+                    )
+                }
             }
         }
     }

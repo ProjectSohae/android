@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -30,6 +31,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -527,6 +529,22 @@ fun SalaryDetails(
         listOf(Pair("금액 입력", "원")),
         listOf(Pair("금액 입력", "원"))
     )
+    val isIntegerList = listOf(
+        listOf(true),
+        listOf(true)
+    )
+    val keyboardOptionsList = listOf(
+        listOf(
+            KeyboardOptions(
+                keyboardType = KeyboardType.Decimal
+            )
+        ),
+        listOf(
+            KeyboardOptions(
+                keyboardType = KeyboardType.Decimal
+            )
+        )
+    )
     var openDialog by remember { mutableIntStateOf(-1) }
 
     if (openDialog >= 0) {
@@ -543,6 +561,8 @@ fun SalaryDetails(
                         else -> { listOf( "" ) }
                     }
                 },
+                isIntegerList = isIntegerList[openDialog],
+                keyboardOptionsList = keyboardOptionsList[openDialog],
                 onDismissRequest = { openDialog = -1 },
                 onConfirmation = { getValue ->
                     profileViewModel.updateMyWelfare(
@@ -605,8 +625,7 @@ fun SalaryDetails(
             ) {
                 Text(
                     text = myWelfare.foodCosts.let {
-                        if (it < 0) { "해당 없음" }
-                        else { myWelfare.foodCosts.displayAsAmount() }
+                        if (it < 0) { "해당 없음" } else { displayAsAmount(it.toString()) }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -637,8 +656,7 @@ fun SalaryDetails(
             ) {
                 Text(
                     text = myWelfare.transportationCosts.let {
-                        if (it < 0) { "해당 없음" }
-                        else { myWelfare.transportationCosts.displayAsAmount() }
+                        if (it < 0) { "해당 없음" } else { displayAsAmount(it.toString()) }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -746,8 +764,7 @@ fun RestTimeDetails(
             ) {
                 Text(
                     text = myLeave.firstAnnualLeave.let {
-                        if (it < 0) { "해당 없음" }
-                        else { "${it}일" }
+                        if (it < 0) { "해당 없음" } else { "${it}일" }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
@@ -778,8 +795,7 @@ fun RestTimeDetails(
             ) {
                 Text(
                     text = myLeave.secondAnnualLeave.let {
-                        if (it < 0) { "해당 없음" }
-                        else { "${it}일" }
+                        if (it < 0) { "해당 없음" } else { "${it}일" }
                     },
                     fontSize = dpToSp(dp = 16.dp)
                 )
