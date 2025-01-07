@@ -535,14 +535,10 @@ fun SalaryDetails(
     )
     val keyboardOptionsList = listOf(
         listOf(
-            KeyboardOptions(
-                keyboardType = KeyboardType.Decimal
-            )
+            KeyboardOptions(keyboardType = KeyboardType.Decimal)
         ),
         listOf(
-            KeyboardOptions(
-                keyboardType = KeyboardType.Decimal
-            )
+            KeyboardOptions(keyboardType = KeyboardType.Decimal)
         )
     )
     var openDialog by remember { mutableIntStateOf(-1) }

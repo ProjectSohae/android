@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,8 +58,9 @@ fun WheelPickerDialog(
     optionsList: List<String>
 ) {
     val inputListSize = optionsList.size
+    val scrollInteraction = remember { MutableInteractionSource() }
     var scrollTotalDelta by remember { mutableIntStateOf(0) }
-    var scrollDelta = 0
+    var scrollDelta by remember { mutableIntStateOf(0) }
     var scrollDir = 0
     var isUndo = false
     val initialZIndex = listOf( 0, 100, 200, 300, 200, 100, 0 )
@@ -124,15 +127,32 @@ fun WheelPickerDialog(
                         }
 
                         scrollTotalDelta += abs(scrollDelta)
+
                         delta
                     },
+                    interactionSource = scrollInteraction
                 ),
             contentAlignment = Alignment.TopCenter
         ) {
+            val isDragged = scrollInteraction.collectIsDraggedAsState().value
+
             // ui 위치상 가장 위
             startOptionValueIdx = reverseCurrentIdx[0]
             // ui 위치상 가장 아래
             lastOptionValueIdx = reverseCurrentIdx[6]
+
+            if (!isDragged) {
+                if (scrollDelta == 0) {
+                    if (scrollTotalDelta <= 50) { scrollTotalDelta /= 2 }
+                    else if (scrollTotalDelta < 100) {
+                        scrollDelta = ((100 - scrollTotalDelta) / 2) * (scrollDir)
+
+                        if (scrollTotalDelta % 2 == 1) { scrollDelta += scrollDir }
+
+                        scrollTotalDelta += abs(scrollDelta)
+                    }
+                }
+            }
 
             for (idx: Int in 0..6) {
 
@@ -169,31 +189,31 @@ fun WheelPickerDialog(
                     }
 
                     reverseCurrentIdx[currentIdx[idx]] = idx
-
-                    currentZIndex[idx] = calcCurrentIntValue(
-                        initialZIndex[currentIdx[idx]],
-                        initialZIndex[targetIdx[idx]],
-                        scrollTotalDelta
-                    )
-
-                    currentAlpha[idx] = calcCurrentFloatValue(
-                        initialAlpha[currentIdx[idx]],
-                        initialAlpha[targetIdx[idx]],
-                        scrollTotalDelta
-                    )
-
-                    currentScaleXY[idx] = calcCurrentFloatValue(
-                        initialScaleXY[currentIdx[idx]],
-                        initialScaleXY[targetIdx[idx]],
-                        scrollTotalDelta
-                    )
-
-                    currentOffsetY[idx] = calcCurrentIntValue(
-                        initialOffsetY[currentIdx[idx]],
-                        initialOffsetY[targetIdx[idx]],
-                        scrollTotalDelta
-                    )
                 }
+
+                currentZIndex[idx] = calcCurrentIntValue(
+                    initialZIndex[currentIdx[idx]],
+                    initialZIndex[targetIdx[idx]],
+                    scrollTotalDelta
+                )
+
+                currentAlpha[idx] = calcCurrentFloatValue(
+                    initialAlpha[currentIdx[idx]],
+                    initialAlpha[targetIdx[idx]],
+                    scrollTotalDelta
+                )
+
+                currentScaleXY[idx] = calcCurrentFloatValue(
+                    initialScaleXY[currentIdx[idx]],
+                    initialScaleXY[targetIdx[idx]],
+                    scrollTotalDelta
+                )
+
+                currentOffsetY[idx] = calcCurrentIntValue(
+                    initialOffsetY[currentIdx[idx]],
+                    initialOffsetY[targetIdx[idx]],
+                    scrollTotalDelta
+                )
 
                 WheelPickerItem(
                     suffix = suffix,
@@ -212,6 +232,7 @@ fun WheelPickerDialog(
             }
 
             isUndo = false
+            scrollDelta = 0
             scrollTotalDelta %= 100
         }
     }
@@ -270,14 +291,29 @@ private fun WheelPickerItem(
                             || targetIdx == 3
                         ) {
                             RoundRect(
-                                roundRectPointPos(this.size.width * 0.25f, this.size.width * 0.3f, true),
-                                roundRectPointPos(this.size.height * 0.5f, this.size.height * 0.6f, true),
-                                roundRectPointPos(this.size.width * 0.75f, this.size.width * 0.3f, false),
-                                roundRectPointPos(this.size.height * 0.5f, this.size.height * 0.6f, false),
+                                roundRectPointPos(
+                                    this.size.width * 0.25f,
+                                    this.size.width * 0.3f,
+                                    true
+                                ),
+                                roundRectPointPos(
+                                    this.size.height * 0.5f,
+                                    this.size.height * 0.6f,
+                                    true
+                                ),
+                                roundRectPointPos(
+                                    this.size.width * 0.75f,
+                                    this.size.width * 0.3f,
+                                    false
+                                ),
+                                roundRectPointPos(
+                                    this.size.height * 0.5f,
+                                    this.size.height * 0.6f,
+                                    false
+                                ),
                                 CornerRadius(65f, 65f)
                             )
-                        }
-                        else {
+                        } else {
                             RoundRect(
                                 0f, 0f, 0f, 0f,
                                 CornerRadius(75f, 75f)

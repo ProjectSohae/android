@@ -80,7 +80,18 @@ fun TypingTextDialog(
         val tmpList = mutableListOf<TextFieldState>()
 
         for (idx: Int in 0..<inputsListSize) {
-            tmpList.add(TextFieldState(initialText = initialValuesList[idx]))
+            tmpList.add(
+                TextFieldState(
+                    initialText = isIntegerList[idx].let { isInt ->
+                        if (isInt) {
+                            initialValuesList[idx].toInt().let { isNegative ->
+                                if (isNegative < 0){ "" } else { initialValuesList[idx] }
+                            }
+                        }
+                        else { initialValuesList[idx] }
+                    }
+                )
+            )
         }
 
         inputTextsList = tmpList
@@ -151,6 +162,8 @@ fun TypingTextDialog(
                                 if (isIntegerList[idx]) {
 
                                     if (
+                                        // 현재 입력 버퍼를 CharSequence로 반환받는다.
+                                        // 반환 받은 버퍼에서 숫자 아닌 값이 존재하는지 확인한다.
                                         asCharSequence().any { !it.isDigit() }
                                         || length > 5
                                     ) { revertAllChanges() }
