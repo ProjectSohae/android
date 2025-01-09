@@ -28,6 +28,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +51,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
@@ -56,7 +60,7 @@ import com.example.gongik.view.composables.main.MainViewModel
 
 @Composable
 fun WritePostView(
-
+    writePostViewModel: WritePostViewModel = viewModel()
 ){
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -73,13 +77,13 @@ fun WritePostView(
         ) {
             WritePostViewHeader()
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().weight(1f)
-            ) {
-                item { WritePostViewBody() }
+            LazyColumn(modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)) {
+                item { WritePostViewBody(writePostViewModel) }
             }
 
-            WritePostViewFooter()
+            WritePostViewFooter(writePostViewModel)
         }
     }
 }
@@ -117,25 +121,34 @@ private fun WritePostViewHeader(
 
 @Composable
 private fun WritePostViewBody(
-
+    writePostViewModel: WritePostViewModel
 ) {
     Column {
-        SelectCategory()
+        SelectCategory(writePostViewModel)
 
-        WritePostTitle()
+        WritePostTitle(writePostViewModel)
 
         UploadPostImage()
 
-        WritePostContent()
+        WritePostContent(writePostViewModel)
     }
 }
 
 @Composable
 private fun SelectCategory(
-
+    writePostViewModel: WritePostViewModel
 ) {
     var isPressed by remember { mutableStateOf(false) }
     var selectedCategory by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(selectedCategory) {
+
+        if (selectedCategory.isBlank()) {
+            writePostViewModel.setIsCategorySelected(false)
+        } else {
+            writePostViewModel.setIsCategorySelected(true)
+        }
+    }
 
     if (isPressed) {
         WheelPickerDialog(
@@ -220,10 +233,17 @@ private fun SelectCategory(
 
 @Composable
 private fun WritePostTitle(
-
+    writePostViewModel: WritePostViewModel
 ) {
-    var title by rememberSaveable {
-        mutableStateOf("")
+    var title by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(title) {
+
+        if (title.isBlank()) {
+            writePostViewModel.setIsTitleBlank(true)
+        } else {
+            writePostViewModel.setIsTitleBlank(false)
+        }
     }
 
     Column(
@@ -257,7 +277,9 @@ private fun WritePostTitle(
                 disabledContainerColor = Color.Transparent,
                 errorContainerColor = Color.Transparent
             ),
-            modifier = Modifier.fillMaxWidth().wrapContentHeight()
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
         )
     }
 }
@@ -375,10 +397,17 @@ private fun UploadPostImage(
 
 @Composable
 private fun WritePostContent(
-
+    writePostViewModel: WritePostViewModel
 ) {
-    var content by remember {
-        mutableStateOf("")
+    var content by remember { mutableStateOf("") }
+
+    LaunchedEffect(content) {
+
+        if (content.isBlank()) {
+            writePostViewModel.setIsContentBlank(true)
+        } else {
+            writePostViewModel.setIsContentBlank(false)
+        }
     }
 
     Column(
@@ -414,15 +443,35 @@ private fun WritePostContent(
                 errorContainerColor = Color.Transparent
             ),
             shape = RoundedCornerShape(5),
-            modifier = Modifier.fillMaxWidth().wrapContentHeight()
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
         )
     }
 }
 
 @Composable
 private fun WritePostViewFooter(
-
+    writePostViewModel: WritePostViewModel
 ) {
+    val isCategorySelected = writePostViewModel.isCategorySelected.collectAsState().value
+    val isTitleBlank = writePostViewModel.isTitleBlank.collectAsState().value
+    val isContentBlank = writePostViewModel.isContentBlank.collectAsState().value
+    var enablePressButton by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(isCategorySelected, isTitleBlank, isContentBlank) {
+
+        if (
+            isCategorySelected
+            && !isTitleBlank
+            && !isContentBlank
+        ) {
+            enablePressButton = true
+        } else {
+            enablePressButton = false
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -433,7 +482,7 @@ private fun WritePostViewFooter(
             onClick = {
 
             },
-            enabled = false,
+            enabled = enablePressButton,
             shape = RoundedCornerShape(15),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
