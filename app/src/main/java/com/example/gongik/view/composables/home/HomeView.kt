@@ -83,7 +83,7 @@ fun HomeView(
 }
 
 @Composable
-fun HomeViewHeader(
+private fun HomeViewHeader(
     leftPadding : Dp,
     rightPadding : Dp
 ) {
@@ -185,7 +185,7 @@ fun HomeViewHeader(
 }
 
 @Composable
-fun HomeViewBody(
+private fun HomeViewBody(
     leftPadding : Dp,
     rightPadding : Dp,
     homeViewModel: HomeViewModel
@@ -222,7 +222,7 @@ fun HomeViewBody(
 }
 
 @Composable
-fun MyDetails(
+private fun MyDetails(
     homeViewModel: HomeViewModel
 ) {
     val myInfo = homeViewModel.myInformation.collectAsState().value!!
@@ -276,7 +276,7 @@ fun MyDetails(
 }
 
 @Composable
-fun DateDetails(
+private fun DateDetails(
     homeViewModel: HomeViewModel
 ) {
     val myWorkInfo = homeViewModel.myWorkInformation.collectAsState().value!!
@@ -407,7 +407,7 @@ fun DateDetails(
 }
 
 @Composable
-fun MyVacations(
+private fun MyVacations(
     homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -559,7 +559,7 @@ fun MyVacations(
 }
 
 @Composable
-fun UseVacations(
+private fun UseVacations(
     homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -601,7 +601,7 @@ fun UseVacations(
 }
 
 @Composable
-fun UseVacationsItem(
+private fun UseVacationsItem(
     itemName : String,
     iconId : Int,
     count : Int

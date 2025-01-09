@@ -113,7 +113,7 @@ fun ProfileView(
 }
 
 @Composable
-fun ProfileViewHeader(
+private fun ProfileViewHeader(
 
 ) {
     Row(
@@ -148,7 +148,7 @@ fun ProfileViewHeader(
 
 // 프로필
 @Composable
-fun PreviewProfileDetails(
+private fun PreviewProfileDetails(
     profileViewModel: ProfileViewModel
 ) {
     val myInfo = profileViewModel.myInformation.collectAsState().value!!
@@ -217,7 +217,7 @@ fun PreviewProfileDetails(
 
 // 내가 작성한 글, 댓글
 @Composable
-fun MyActivities(
+private fun MyActivities(
     profileViewModel: ProfileViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -288,7 +288,7 @@ fun MyActivities(
 
 // 복무일
 @Composable
-fun MilitaryServiceDate(
+private fun MilitaryServiceDate(
     profileViewModel: ProfileViewModel
 ) {
     val myWorkInfo = profileViewModel.myWorkInformation.collectAsState().value!!
@@ -385,7 +385,7 @@ fun MilitaryServiceDate(
 
 // 진급일
 @Composable
-fun PromotionDate(
+private fun PromotionDate(
     profileViewModel: ProfileViewModel
 ) {
     val myRank = profileViewModel.myRank.collectAsState().value!!
@@ -515,7 +515,7 @@ fun PromotionDate(
 
 // 복지
 @Composable
-fun SalaryDetails(
+private fun SalaryDetails(
     profileViewModel: ProfileViewModel
 ) {
     val myWelfare = profileViewModel.myWelfare.collectAsState().value!!
@@ -572,7 +572,7 @@ fun SalaryDetails(
         else {
             WheelPickerDialog(
                 suffix = "일",
-                intensity = 0.95f,
+                intensity = 1f,
                 onDismissRequest = { openDialog = -1 },
                 onConfirmation = { getValue ->
                     profileViewModel.updateMyWelfare(
@@ -702,7 +702,7 @@ fun SalaryDetails(
 
 // 휴가 일수
 @Composable
-fun RestTimeDetails(
+private fun RestTimeDetails(
     profileViewModel: ProfileViewModel
 ) {
     val myLeave = profileViewModel.myLeave.collectAsState().value!!

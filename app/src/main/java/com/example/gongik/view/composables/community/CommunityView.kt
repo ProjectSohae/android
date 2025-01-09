@@ -65,7 +65,7 @@ import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
 import com.example.gongik.view.composables.main.MainNavGraphBarItems
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.main.MainNavController
+import com.example.gongik.view.composables.main.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -107,7 +107,7 @@ fun CommunityView(
 }
 
 @Composable
-fun CommunityViewHeader() {
+private fun CommunityViewHeader() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -153,7 +153,7 @@ fun CommunityViewHeader() {
 }
 
 @Composable
-fun CommunityViewBody(
+private fun CommunityViewBody(
     savedStartDestination : CommunityCategories,
     communityNavController : NavHostController = rememberNavController()
 ) {
@@ -240,7 +240,7 @@ fun CommunityViewBody(
                     .size(48.dp)
                     .offset(x = (-12).dp, y = (-12).dp)
                     .clickable {
-                        MainNavController.navigate(MainNavGraphBarItems.WRITEPOST.name)
+                        MainViewModel.navigate(MainNavGraphBarItems.WRITEPOST.name)
                     },
                 shape = RoundedCornerShape(100)
             ) {
@@ -257,7 +257,7 @@ fun CommunityViewBody(
 
 // 전체, 인기, 공지
 @Composable
-fun CommunityUpperCategory(
+private fun CommunityUpperCategory(
     currentSelectedCategory : CommunityCategories
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -328,7 +328,7 @@ fun CommunityUpperCategory(
     }
 }
 
-fun generateTest(count : Int) : List<Pair<String, String>> {
+private fun generateTest(count : Int) : List<Pair<String, String>> {
     val test = mutableListOf<Pair<String, String>>()
 
     for (idx : Int in 1..count) {
@@ -341,7 +341,7 @@ fun generateTest(count : Int) : List<Pair<String, String>> {
 }
 
 @Composable
-fun CommunityPostsListBody(
+private fun CommunityPostsListBody(
     savedSelectedSubCategory: Int,
     currentSelectedCategory: CommunityCategories
 ) {
@@ -368,7 +368,7 @@ fun CommunityPostsListBody(
 }
 
 @Composable
-fun CommunityLowerCategory(
+private fun CommunityLowerCategory(
     currentSelectedCategory: CommunityCategories,
     savedSelectedSubCategory: Int,
     callback : (Int) -> Unit
@@ -515,7 +515,7 @@ fun CommunityLowerCategory(
 }
 
 @Composable
-fun CommunityPostsList(
+private fun CommunityPostsList(
     currentSelectedCategory: CommunityCategories,
     currentSelectedSubCategory: Int
 ) {

@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.main.MainNavController
+import com.example.gongik.view.composables.main.MainViewModel
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
@@ -109,7 +109,7 @@ fun TypingTextDialog(
                     )
                     .clip(RoundedCornerShape(10))
                     .hazeChild(
-                        state = MainNavController.hazeState,
+                        state = MainViewModel.hazeState,
                         style = HazeStyle(
                             backgroundColor = MaterialTheme.colorScheme.onPrimary,
                             tint = HazeTint(

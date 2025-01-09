@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -92,7 +94,7 @@ fun JobReviewView() {
 }
 
 @Composable
-fun JobReviewViewHeader() {
+private fun JobReviewViewHeader() {
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     Row(
@@ -120,7 +122,7 @@ fun JobReviewViewHeader() {
 }
 
 @Composable
-fun JobReviewBody(
+private fun JobReviewBody(
     jobReviewNavController : NavHostController = rememberNavController()
 ) {
     val currentSelectedCategory = jobReviewNavController
@@ -180,7 +182,7 @@ fun JobReviewBody(
 }
 
 @Composable
-fun JobReviewSimpleInformation() {
+private fun JobReviewSimpleInformation() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -255,7 +257,7 @@ fun JobReviewSimpleInformation() {
 
 // 복무지 소개, 리뷰
 @Composable
-fun JobReviewCategory(
+private fun JobReviewCategory(
     currentSelectedCategory: JobReviewCategory
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -321,7 +323,7 @@ fun JobReviewCategory(
 }
 
 @Composable
-fun JobInformation(
+private fun JobInformation(
     jobInformationViewModel: JobInformationViewModel = viewModel()
 ) {
     val jobInformationDetailsCount = jobInfotmationDetails.size
@@ -512,7 +514,7 @@ fun JobInformation(
 }
 
 @Composable
-fun JobReviewItemsList() {
+private fun JobReviewItemsList() {
     val posts = listOf(
         1,1,1,1,1,1,1,
     )
@@ -520,7 +522,15 @@ fun JobReviewItemsList() {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary),
+            .background(
+                color = Color(
+                    ColorUtils.blendARGB(
+                        MaterialTheme.colorScheme.tertiary.toArgb(),
+                        MaterialTheme.colorScheme.onPrimary.toArgb(),
+                        0.85f
+                    )
+                )
+            ),
     ) {
         itemsIndexed(
             items = posts,
@@ -535,7 +545,7 @@ fun JobReviewItemsList() {
 }
 
 @Composable
-fun JobReviewItem() {
+private fun JobReviewItem() {
     var isFolded by rememberSaveable { mutableStateOf(true) }
 
     Column(

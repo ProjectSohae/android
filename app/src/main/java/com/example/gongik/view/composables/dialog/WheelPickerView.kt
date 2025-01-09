@@ -6,9 +6,7 @@ import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -42,7 +40,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.core.graphics.ColorUtils
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.main.MainNavController
+import com.example.gongik.view.composables.main.MainViewModel
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
@@ -64,13 +62,13 @@ fun WheelPickerDialog(
     var scrollDir = 0
     var isUndo = false
     val initialZIndex = listOf( 0, 100, 200, 300, 200, 100, 0 )
-    val initialAlpha = listOf( 0.55f, 0.65f, 0.8f, 1f, 0.8f, 0.65f, 0.55f)
+    val initialAlpha = listOf( 0.4f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.4f)
     val initialScaleXY = listOf( 0.5f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.5f )
     val initialOffsetY = listOf( 8, -24, 20, 70, 156, 260, 276)
     val currentZIndex = mutableListOf( 0, 100, 200, 300, 200, 100, 0 )
     val currentScaleXY = mutableListOf( 0.5f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.5f )
     val currentOffsetY = mutableListOf( 8, -24, 20, 70, 156, 260, 276)
-    val currentAlpha = mutableListOf( 0.55f, 0.65f, 0.8f, 1f, 0.8f, 0.65f, 0.55f)
+    val currentAlpha = mutableListOf( 0.4f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.4f)
     // currentIdx(i): i번째 item이 ui 상에서 currentIdx(i)번째에 위치함.
     val currentIdx = mutableListOf( 0, 1, 2, 3, 4, 5, 6 )
     val reverseCurrentIdx = mutableListOf( 0, 1, 2, 3, 4, 5, 6 )
@@ -268,7 +266,7 @@ private fun WheelPickerItem(
     }
     val onPrimary = MaterialTheme.colorScheme.onPrimary
 
-    Column(
+    Box(
         modifier = Modifier
             .zIndex(currentZIndex.toFloat())
             .width(240.dp)
@@ -332,7 +330,7 @@ private fun WheelPickerItem(
             )
             .clip(shape = RoundedCornerShape(20))
             .hazeChild(
-                state = MainNavController.hazeState,
+                state = MainViewModel.hazeState,
                 style = HazeStyle(
                     backgroundColor = currentColor,
                     tint = HazeTint(color = onPrimary),
@@ -341,27 +339,25 @@ private fun WheelPickerItem(
             ) {
                 progressive =
                     HazeProgressive.LinearGradient(
-                        startIntensity = intensity,
-                        endIntensity = intensity,
+                        startIntensity = intensity * currentAlpha,
+                        endIntensity = intensity * currentAlpha,
                         preferPerformance = true
                     )
             }
+            .clickable {
+                if (currentIdx == 3) {
+                    onConfirmation(optionValue)
+                }
+            }
             .padding(horizontal = 24.dp, vertical = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = optionValue + suffix,
             fontSize = dpToSp(dp = 20.dp),
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .clickable {
-                    if (currentIdx == 3) {
-                        onConfirmation(optionValue)
-                    }
-                }
+            modifier = Modifier.fillMaxWidth(0.9f)
         )
     }
 }

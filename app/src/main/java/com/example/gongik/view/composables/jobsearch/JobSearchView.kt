@@ -62,7 +62,7 @@ import com.example.gongik.R
 import com.example.gongik.view.composables.main.MainNavGraphBarItems
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
-import com.example.gongik.view.composables.main.MainNavController
+import com.example.gongik.view.composables.main.MainViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking
@@ -101,7 +101,7 @@ fun JobSearchView(
 }
 
 @Composable
-fun JobSearchViewHeader() {
+private fun JobSearchViewHeader() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -129,7 +129,7 @@ fun JobSearchViewHeader() {
 }
 
 @Composable
-fun JobSearchViewBody(
+private fun JobSearchViewBody(
     jobSearchNavController : NavHostController = rememberNavController()
 ) {
     val currentSelectedCategory = jobSearchNavController
@@ -188,7 +188,7 @@ fun JobSearchViewBody(
 
 // 복무지 리뷰, 이전 경쟁률
 @Composable
-fun JobSearchUpperCategory(
+private fun JobSearchUpperCategory(
     currentSelectedCategory : JobSearchCategory
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -254,7 +254,7 @@ fun JobSearchUpperCategory(
 }
 
 @Composable
-fun PreviewJobItemsList() {
+private fun PreviewJobItemsList() {
     val tertiary = MaterialTheme.colorScheme.tertiary
     val posts = listOf(
         1,
@@ -378,7 +378,7 @@ fun PreviewJobItemsList() {
                 .size(48.dp)
                 .offset(x = (-12).dp, y = (-12).dp)
                 .clickable {
-                    MainNavController.navigate(MainNavGraphBarItems.WRITEPOST.name)
+                    MainViewModel.navigate(MainNavGraphBarItems.WRITEPOST.name)
                 },
             shape = RoundedCornerShape(100)
         ) {
@@ -393,7 +393,7 @@ fun PreviewJobItemsList() {
 }
 
 @Composable
-fun PreviewJobItem() {
+private fun PreviewJobItem() {
     val onPrimary = MaterialTheme.colorScheme.onPrimary
     val tertiary = MaterialTheme.colorScheme.tertiary
 
@@ -416,7 +416,7 @@ fun PreviewJobItem() {
                 )
             }
             .clickable {
-                MainNavController.navigate(MainNavGraphBarItems.JOBREVIEW.name)
+                MainViewModel.navigate(MainNavGraphBarItems.JOBREVIEW.name)
             }
             .padding(16.dp)
     ) {
@@ -462,7 +462,7 @@ fun PreviewJobItem() {
 
 // 이전 경쟁률
 @Composable
-fun JobCompetitionItemsList() {
+private fun JobCompetitionItemsList() {
     val tertiary = MaterialTheme.colorScheme.tertiary
     var openDialog by rememberSaveable { mutableStateOf(false) }
     var filterNum by rememberSaveable { mutableIntStateOf(0) }
@@ -481,7 +481,7 @@ fun JobCompetitionItemsList() {
         if (filterNum < 2) {
             WheelPickerDialog(
                 suffix = filterNum.let { if (it == 0) { "년" } else { "" } },
-                intensity = 0.6f,
+                intensity = 0.75f,
                 onDismissRequest = { openDialog = false },
                 onConfirmation = { getSelectedValue ->
 
@@ -749,7 +749,7 @@ fun JobCompetitionItemsList() {
 }
 
 @Composable
-fun JobDetailsCategory(
+private fun JobDetailsCategory(
 
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -779,7 +779,7 @@ fun JobDetailsCategory(
 }
 
 @Composable
-fun JobCompetitionItem(
+private fun JobCompetitionItem(
 
 ) {
     val test = listOf(
