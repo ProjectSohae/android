@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.view.composables.home.HomeNavGraphView
 import com.example.gongik.view.composables.jobreview.JobReviewView
+import com.example.gongik.view.composables.writejobreview.WriteJobReviewView
 import com.example.gongik.view.composables.writepost.WritePostView
 import dev.chrisbanes.haze.haze
 
@@ -25,17 +26,17 @@ import dev.chrisbanes.haze.haze
 fun MainNavGraphView(
     mainNavController : NavHostController = rememberNavController()
 ) {
-    val currentRoute = MainViewModel.route.collectAsState().value
-    val isBackPressed = MainViewModel.backPressed.collectAsState().value
-    val isDeactive = MainViewModel.isDeactive.collectAsState().value
+    val currentRoute = MainNavGraphViewModel.route.collectAsState().value
+    val isBackPressed = MainNavGraphViewModel.backPressed.collectAsState().value
+    val isDeactive = MainNavGraphViewModel.isDeactive.collectAsState().value
     val transitionDir = 1
-    val hazeState by remember { mutableStateOf(MainViewModel.hazeState) }
+    val hazeState by remember { mutableStateOf(MainNavGraphViewModel.hazeState) }
 
     LaunchedEffect(isBackPressed) {
 
         if (isBackPressed) {
             mainNavController.popBackStack()
-            MainViewModel.finishPopBack()
+            MainNavGraphViewModel.finishPopBack()
         }
     }
 
@@ -43,7 +44,7 @@ fun MainNavGraphView(
 
         if (currentRoute.isNotBlank()) {
             mainNavController.navigate(currentRoute)
-            MainViewModel.navigate("")
+            MainNavGraphViewModel.navigate("")
         }
     }
 
@@ -63,6 +64,9 @@ fun MainNavGraphView(
             }
             composable(MainNavGraphBarItems.JOBREVIEW.name) {
                 JobReviewView()
+            }
+            composable(MainNavGraphBarItems.WRITEJOBREVIEW.name) {
+                WriteJobReviewView()
             }
             composable(MainNavGraphBarItems.WRITEPOST.name) {
                 WritePostView()

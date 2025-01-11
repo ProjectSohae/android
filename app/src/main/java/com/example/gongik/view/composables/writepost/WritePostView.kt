@@ -49,14 +49,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
-import com.example.gongik.view.composables.main.MainViewModel
+import com.example.gongik.view.composables.main.MainNavGraphViewModel
 
 @Composable
 fun WritePostView(
@@ -104,7 +104,7 @@ private fun WritePostViewHeader(
             Icon(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_ios_new_24),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { MainViewModel.popBack() },
+                modifier = Modifier.clickable { MainNavGraphViewModel.popBack() },
                 contentDescription = null
             )
             Spacer(modifier = Modifier.size(16.dp))
@@ -256,9 +256,12 @@ private fun WritePostTitle(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
+
         OutlinedTextField(
             value = title,
-            onValueChange = { title = it },
+            onValueChange = {
+                if (it.length <= 50) { title = it }
+            },
             placeholder = {
                 Text(
                     text = "제목을 입력해주세요.",
@@ -281,6 +284,16 @@ private fun WritePostTitle(
                 .fillMaxWidth()
                 .wrapContentHeight()
         )
+
+        if (title.isNotEmpty()) {
+            Text(
+                text = "${title.length}/50",
+                fontSize = dpToSp(dp = 16.dp),
+                textAlign = TextAlign.End,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -421,9 +434,12 @@ private fun WritePostContent(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
+
         OutlinedTextField(
             value = content,
-            onValueChange = { content = it },
+            onValueChange = {
+                if (it.length <= 1000) { content = it }
+            },
             placeholder = {
                 Text(
                     text = "게시글 내용을 작성해주세요." +
@@ -447,6 +463,16 @@ private fun WritePostContent(
                 .fillMaxWidth()
                 .wrapContentHeight()
         )
+
+        if (content.isNotEmpty()) {
+            Text(
+                text = "${content.length}/1000",
+                fontSize = dpToSp(dp = 16.dp),
+                textAlign = TextAlign.End,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 

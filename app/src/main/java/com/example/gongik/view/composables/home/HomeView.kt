@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
@@ -89,12 +90,6 @@ private fun HomeViewHeader(
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
-    var test by remember {
-        mutableStateOf(false)
-    }
-
-    if (test){
-    }
 
     Box(
         modifier = Modifier
@@ -140,7 +135,6 @@ private fun HomeViewHeader(
                     indication = null,
                     interactionSource = null
                 ) {
-                    test = true
                 },
             color = onPrimary,
             shape = RoundedCornerShape(100)
@@ -165,9 +159,7 @@ private fun HomeViewHeader(
                 .align(Alignment.CenterEnd)
                 .offset((-12).dp - rightPadding, 104.dp - rightPadding / 12f)
                 .shadow(elevation = 4.dp, shape = RoundedCornerShape(100))
-                .drawBehind {
-                    drawCircle(color = onPrimary)
-                }
+                .drawBehind { drawCircle(color = onPrimary) }
                 .clickable {
 
                 },
@@ -563,15 +555,7 @@ private fun UseVacations(
     homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
-    val useVacationItemsList : List<Pair<String, Int>> = listOf(
-        Pair("1년차 연차", R.drawable.outline_annual_leave_24),
-        Pair("2년차 연차", R.drawable.outline_annual_leave_24),
-        Pair("병가", R.drawable.outline_plus_bottle_24),
-        Pair("기타 휴가", R.drawable.outline_annual_leave_24),
-        Pair("외출", R.drawable.baseline_leave_early_24),
-        Pair("조퇴", R.drawable.baseline_leave_early_24),
-        Pair("복무이탈", R.drawable.baseline_warning_amber_24)
-    )
+    val useVacationItemsList = homeViewModel.useVacationItemsList
 
     Column(
         modifier = Modifier
@@ -614,7 +598,11 @@ private fun UseVacationsItem(
             .fillMaxWidth()
             .height(60.dp)
             .padding(horizontal = 24.dp)
-            .background(color = secondary, shape = RoundedCornerShape(30)),
+            .clip(RoundedCornerShape(30))
+            .background(color = secondary)
+            .clickable {
+
+            },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -666,22 +654,18 @@ private fun UseVacationsItem(
                 }
             }
 
-            Surface(
-                modifier = Modifier.clickable(
-                    indication = null,
-                    interactionSource = null
-                ) {
+            Text(
+                text = "사용",
+                fontSize = dpToSp(dp = 16.dp),
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(25))
+                    .background(color = MaterialTheme.colorScheme.primary)
+                    .clickable {
 
-                },
-                shape = RoundedCornerShape(25)
-            ) {
-                Text(
-                    text = "사용",
-                    fontSize = dpToSp(dp = 16.dp),
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                )
-            }
+                    }
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+            )
         }
     }
 }

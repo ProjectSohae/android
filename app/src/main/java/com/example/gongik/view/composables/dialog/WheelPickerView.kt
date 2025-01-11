@@ -40,7 +40,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.core.graphics.ColorUtils
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.main.MainViewModel
+import com.example.gongik.view.composables.main.MainNavGraphViewModel
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
@@ -64,10 +64,12 @@ fun WheelPickerDialog(
     val initialZIndex = listOf( 0, 100, 200, 300, 200, 100, 0 )
     val initialAlpha = listOf( 0.4f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.4f)
     val initialScaleXY = listOf( 0.5f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.5f )
-    val initialOffsetY = listOf( 8, -24, 20, 70, 156, 260, 276)
+    val initialRotateX = listOf( 150f, 75f, 30f, 0f, -30f, -75f, -150f )
+    val initialOffsetY = listOf( -20, -72, -24, 70, 164, 212, 160)
     val currentZIndex = mutableListOf( 0, 100, 200, 300, 200, 100, 0 )
     val currentScaleXY = mutableListOf( 0.5f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.5f )
-    val currentOffsetY = mutableListOf( 8, -24, 20, 70, 156, 260, 276)
+    val currentRotateX = mutableListOf( 150f, 75f, 30f, 0f, -30f, -75f, -150f )
+    val currentOffsetY = mutableListOf( -20, -72, -24, 70, 164, 212, 160)
     val currentAlpha = mutableListOf( 0.4f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.4f)
     // currentIdx(i): i번째 item이 ui 상에서 currentIdx(i)번째에 위치함.
     val currentIdx = mutableListOf( 0, 1, 2, 3, 4, 5, 6 )
@@ -97,7 +99,7 @@ fun WheelPickerDialog(
         Box(
             modifier = Modifier
                 .width(240.dp)
-                .height(240.dp)
+                .height(280.dp)
                 .scrollable(
                     orientation = Orientation.Vertical,
                     // + <- 아래로 스크롤, - <- 위로 스크롤
@@ -207,6 +209,12 @@ fun WheelPickerDialog(
                     scrollTotalDelta
                 )
 
+                currentRotateX[idx] = calcCurrentFloatValue(
+                    initialRotateX[currentIdx[idx]],
+                    initialRotateX[targetIdx[idx]],
+                    scrollTotalDelta
+                )
+
                 currentOffsetY[idx] = calcCurrentIntValue(
                     initialOffsetY[currentIdx[idx]],
                     initialOffsetY[targetIdx[idx]],
@@ -218,6 +226,7 @@ fun WheelPickerDialog(
                     intensity = intensity,
                     currentZIndex = currentZIndex[idx],
                     currentScaleXY = currentScaleXY[idx],
+                    currentRotateX = currentRotateX[idx],
                     currentOffsetY = currentOffsetY[idx],
                     currentIdx = currentIdx[idx],
                     targetIdx = targetIdx[idx],
@@ -242,6 +251,7 @@ private fun WheelPickerItem(
     intensity: Float,
     currentZIndex: Int,
     currentScaleXY: Float,
+    currentRotateX: Float,
     currentOffsetY: Int,
     currentIdx: Int,
     targetIdx: Int,
@@ -271,15 +281,16 @@ private fun WheelPickerItem(
             .zIndex(currentZIndex.toFloat())
             .width(240.dp)
             .height(100.dp)
-            .graphicsLayer {
-                scaleX = currentScaleXY
-                scaleY = scaleX
-            }
             .offset {
                 IntOffset(
                     0.dp.roundToPx(),
                     currentOffsetY.dp.roundToPx()
                 )
+            }
+            .graphicsLayer {
+                scaleX = currentScaleXY
+                scaleY = scaleX
+                rotationX = currentRotateX
             }
             .drawBehind {
                 drawOutline(
@@ -330,7 +341,7 @@ private fun WheelPickerItem(
             )
             .clip(shape = RoundedCornerShape(20))
             .hazeChild(
-                state = MainViewModel.hazeState,
+                state = MainNavGraphViewModel.hazeState,
                 style = HazeStyle(
                     backgroundColor = currentColor,
                     tint = HazeTint(color = onPrimary),

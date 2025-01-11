@@ -100,7 +100,7 @@ fun HomeNavGraphView(
 }
 
 @Composable
-fun HomeBottomNavBar(
+private fun HomeBottomNavBar(
     homeNavController : NavHostController
 ) {
     val currentBackStackEntry = homeNavController.currentBackStackEntryAsState()

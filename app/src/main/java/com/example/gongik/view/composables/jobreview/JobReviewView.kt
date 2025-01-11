@@ -36,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -58,6 +59,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gongik.R
 import com.example.gongik.view.composables.jobsearch.JobReviewScoreNamesList
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.view.composables.main.MainNavGraphBarItems
+import com.example.gongik.view.composables.main.MainNavGraphViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking
@@ -243,13 +246,11 @@ private fun JobReviewSimpleInformation() {
             fontSize = dpToSp(dp = 12.dp),
             color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
+                .clip(RoundedCornerShape(25))
+                .background(color = MaterialTheme.colorScheme.primary)
                 .clickable {
-
+                    MainNavGraphViewModel.navigate(MainNavGraphBarItems.WRITEJOBREVIEW.name)
                 }
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(25)
-                )
                 .padding(horizontal = 24.dp, vertical = 4.dp)
         )
     }

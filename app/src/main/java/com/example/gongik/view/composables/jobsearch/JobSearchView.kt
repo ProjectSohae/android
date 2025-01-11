@@ -38,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
@@ -62,7 +63,7 @@ import com.example.gongik.R
 import com.example.gongik.view.composables.main.MainNavGraphBarItems
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
-import com.example.gongik.view.composables.main.MainViewModel
+import com.example.gongik.view.composables.main.MainNavGraphViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking
@@ -377,10 +378,10 @@ private fun PreviewJobItemsList() {
             modifier = Modifier
                 .size(48.dp)
                 .offset(x = (-12).dp, y = (-12).dp)
+                .clip(RoundedCornerShape(100))
                 .clickable {
-                    MainViewModel.navigate(MainNavGraphBarItems.WRITEPOST.name)
-                },
-            shape = RoundedCornerShape(100)
+                    MainNavGraphViewModel.navigate(MainNavGraphBarItems.WRITEJOBREVIEW.name)
+                }
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_add_24),
@@ -416,7 +417,7 @@ private fun PreviewJobItem() {
                 )
             }
             .clickable {
-                MainViewModel.navigate(MainNavGraphBarItems.JOBREVIEW.name)
+                MainNavGraphViewModel.navigate(MainNavGraphBarItems.JOBREVIEW.name)
             }
             .padding(16.dp)
     ) {

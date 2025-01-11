@@ -65,7 +65,7 @@ import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
 import com.example.gongik.view.composables.main.MainNavGraphBarItems
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.main.MainViewModel
+import com.example.gongik.view.composables.main.MainNavGraphViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -240,7 +240,7 @@ private fun CommunityViewBody(
                     .size(48.dp)
                     .offset(x = (-12).dp, y = (-12).dp)
                     .clickable {
-                        MainViewModel.navigate(MainNavGraphBarItems.WRITEPOST.name)
+                        MainNavGraphViewModel.navigate(MainNavGraphBarItems.WRITEPOST.name)
                     },
                 shape = RoundedCornerShape(100)
             ) {
