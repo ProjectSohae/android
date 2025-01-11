@@ -23,7 +23,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +40,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
-import com.example.gongik.view.composables.writepost.WritePostViewModel
 
 @Composable
 fun WriteJobReviewView(
@@ -129,6 +127,7 @@ private fun WritePostViewBody(
                 fontSize = dpToSp(dp = 16.dp),
                 color = MaterialTheme.colorScheme.primary
             )
+
             Text(
                 text = "공공기관",
                 fontSize = dpToSp(dp = 20.dp),
@@ -154,11 +153,29 @@ private fun SetScoreAboutJob(
     writeJobReviewViewModel: WriteJobReviewViewModel
 ) {
     val scoreName = writeJobReviewViewModel.scoreName
-    val scoreValue = writeJobReviewViewModel.scoreValue
+    val scoreValue = writeJobReviewViewModel.scoreValue.collectAsState().value
 
     Column(
         modifier = Modifier.padding(bottom = 24.dp)
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                text = writeJobReviewViewModel.avgScoreValue().toString(),
+                fontSize = dpToSp(dp = 16.dp),
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                text = "/5.0",
+                fontSize = dpToSp(dp = 16.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
         scoreName.forEachIndexed { idx, item ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -180,7 +197,7 @@ private fun SetScoreAboutJob(
                             modifier = Modifier
                                 .size(24.dp)
                                 .clickable {
-
+                                    writeJobReviewViewModel.updateScoreValue(idx, cnt + 1)
                                 },
                             contentDescription = null
                         )
