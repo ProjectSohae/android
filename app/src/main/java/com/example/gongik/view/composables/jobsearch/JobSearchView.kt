@@ -257,13 +257,37 @@ private fun JobSearchUpperCategory(
 @Composable
 private fun PreviewJobItemsList() {
     val tertiary = MaterialTheme.colorScheme.tertiary
-    val posts = listOf(
-        1,
-        2,
-        3,
-        4,
-        5,
+    var pressedFilter by rememberSaveable { mutableIntStateOf(-1) }
+    val sortByList = listOf(
+        "최신순",
+        "인기순"
     )
+    val sortByMap = mapOf(
+        Pair("최신순", 0),
+        Pair("인기순", 1)
+    )
+    var selectedSortBy by rememberSaveable { mutableIntStateOf(1) }
+    val posts = listOf(1, 2, 3, 4, 5,)
+
+    if (pressedFilter >= 0) {
+
+        WheelPickerDialog(
+            intensity = 0.8f,
+            onDismissRequest = { pressedFilter = -1 },
+            onConfirmation = {
+
+                when (pressedFilter) {
+                    2 -> { selectedSortBy = sortByMap[it.toString()]!! }
+                }
+
+                pressedFilter = -1
+            },
+            optionsList = when (pressedFilter) {
+                2 -> { sortByList }
+                else -> { listOf( "" ) }
+            }
+        )
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -301,9 +325,7 @@ private fun PreviewJobItemsList() {
                                     shape = RoundedCornerShape(100)
                                 )
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clickable {
-
-                                }
+                                .clickable { pressedFilter = 0 }
                         )
                         Spacer(modifier = Modifier.size(12.dp))
                     }
@@ -320,9 +342,7 @@ private fun PreviewJobItemsList() {
                                     shape = RoundedCornerShape(100)
                                 )
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clickable {
-
-                                }
+                                .clickable { pressedFilter = 1 }
                         )
                     }
                 }
@@ -330,14 +350,12 @@ private fun PreviewJobItemsList() {
                 Row(
                     modifier = Modifier
                         .padding(start = 12.dp)
-                        .clickable {
-
-                        },
+                        .clickable { pressedFilter = 2 },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // 인기순, 리뷰 많은 순 정렬
                     Text(
-                        text = "인기순",
+                        text = sortByList[selectedSortBy],
                         fontSize = dpToSp(dp = 16.dp),
                         color = MaterialTheme.colorScheme.primary
                     )

@@ -1,5 +1,8 @@
 package com.example.gongik.view.composables.writejobreview
 
+import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,9 +26,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,7 +44,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.view.composables.dialog.WheelPickerDialog
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun WriteJobReviewView(
@@ -138,13 +145,13 @@ private fun WritePostViewBody(
 
         SetScoreAboutJob(writeJobReviewViewModel)
 
-        IntroduceWork()
+        WriteWorkDetails(writeJobReviewViewModel)
 
-        IntroduceAdvantage()
+        WriteJobAdvantages(writeJobReviewViewModel)
 
-        IntroduceDisadvantage()
+        WriteJobDisadvantages(writeJobReviewViewModel)
 
-        IntroduceOthers()
+        WriteJobOthers(writeJobReviewViewModel)
     }
 }
 
@@ -154,6 +161,20 @@ private fun SetScoreAboutJob(
 ) {
     val scoreName = writeJobReviewViewModel.scoreName
     val scoreValue = writeJobReviewViewModel.scoreValue.collectAsState().value
+
+    LaunchedEffect(scoreValue) {
+        runBlocking {
+            var checkAllScored = true
+
+            scoreValue.forEach {
+                if (it < 1) {
+                    checkAllScored = false
+                }
+            }
+
+            writeJobReviewViewModel.updateIsReadyScoreAboutJob(checkAllScored)
+        }
+    }
 
     Column(
         modifier = Modifier.padding(bottom = 24.dp)
@@ -209,9 +230,22 @@ private fun SetScoreAboutJob(
 }
 
 @Composable
-private fun IntroduceWork(
-
+private fun WriteWorkDetails(
+    writeJobReviewViewModel: WriteJobReviewViewModel
 ) {
+    var workDetails by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(workDetails) {
+
+        if (workDetails.isNotBlank()
+            && workDetails.length > 9)
+        {
+            writeJobReviewViewModel.updateIsReadyWorkDetails(true)
+        } else {
+            writeJobReviewViewModel.updateIsReadyWorkDetails(false)
+        }
+    }
+
     Column(
         modifier = Modifier.padding(bottom = 24.dp)
     ) {
@@ -224,8 +258,8 @@ private fun IntroduceWork(
         )
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {  },
+            value = workDetails,
+            onValueChange = { if (it.length <= 200) { workDetails = it } },
             placeholder = {
                 Text(
                     text = "최소 10자 이상 입력해주세요.",
@@ -248,20 +282,35 @@ private fun IntroduceWork(
                 .wrapContentHeight()
         )
 
-        Text(
-            text = "0/200",
-            fontSize = dpToSp(dp = 16.dp),
-            textAlign = TextAlign.End,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (workDetails.isNotEmpty()) {
+            Text(
+                text = "${workDetails.length}/200",
+                fontSize = dpToSp(dp = 16.dp),
+                textAlign = TextAlign.End,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
 @Composable
-private fun IntroduceAdvantage(
-
+private fun WriteJobAdvantages(
+    writeJobReviewViewModel: WriteJobReviewViewModel
 ) {
+    var jobAdvantages by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(jobAdvantages) {
+
+        if (jobAdvantages.isNotBlank()
+            && jobAdvantages.length > 4)
+        {
+            writeJobReviewViewModel.updateIsReadyJobAdvantages(true)
+        } else {
+            writeJobReviewViewModel.updateIsReadyJobAdvantages(false)
+        }
+    }
+
     Column(
         modifier = Modifier.padding(bottom = 24.dp)
     ) {
@@ -274,8 +323,8 @@ private fun IntroduceAdvantage(
         )
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {  },
+            value = jobAdvantages,
+            onValueChange = { if (it.length <= 500) { jobAdvantages = it } },
             placeholder = {
                 Text(
                     text = "최소 5자 이상 입력해주세요.",
@@ -298,20 +347,35 @@ private fun IntroduceAdvantage(
                 .wrapContentHeight()
         )
 
-        Text(
-            text = "0/500",
-            fontSize = dpToSp(dp = 16.dp),
-            textAlign = TextAlign.End,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (jobAdvantages.isNotEmpty()) {
+            Text(
+                text = "${jobAdvantages.length}/500",
+                fontSize = dpToSp(dp = 16.dp),
+                textAlign = TextAlign.End,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
 @Composable
-private fun IntroduceDisadvantage(
-
+private fun WriteJobDisadvantages(
+    writeJobReviewViewModel: WriteJobReviewViewModel
 ) {
+    var jobDisadvantages by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(jobDisadvantages) {
+
+        if (jobDisadvantages.isNotBlank()
+            && jobDisadvantages.length > 4)
+        {
+            writeJobReviewViewModel.updateIsReadyJobDisadvantages(true)
+        } else {
+            writeJobReviewViewModel.updateIsReadyJobDisadvantages(false)
+        }
+    }
+
     Column(
         modifier = Modifier.padding(bottom = 24.dp)
     ) {
@@ -324,8 +388,8 @@ private fun IntroduceDisadvantage(
         )
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {  },
+            value = jobDisadvantages,
+            onValueChange = { if (it.length <= 500) { jobDisadvantages = it } },
             placeholder = {
                 Text(
                     text = "최소 5자 이상 입력해주세요.",
@@ -348,20 +412,42 @@ private fun IntroduceDisadvantage(
                 .wrapContentHeight()
         )
 
-        Text(
-            text = "0/500",
-            fontSize = dpToSp(dp = 16.dp),
-            textAlign = TextAlign.End,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (jobDisadvantages.isNotEmpty()) {
+            Text(
+                text = "${jobDisadvantages.length}/500",
+                fontSize = dpToSp(dp = 16.dp),
+                textAlign = TextAlign.End,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
 @Composable
-private fun IntroduceOthers(
-
+private fun WriteJobOthers(
+    writeJobReviewViewModel: WriteJobReviewViewModel
 ) {
+    var workTime by rememberSaveable { mutableStateOf("") }
+    var needWearWorkSuit by rememberSaveable { mutableStateOf("") }
+    var allWorkerCount by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(
+        workTime,
+        needWearWorkSuit,
+        allWorkerCount
+    ) {
+
+        if (workTime.isNotBlank()
+            && needWearWorkSuit.isNotBlank()
+            && allWorkerCount.isNotBlank())
+        {
+            writeJobReviewViewModel.updateIsReadyJobOthers(true)
+        } else {
+            writeJobReviewViewModel.updateIsReadyJobOthers(false)
+        }
+    }
+
     Column {
         Column(
             modifier = Modifier.padding(bottom = 24.dp)
@@ -374,12 +460,11 @@ private fun IntroduceOthers(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            Text(
-                text = "근무 시간",
-                fontSize = dpToSp(dp = 16.dp),
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth()
-            )
+            WriteJobOthersItem(
+                "근무 시간 선택",
+                workTime,
+                writeJobReviewViewModel.workTimeList
+            ) { workTime = it }
         }
 
         Column(
@@ -393,12 +478,11 @@ private fun IntroduceOthers(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            Text(
-                text = "근무복 착용 여부",
-                fontSize = dpToSp(dp = 16.dp),
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth()
-            )
+            WriteJobOthersItem(
+                "근무복 착용 여부 선택",
+                needWearWorkSuit,
+                writeJobReviewViewModel.needWearWorkSuitList
+            ) { needWearWorkSuit = it }
         }
 
         Column(
@@ -412,13 +496,84 @@ private fun IntroduceOthers(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            Text(
-                text = "사회복무요원 수",
-                fontSize = dpToSp(dp = 16.dp),
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth()
-            )
+            WriteJobOthersItem(
+                "사회복무요원 수 선택",
+                allWorkerCount,
+                writeJobReviewViewModel.allWorkerCountList
+            ) { allWorkerCount = it }
         }
+    }
+}
+
+@Composable
+private fun WriteJobOthersItem(
+    basicContent: String,
+    selectedItemName: String,
+    optionsList: List<String>,
+    callback: (String) -> Unit
+) {
+    var isPressed by remember { mutableStateOf(false) }
+
+    if (isPressed) {
+        WheelPickerDialog(
+            intensity = 0.8f,
+            onDismissRequest = { isPressed = false },
+            onConfirmation = { getItemName ->
+                isPressed = false
+                callback(getItemName.toString())
+            },
+            optionsList = optionsList
+        )
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                shape = RoundedCornerShape(20),
+                color = selectedItemName.let {
+                    if (it.isBlank()) {
+                        MaterialTheme.colorScheme.tertiary
+                    } else {
+                        Color.Transparent
+                    }
+                },
+            )
+            .background(
+                color = selectedItemName.let {
+                    if (it.isBlank()) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
+                },
+                shape = RoundedCornerShape(20)
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .clickable { isPressed = true },
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = selectedItemName.ifBlank { basicContent },
+            fontSize = dpToSp(dp = 16.dp),
+            color = selectedItemName.let {
+                if (it.isBlank()) {
+                    MaterialTheme.colorScheme.tertiary
+                } else { MaterialTheme.colorScheme.onPrimary }
+            }
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
+            modifier = Modifier.size(20.dp),
+            tint = selectedItemName.let {
+                if (it.isBlank()) {
+                    MaterialTheme.colorScheme.primary
+                } else { MaterialTheme.colorScheme.onPrimary }
+            },
+            contentDescription = null
+        )
     }
 }
 
@@ -426,7 +581,27 @@ private fun IntroduceOthers(
 private fun WritePostViewFooter(
     writeJobReviewViewModel: WriteJobReviewViewModel
 ) {
+    val isReadyScoreAboutJob = writeJobReviewViewModel.isReadyScoreAboutJob.collectAsState().value
+    val isReadyWorkDetails = writeJobReviewViewModel.isReadyWorkDetails.collectAsState().value
+    val isReadyJobAdvantages = writeJobReviewViewModel.isReadyJobAdvantages.collectAsState().value
+    val isReadyJobDisadvantages = writeJobReviewViewModel.isReadyJobDisadvantages.collectAsState().value
+    val isReadyJobOthers = writeJobReviewViewModel.isReadyJobOthers.collectAsState().value
     var enablePressButton by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(
+        isReadyScoreAboutJob,
+        isReadyWorkDetails,
+        isReadyJobAdvantages,
+        isReadyJobDisadvantages,
+        isReadyJobOthers
+    ) {
+        enablePressButton = if (isReadyScoreAboutJob
+            && isReadyWorkDetails
+            && isReadyJobAdvantages
+            && isReadyJobDisadvantages
+            && isReadyJobOthers
+        ) { true } else { false }
+    }
 
     Box(
         modifier = Modifier

@@ -186,18 +186,14 @@ private fun SelectCategory(
                     color = selectedCategory.let {
                         if (it.isBlank()) {
                             MaterialTheme.colorScheme.tertiary
-                        } else {
-                            Color.Transparent
-                        }
+                        } else { Color.Transparent }
                     },
                 )
                 .background(
                     color = selectedCategory.let {
                         if (it.isBlank()) {
                             MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            MaterialTheme.colorScheme.primary
-                        }
+                        } else { MaterialTheme.colorScheme.primary }
                     },
                     shape = RoundedCornerShape(20)
                 )

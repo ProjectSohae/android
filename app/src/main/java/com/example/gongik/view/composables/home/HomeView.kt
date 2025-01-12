@@ -26,10 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +41,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
@@ -456,9 +454,9 @@ private fun MyVacations(
                         text = displayAsAmount(salary.toString()),
                         fontSize = dpToSp(dp = 32.dp),
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(end = 4.dp)
                     )
-                    Spacer(modifier = Modifier.size(4.dp))
 
                     Text(
                         text = "원",
@@ -485,6 +483,7 @@ private fun MyVacations(
 
         Row(
             modifier = Modifier
+                .padding(bottom = 16.dp)
                 .fillMaxSize()
                 .weight(1f)
                 .padding(horizontal = 16.dp)
@@ -506,9 +505,9 @@ private fun MyVacations(
                 Text(
                     text = "외출 • 조퇴",
                     fontSize = dpToSp(dp = 16.dp),
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
-                Spacer(modifier = Modifier.size(4.dp))
 
                 Text(
                     text = "0회",
@@ -535,9 +534,9 @@ private fun MyVacations(
                 Text(
                     text = "휴가",
                     fontSize = dpToSp(dp = 16.dp),
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
-                Spacer(modifier = Modifier.size(4.dp))
 
                 Text(
                     text = "0회",
@@ -546,7 +545,6 @@ private fun MyVacations(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(16.dp))
     }
 }
 
@@ -555,7 +553,13 @@ private fun UseVacations(
     homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
+    val myLeave = homeViewModel.myLeave.collectAsState().value!!
     val useVacationItemsList = homeViewModel.useVacationItemsList
+    val maxLeaveDaysList = listOf(
+        myLeave.firstAnnualLeave,
+        myLeave.secondAnnualLeave,
+        myLeave.sickLeave
+    )
 
     Column(
         modifier = Modifier
@@ -569,15 +573,29 @@ private fun UseVacations(
     ) {
         Column(
             modifier = Modifier
-                .height(560.dp)
+                .height(420.dp)
                 .padding(vertical = 24.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            useVacationItemsList.forEach { item ->
+            useVacationItemsList.forEachIndexed { idx, item ->
                 UseVacationsItem(
                     itemName = item.first,
                     iconId = item.second,
-                    count = 0
+                    leaveTime = if (idx < 3) {
+                        homeViewModel.getRestLeaveTime(
+                            60 * 8 * 13 + 10,
+                            maxLeaveDaysList[idx]
+                        )
+                    } else {
+                        homeViewModel.getUsedLeaveTime(60 * 8 + 70)
+                    },
+                    suffix = if (idx < 3) {
+                        "남음"
+                    } else if (idx < 4) {
+                        "사용"
+                    } else {
+                        "누적"
+                    }
                 )
             }
         }
@@ -586,9 +604,10 @@ private fun UseVacations(
 
 @Composable
 private fun UseVacationsItem(
-    itemName : String,
-    iconId : Int,
-    count : Int
+    itemName: String,
+    iconId: Int,
+    leaveTime: String,
+    suffix: String
 ) {
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
     val secondary = MaterialTheme.colorScheme.secondary
@@ -597,7 +616,7 @@ private fun UseVacationsItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
-            .padding(horizontal = 24.dp)
+            .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(30))
             .background(color = secondary)
             .clickable {
@@ -619,15 +638,16 @@ private fun UseVacationsItem(
             ) {
                 Icon(
                     painter = painterResource(id = iconId),
-                    modifier = Modifier.drawBehind {
-                        drawCircle(
-                            color = primaryContainer,
-                            radius = this.size.width
-                        )
-                    },
+                    modifier = Modifier
+                        .padding(end = 24.dp)
+                        .drawBehind {
+                            drawCircle(
+                                color = primaryContainer,
+                                radius = this.size.width
+                            )
+                        },
                     contentDescription = null
                 )
-                Spacer(modifier = Modifier.size(24.dp))
 
                 Column{
                     Text(
@@ -641,16 +661,32 @@ private fun UseVacationsItem(
                         fontSize = dpToSp(dp = 12.dp)
                     )
 
-                    Text(
-                        text = "${count}회 사용",
-                        style = TextStyle(
-                            platformStyle = PlatformTextStyle(
-                                includeFontPadding = false
-                            )
-                        ),
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = dpToSp(dp = 16.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = leaveTime,
+                            style = TextStyle(
+                                platformStyle = PlatformTextStyle(
+                                    includeFontPadding = false
+                                )
+                            ),
+                            letterSpacing = dpToSp(dp = (0.5f).dp),
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = dpToSp(dp = 16.dp)
+                        )
+
+                        Text(
+                            text = suffix,
+                            style = TextStyle(
+                                platformStyle = PlatformTextStyle(
+                                    includeFontPadding = false
+                                )
+                            ),
+                            fontSize = dpToSp(dp = 14.dp),
+                            modifier = Modifier.padding(horizontal = 2.dp)
+                        )
+                    }
                 }
             }
 
@@ -659,7 +695,7 @@ private fun UseVacationsItem(
                 fontSize = dpToSp(dp = 16.dp),
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(25))
+                    .clip(RoundedCornerShape(30))
                     .background(color = MaterialTheme.colorScheme.primary)
                     .clickable {
 
