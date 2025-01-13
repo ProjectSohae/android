@@ -139,9 +139,9 @@ object MyInformationController {
                 if (myRank == null) {
                     myRank = MyRank(
                         currentRank = -1,
-                        firstPromotionDay = Timestamp(0),
-                        secondPromotionDay = Timestamp(0),
-                        thirdPromotionDay = Timestamp(0)
+                        firstPromotionDay = -1,
+                        secondPromotionDay = -1,
+                        thirdPromotionDay = -1
                     )
 
                     myRankDAO.insert(myRank!!)

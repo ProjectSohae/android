@@ -39,12 +39,45 @@ class ProfileViewModel: ViewModel() {
         }
     }
 
-    fun updateMyWorkInfo() {
+    fun updateMyWorkInfo(idx: Int, value: Any) {
+        val tmpMyWorkInfo = mutableListOf(
+            myWorkInformation.value!!.workPlace,
+            myWorkInformation.value!!.startWorkDay,
+            myWorkInformation.value!!.finishWorkDay
+        )
 
+        tmpMyWorkInfo[idx] = value.toString().toLong()
+
+        viewModelScope.launch {
+            MyInformationController.updateMyWorkInformation(
+                MyWorkInformation(
+                    workPlace = tmpMyWorkInfo[0].toString(),
+                    startWorkDay = tmpMyWorkInfo[1].toString().toLong(),
+                    finishWorkDay = tmpMyWorkInfo[2].toString().toLong()
+                )
+            )
+        }
     }
 
-    fun updateMyRank() {
+    fun updateMyRank(idx: Int, value: Long) {
+        val tmpMyRank = mutableListOf(
+            myRank.value!!.firstPromotionDay,
+            myRank.value!!.secondPromotionDay,
+            myRank.value!!.thirdPromotionDay
+        )
 
+        tmpMyRank[idx] = value
+
+        viewModelScope.launch {
+            MyInformationController.updateMyRank(
+                MyRank(
+                    currentRank = myRank.value!!.currentRank,
+                    firstPromotionDay = tmpMyRank[0],
+                    secondPromotionDay = tmpMyRank[1],
+                    thirdPromotionDay = tmpMyRank[2]
+                )
+            )
+        }
     }
 
     fun updateMyWelfare(idx: Int, value: Int) {

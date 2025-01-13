@@ -23,13 +23,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -41,8 +46,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
@@ -50,6 +53,7 @@ import com.example.gongik.controller.BarColorController
 import com.example.gongik.controller.displayAsAmount
 import com.example.gongik.model.data.myinformation.ranksList
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.view.composables.dialog.UseMyLeaveView
 
 @Composable
 fun HomeView(
@@ -205,7 +209,7 @@ private fun HomeViewBody(
             MyVacations(homeViewModel)
             Spacer(modifier = Modifier.size(12.dp))
 
-            UseVacations(homeViewModel)
+            UseLeave(homeViewModel)
             Spacer(modifier = Modifier.size(24.dp))
         }
     }
@@ -402,6 +406,7 @@ private fun MyVacations(
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
+    val onPrimary = MaterialTheme.colorScheme.onPrimary
     val salary = 200000
 
     Column(
@@ -487,13 +492,21 @@ private fun MyVacations(
                 .fillMaxSize()
                 .weight(1f)
                 .padding(horizontal = 16.dp)
-                .background(color = secondary, shape = RoundedCornerShape(30)),
-            horizontalArrangement = Arrangement.SpaceAround,
+                .background(color = secondary, shape = RoundedCornerShape(30))
+                .drawWithContent {
+                    drawContent()
+                    drawLine(
+                        color = onPrimary,
+                        strokeWidth = (1.25f).dp.toPx(),
+                        start = Offset(this.size.width / 2f, 12.dp.toPx()),
+                        end = Offset(this.size.width / 2f, this.size.height - 12.dp.toPx())
+                    )
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 modifier = Modifier
-                    .padding(start = 12.dp)
+                    .weight(1f)
                     .clickable(
                         indication = null,
                         interactionSource = null
@@ -516,14 +529,9 @@ private fun MyVacations(
                 )
             }
 
-            VerticalDivider(
-                modifier = Modifier.padding(vertical = 12.dp),
-                thickness = 1.dp
-            )
-
             Column(
                 modifier = Modifier
-                    .padding(end = 24.dp)
+                    .weight(1f)
                     .clickable(
                         indication = null,
                         interactionSource = null
@@ -549,7 +557,7 @@ private fun MyVacations(
 }
 
 @Composable
-private fun UseVacations(
+private fun UseLeave(
     homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -560,6 +568,18 @@ private fun UseVacations(
         myLeave.secondAnnualLeave,
         myLeave.sickLeave
     )
+    var showUsedMyLeaveList by remember { mutableIntStateOf(-1) }
+    var showUsingMyLeave by remember { mutableIntStateOf(-1) }
+
+    if (showUsedMyLeaveList >= 0) {
+
+    }
+
+    if (showUsingMyLeave >= 0) {
+        UseMyLeaveView(
+            onDismissRequest = { showUsingMyLeave = -1 }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -578,12 +598,12 @@ private fun UseVacations(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             useVacationItemsList.forEachIndexed { idx, item ->
-                UseVacationsItem(
+                UseLeaveItem(
                     itemName = item.first,
                     iconId = item.second,
                     leaveTime = if (idx < 3) {
                         homeViewModel.getRestLeaveTime(
-                            60 * 8 * 13 + 10,
+                            0,
                             maxLeaveDaysList[idx]
                         )
                     } else {
@@ -595,6 +615,13 @@ private fun UseVacations(
                         "사용"
                     } else {
                         "누적"
+                    },
+                    pressedButton = { getPressedButton ->
+
+                        when (getPressedButton) {
+                            0 -> { showUsedMyLeaveList = idx }
+                            1 -> { showUsingMyLeave = idx }
+                        }
                     }
                 )
             }
@@ -603,11 +630,12 @@ private fun UseVacations(
 }
 
 @Composable
-private fun UseVacationsItem(
+private fun UseLeaveItem(
     itemName: String,
     iconId: Int,
     leaveTime: String,
-    suffix: String
+    suffix: String,
+    pressedButton: (Int) -> Unit
 ) {
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
     val secondary = MaterialTheme.colorScheme.secondary
@@ -619,9 +647,7 @@ private fun UseVacationsItem(
             .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(30))
             .background(color = secondary)
-            .clickable {
-
-            },
+            .clickable { pressedButton(0) },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -697,9 +723,7 @@ private fun UseVacationsItem(
                 modifier = Modifier
                     .clip(RoundedCornerShape(30))
                     .background(color = MaterialTheme.colorScheme.primary)
-                    .clickable {
-
-                    }
+                    .clickable { pressedButton(1) }
                     .padding(horizontal = 12.dp, vertical = 4.dp)
             )
         }

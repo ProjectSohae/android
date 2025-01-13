@@ -10,7 +10,7 @@ data class MyWorkInformation (
     // 복무지
     @ColumnInfo(name = "work_place") val workPlace: String,
     // 소집일
-    @ColumnInfo(name = "start_work_day") val startWorkDay: Int,
+    @ColumnInfo(name = "start_work_day") val startWorkDay: Long,
     // 소집 해제일
-    @ColumnInfo(name = "finish_work_day") val finishWorkDay: Int,
+    @ColumnInfo(name = "finish_work_day") val finishWorkDay: Long,
 )

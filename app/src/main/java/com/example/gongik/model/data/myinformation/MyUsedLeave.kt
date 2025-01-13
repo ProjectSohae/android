@@ -38,7 +38,7 @@ data class MyUsedLeave (
     // 휴가 사유
     @ColumnInfo("reason") val reason: String,
 
-    // 휴가 소요 시간, 1시간 단위
+    // 휴가 소요 시간, 분 단위
     @ColumnInfo("used_leave_time") val usedLeaveTime: Int,
 
     // 휴가 시작 시일

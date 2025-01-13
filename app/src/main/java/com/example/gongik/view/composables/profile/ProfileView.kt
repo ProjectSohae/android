@@ -38,8 +38,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.controller.displayAsAmount
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.view.composables.dialog.DatePickerDialog
 import com.example.gongik.view.composables.dialog.TypingTextDialog
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
+import com.example.gongik.view.composables.getDate
 
 @Composable
 fun ProfileView(
@@ -286,7 +288,7 @@ private fun MyActivities(
     }
 }
 
-// 복무일
+// 복무 정보
 @Composable
 private fun MilitaryServiceDate(
     profileViewModel: ProfileViewModel
@@ -294,6 +296,34 @@ private fun MilitaryServiceDate(
     val myWorkInfo = profileViewModel.myWorkInformation.collectAsState().value!!
     val myRank = profileViewModel.myRank.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
+    var openDialog by remember { mutableIntStateOf(-1) }
+
+    if (openDialog >= 0) {
+
+        if (openDialog < 1) {
+
+        }
+        else {
+            DatePickerDialog(
+                initialSelectedDateMillis = when (openDialog) {
+                    1 -> { myWorkInfo.startWorkDay }
+                    2 -> { myWorkInfo.finishWorkDay }
+                    else -> { -1 }
+                },
+                onDateSelected = { getSelectedDate ->
+
+                    if (getSelectedDate != null) {
+                        profileViewModel.updateMyWorkInfo(openDialog, getSelectedDate)
+                    }
+
+                    openDialog = -1
+                },
+                onDismiss = {
+                    openDialog = -1
+                }
+            )
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -308,18 +338,48 @@ private fun MilitaryServiceDate(
             .padding(16.dp)
     ) {
         Text(
-            text = "복무일",
+            text = "복무 정보",
             fontWeight = FontWeight.SemiBold,
-            fontSize = dpToSp(dp = 20.dp)
+            fontSize = dpToSp(dp = 20.dp),
+            modifier = Modifier.padding(bottom = 12.dp)
         )
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
+                .padding(bottom = 12.dp)
                 .fillMaxWidth()
-                .clickable {
+                .clickable { openDialog = 0 },
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "복무지",
+                fontSize = dpToSp(dp = 16.dp)
+            )
 
-                },
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = myWorkInfo.workPlace.let {
+                        if (it.isBlank()) { "해당 없음" } else { myWorkInfo.workPlace }
+                    },
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .padding(bottom = 12.dp)
+                .fillMaxWidth()
+                .clickable { openDialog = 1 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -332,12 +392,11 @@ private fun MilitaryServiceDate(
             ) {
                 Text(
                     text = myWorkInfo.startWorkDay.let {
-                        if (it < 0) { "해당 없음" }
-                        else { myWorkInfo.startWorkDay.toString() }
+                        if (it < 0) { "해당 없음" } else { getDate(it) }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -346,14 +405,11 @@ private fun MilitaryServiceDate(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 2 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -365,13 +421,12 @@ private fun MilitaryServiceDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myRank.firstPromotionDay.time.let {
-                        if (it < 1) { "해당 없음" }
-                        else { myWorkInfo.finishWorkDay.toString() }
+                    text = myWorkInfo.finishWorkDay.let {
+                        if (it < 0) { "해당 없음" } else { getDate(it) }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -390,6 +445,29 @@ private fun PromotionDate(
 ) {
     val myRank = profileViewModel.myRank.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
+    var openDialog by remember { mutableIntStateOf(-1) }
+
+    if (openDialog >= 0) {
+        DatePickerDialog(
+            initialSelectedDateMillis = when (openDialog) {
+                0 -> { myRank.firstPromotionDay }
+                1 -> { myRank.secondPromotionDay }
+                2 -> { myRank.thirdPromotionDay }
+                else -> { -1 }
+            },
+            onDateSelected = { getSelectedDate ->
+
+                if (getSelectedDate != null) {
+                    profileViewModel.updateMyRank(openDialog, getSelectedDate)
+                }
+
+                openDialog = -1
+            },
+            onDismiss = {
+                openDialog = -1
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -406,16 +484,15 @@ private fun PromotionDate(
         Text(
             text = "진급일",
             fontWeight = FontWeight.SemiBold,
-            fontSize = dpToSp(dp = 20.dp)
+            fontSize = dpToSp(dp = 20.dp),
+            modifier = Modifier.padding(bottom = 12.dp)
         )
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
+                .padding(bottom = 12.dp)
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 0 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -427,13 +504,12 @@ private fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myRank.firstPromotionDay.time.let {
-                        if (it < 1) { "해당 없음" }
-                        else { myRank.firstPromotionDay.toString() }
+                    text = myRank.firstPromotionDay.let {
+                        if (it < 0) { "해당 없음" } else { getDate(it) }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -442,14 +518,12 @@ private fun PromotionDate(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
+                .padding(bottom = 12.dp)
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 1 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -461,13 +535,12 @@ private fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myRank.secondPromotionDay.time.let {
-                        if (it < 1) { "해당 없음" }
-                        else { myRank.secondPromotionDay.toString() }
+                    text = myRank.secondPromotionDay.let {
+                        if (it < 0) { "해당 없음" } else { getDate(it) }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -476,14 +549,11 @@ private fun PromotionDate(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-
-                },
+                .clickable { openDialog = 2 },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -495,13 +565,12 @@ private fun PromotionDate(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myRank.thirdPromotionDay.time.let {
-                        if (it < 1) { "해당 없음" }
-                        else { myRank.thirdPromotionDay.toString() }
+                    text = myRank.thirdPromotionDay.let {
+                        if (it < 0) { "해당 없음" } else { getDate(it) }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -623,9 +692,9 @@ private fun SalaryDetails(
                     text = myWelfare.foodCosts.let {
                         if (it < 0) { "해당 없음" } else { displayAsAmount(it.toString()) }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -654,9 +723,9 @@ private fun SalaryDetails(
                     text = myWelfare.transportationCosts.let {
                         if (it < 0) { "해당 없음" } else { displayAsAmount(it.toString()) }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -686,9 +755,9 @@ private fun SalaryDetails(
                         if (it < 0) { "해당 없음" }
                         else { "${it}일" }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -762,9 +831,9 @@ private fun RestTimeDetails(
                     text = myLeave.firstAnnualLeave.let {
                         if (it < 0) { "해당 없음" } else { "${it}일" }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -793,9 +862,9 @@ private fun RestTimeDetails(
                     text = myLeave.secondAnnualLeave.let {
                         if (it < 0) { "해당 없음" } else { "${it}일" }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
@@ -825,9 +894,9 @@ private fun RestTimeDetails(
                         if (it < 0) { "해당 없음" }
                         else { "${it}일" }
                     },
-                    fontSize = dpToSp(dp = 16.dp)
+                    fontSize = dpToSp(dp = 16.dp),
+                    modifier = Modifier.padding(end = 8.dp)
                 )
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
