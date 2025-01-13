@@ -292,9 +292,10 @@ private fun DateDetails(
             )
             Text(
                 text = myWorkInfo.startWorkDay.let {
-                    if (it < 0) { "해당 없음" }
-                    else {
-                        "${((myWorkInfo.finishWorkDay - myWorkInfo.startWorkDay) / (1000 * 60 * 60 * 24)) + 1}일"
+                    if (it < 0 || myWorkInfo.finishWorkDay < it) {
+                        "해당 없음"
+                    } else {
+                        "${((myWorkInfo.finishWorkDay - it) / (1000 * 60 * 60 * 24)) + 1}일"
                     }
                 },
                 fontSize = dpToSp(dp = 12.dp),
@@ -321,10 +322,12 @@ private fun DateDetails(
             )
             Text(
                 text = myWorkInfo.startWorkDay.let {
-                    if (it < 0) { "해당 없음" }
-                    else {
-                        "${((System.currentTimeMillis() - myWorkInfo.startWorkDay) / (1000 * 60 * 60 * 24)) + 1}일"
-                    }
+                    if (it < 0
+                        || System.currentTimeMillis() < it
+                        || myWorkInfo.finishWorkDay < System.currentTimeMillis())
+                    {
+                        "해당 없음"
+                    } else { "${((System.currentTimeMillis() - it) / (1000 * 60 * 60 * 24)) + 1}일" }
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
@@ -349,8 +352,8 @@ private fun DateDetails(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = myWorkInfo.startWorkDay.let {
-                    if (it < 0) { "해당 없음" }
+                text = myWorkInfo.finishWorkDay.let {
+                    if (it < System.currentTimeMillis()) { "해당 없음" }
                     else {
                         "${((myWorkInfo.finishWorkDay - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)) + 1}일"
                     }

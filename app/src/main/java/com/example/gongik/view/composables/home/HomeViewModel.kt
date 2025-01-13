@@ -30,7 +30,7 @@ class HomeViewModel: ViewModel() {
     fun getRestLeaveTime(usedMinutes: Int, maxDays: Int): String {
         val maxMinutes = maxDays * 8 * 60
         var tmp = maxMinutes - usedMinutes
-        var result: String = ""
+        var result = ""
 
         if (tmp <= 0) {
             return "0일"
@@ -71,7 +71,7 @@ class HomeViewModel: ViewModel() {
 
     fun getUsedLeaveTime(usedMinutes: Int): String {
         var tmp = usedMinutes
-        var result: String = ""
+        var result = ""
 
         if (tmp <= 0) {
             return "0일"
@@ -167,7 +167,7 @@ class HomeViewModel: ViewModel() {
             if (it < 0) {
                 "해당 없음"
             } else {
-                "${it / (1000 * 60 * 60 * 24) + 1}일 남음"
+                "${(it / (1000 * 60 * 60 * 24)) + 1}일 남음"
             }
         }
     }
