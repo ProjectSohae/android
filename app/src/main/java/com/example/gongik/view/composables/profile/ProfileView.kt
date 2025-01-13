@@ -41,7 +41,7 @@ import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.DatePickerDialog
 import com.example.gongik.view.composables.dialog.TypingTextDialog
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
-import com.example.gongik.view.composables.getDate
+import com.example.gongik.controller.getDate
 
 @Composable
 fun ProfileView(
@@ -640,6 +640,9 @@ private fun SalaryDetails(
         }
         else {
             WheelPickerDialog(
+                initIdx = if (myWelfare.payday > 0) {
+                    myWelfare.payday - 1
+                } else { 0 },
                 suffix = "일",
                 intensity = 1f,
                 onDismissRequest = { openDialog = -1 },
@@ -780,6 +783,24 @@ private fun RestTimeDetails(
 
     if (openDialog >= 0) {
         WheelPickerDialog(
+            initIdx = when (openDialog) {
+                0 -> {
+                    if (myLeave.firstAnnualLeave > 0) {
+                        myLeave.firstAnnualLeave - 1
+                    } else { 0 }
+                }
+                1 -> {
+                    if (myLeave.secondAnnualLeave > 0) {
+                        myLeave.secondAnnualLeave - 1
+                    } else { 0 }
+                }
+                2 -> {
+                    if (myLeave.sickLeave > 0) {
+                        myLeave.sickLeave - 1
+                    } else { 0 }
+                }
+                else -> { 0 }
+            },
             suffix = "일",
             intensity = 0.95f,
             onDismissRequest = { openDialog = -1 },

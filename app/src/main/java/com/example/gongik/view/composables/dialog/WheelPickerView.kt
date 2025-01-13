@@ -49,6 +49,7 @@ import kotlin.math.abs
 
 @Composable
 fun WheelPickerDialog(
+    initIdx: Int = 0,
     suffix: String = "",
     intensity: Float,
     onDismissRequest: () -> Unit,
@@ -78,13 +79,13 @@ fun WheelPickerDialog(
     var startOptionValueIdx: Int
     var lastOptionValueIdx: Int
     val currentOptionValueIdx = mutableListOf(
-        (inputListSize - 1) - (2 % inputListSize),
-        (inputListSize - 1) - (1 % inputListSize),
-        (inputListSize - 1),
-        0,
-        (1 % inputListSize),
-        (2 % inputListSize),
-        (3 % inputListSize)
+        ((inputListSize - 1) - (2 % inputListSize) + initIdx) % inputListSize,
+        ((inputListSize - 1) - (1 % inputListSize) + initIdx) % inputListSize,
+        ((inputListSize - 1) + initIdx) % inputListSize,
+        initIdx,
+        ((initIdx + 1) % inputListSize),
+        ((initIdx + 2) % inputListSize),
+        ((initIdx + 3) % inputListSize)
     )
     val calcCurrentFloatValue: (Float, Float, Int) -> Float = { current, target, delta ->
         current + ((target - current) * (delta % 100)) / 100f

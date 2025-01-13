@@ -1,4 +1,4 @@
-package com.example.gongik.view.composables
+package com.example.gongik.controller
 
 import java.text.SimpleDateFormat
 import java.util.Locale

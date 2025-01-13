@@ -1,20 +1,13 @@
 package com.example.gongik.view.composables.profile
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gongik.controller.MyInformationController
-import com.example.gongik.model.data.myinformation.MyInformation
 import com.example.gongik.model.data.myinformation.MyLeave
 import com.example.gongik.model.data.myinformation.MyRank
 import com.example.gongik.model.data.myinformation.MyWelfare
 import com.example.gongik.model.data.myinformation.MyWorkInformation
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class ProfileViewModel: ViewModel() {
 
@@ -71,7 +64,6 @@ class ProfileViewModel: ViewModel() {
         viewModelScope.launch {
             MyInformationController.updateMyRank(
                 MyRank(
-                    currentRank = myRank.value!!.currentRank,
                     firstPromotionDay = tmpMyRank[0],
                     secondPromotionDay = tmpMyRank[1],
                     thirdPromotionDay = tmpMyRank[2]

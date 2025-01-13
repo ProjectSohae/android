@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.sql.Timestamp
 
 object MyInformationController {
 
@@ -138,7 +137,6 @@ object MyInformationController {
 
                 if (myRank == null) {
                     myRank = MyRank(
-                        currentRank = -1,
                         firstPromotionDay = -1,
                         secondPromotionDay = -1,
                         thirdPromotionDay = -1

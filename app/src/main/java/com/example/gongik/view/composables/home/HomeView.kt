@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,7 +50,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
 import com.example.gongik.controller.displayAsAmount
-import com.example.gongik.model.data.myinformation.ranksList
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.UseMyLeaveView
 
@@ -239,8 +237,7 @@ private fun MyDetails(
 
         Text(
             text = myWorkInfo.startWorkDay.let {
-                if (it < 0) { "직무 없음" }
-                else { "사회복무요원" }
+                if (it < 0) { "직무 없음" } else { "사회복무요원" }
             },
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
@@ -248,10 +245,7 @@ private fun MyDetails(
         )
 
         Text(
-            text = myRank.currentRank.let {
-                if (it < 0) { "보수 등급 없음" }
-                else { ranksList[myRank.currentRank] }
-            },
+            text = homeViewModel.getMyCurrentRank(),
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
@@ -299,7 +293,9 @@ private fun DateDetails(
             Text(
                 text = myWorkInfo.startWorkDay.let {
                     if (it < 0) { "해당 없음" }
-                    else { myWorkInfo.startWorkDay.toString() }
+                    else {
+                        "${((myWorkInfo.finishWorkDay - myWorkInfo.startWorkDay) / (1000 * 60 * 60 * 24)) + 1}일"
+                    }
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
@@ -326,7 +322,9 @@ private fun DateDetails(
             Text(
                 text = myWorkInfo.startWorkDay.let {
                     if (it < 0) { "해당 없음" }
-                    else { myWorkInfo.startWorkDay.toString() }
+                    else {
+                        "${((System.currentTimeMillis() - myWorkInfo.startWorkDay) / (1000 * 60 * 60 * 24)) + 1}일"
+                    }
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
@@ -353,7 +351,9 @@ private fun DateDetails(
             Text(
                 text = myWorkInfo.startWorkDay.let {
                     if (it < 0) { "해당 없음" }
-                    else { myWorkInfo.startWorkDay.toString() }
+                    else {
+                        "${((myWorkInfo.finishWorkDay - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)) + 1}일"
+                    }
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
@@ -378,16 +378,7 @@ private fun DateDetails(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = myRank.currentRank.let {
-                    var nextPromotionDay = ""
-
-                    if (it == 0) { nextPromotionDay = myRank.firstPromotionDay.toString() }
-                    else if (it == 1) { nextPromotionDay = myRank.secondPromotionDay.toString() }
-                    else if (it == 2) { nextPromotionDay = myRank.thirdPromotionDay.toString() }
-
-                    if (nextPromotionDay.isBlank()) { "해당 없음" }
-                    else { nextPromotionDay }
-                },
+                text = homeViewModel.getNextPromotionDay(),
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
