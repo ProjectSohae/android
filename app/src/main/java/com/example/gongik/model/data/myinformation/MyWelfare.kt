@@ -8,9 +8,9 @@ import androidx.room.PrimaryKey
 data class MyWelfare (
     @PrimaryKey val uid: Int = 0,
     // 식비
-    @ColumnInfo(name = "food_costs") var foodCosts: Int,
+    @ColumnInfo(name = "lunch_support") var lunchSupport: Int,
     // 교통비
-    @ColumnInfo(name = "transportation_costs") var transportationCosts: Int,
+    @ColumnInfo(name = "transportation_support") var transportationSupport: Int,
     // 월급 계산 시작일
     @ColumnInfo(name = "payday") var payday: Int,
 )

@@ -84,8 +84,8 @@ fun TypingTextDialog(
                 TextFieldState(
                     initialText = isIntegerList[idx].let { isInt ->
                         if (isInt) {
-                            initialValuesList[idx].toInt().let { isNegative ->
-                                if (isNegative < 0){ "" } else { initialValuesList[idx] }
+                            initialValuesList[idx].toInt().let { getValue ->
+                                if (getValue < 1){ "" } else { initialValuesList[idx] }
                             }
                         }
                         else { initialValuesList[idx] }

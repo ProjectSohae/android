@@ -1,5 +1,7 @@
 package com.example.gongik.view.composables.profile
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gongik.controller.MyInformationController
@@ -32,6 +34,7 @@ class ProfileViewModel: ViewModel() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateMyWorkInfo(idx: Int, value: Any) {
         val tmpMyWorkInfo = mutableListOf(
             myWorkInformation.value!!.workPlace,
@@ -74,8 +77,8 @@ class ProfileViewModel: ViewModel() {
 
     fun updateMyWelfare(idx: Int, value: Int) {
         val tmpMyWelfare = mutableListOf(
-            myWelfare.value!!.foodCosts,
-            myWelfare.value!!.transportationCosts,
+            myWelfare.value!!.lunchSupport,
+            myWelfare.value!!.transportationSupport,
             myWelfare.value!!.payday
         )
 
@@ -84,8 +87,8 @@ class ProfileViewModel: ViewModel() {
         viewModelScope.launch {
             MyInformationController.updateMyWelfare(
                 MyWelfare(
-                    foodCosts = tmpMyWelfare[0],
-                    transportationCosts = tmpMyWelfare[1],
+                    lunchSupport = tmpMyWelfare[0],
+                    transportationSupport = tmpMyWelfare[1],
                     payday = tmpMyWelfare[2]
                 )
             )

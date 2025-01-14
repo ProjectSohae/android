@@ -1,5 +1,7 @@
 package com.example.gongik.view.composables.home
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,6 +55,7 @@ import com.example.gongik.controller.displayAsAmount
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.UseMyLeaveView
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeView(
     homeViewModel: HomeViewModel = viewModel()
@@ -176,6 +179,7 @@ private fun HomeViewHeader(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun HomeViewBody(
     leftPadding : Dp,
@@ -268,7 +272,6 @@ private fun DateDetails(
     homeViewModel: HomeViewModel
 ) {
     val myWorkInfo = homeViewModel.myWorkInformation.collectAsState().value!!
-    val myRank = homeViewModel.myRank.collectAsState().value!!
 
     Column(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
@@ -323,11 +326,19 @@ private fun DateDetails(
             Text(
                 text = myWorkInfo.startWorkDay.let {
                     if (it < 0
-                        || System.currentTimeMillis() < it
-                        || myWorkInfo.finishWorkDay < System.currentTimeMillis())
+                        || myWorkInfo.finishWorkDay < it
+                        || System.currentTimeMillis() < it)
                     {
                         "해당 없음"
-                    } else { "${((System.currentTimeMillis() - it) / (1000 * 60 * 60 * 24)) + 1}일" }
+                    } else {
+                        val lastTime = if (myWorkInfo.finishWorkDay < System.currentTimeMillis()) {
+                            myWorkInfo.finishWorkDay
+                        } else {
+                            System.currentTimeMillis()
+                        }
+
+                        "${((lastTime - it) / (1000 * 60 * 60 * 24)) + 1}일"
+                    }
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
@@ -353,8 +364,13 @@ private fun DateDetails(
             )
             Text(
                 text = myWorkInfo.finishWorkDay.let {
-                    if (it < System.currentTimeMillis()) { "해당 없음" }
-                    else {
+                    if (
+                        myWorkInfo.startWorkDay < 0
+                        || it < myWorkInfo.startWorkDay
+                        || it < System.currentTimeMillis())
+                    {
+                        "해당 없음"
+                    } else {
                         "${((myWorkInfo.finishWorkDay - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)) + 1}일"
                     }
                 },
@@ -394,6 +410,7 @@ private fun DateDetails(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun MyVacations(
     homeViewModel: HomeViewModel
@@ -401,7 +418,6 @@ private fun MyVacations(
     val primary = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
-    val salary = 200000
 
     Column(
         modifier = Modifier
@@ -424,7 +440,7 @@ private fun MyVacations(
             Icon(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_ios_new_24),
                 modifier = Modifier
-                    .scale(1.25f)
+                    .size(32.dp)
                     .clickable(
                         indication = null,
                         interactionSource = null
@@ -450,7 +466,7 @@ private fun MyVacations(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = displayAsAmount(salary.toString()),
+                        text = homeViewModel.getMyCurrentSalary(),
                         fontSize = dpToSp(dp = 32.dp),
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -469,7 +485,7 @@ private fun MyVacations(
             Icon(
                 painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
                 modifier = Modifier
-                    .scale(1.25f)
+                    .size(32.dp)
                     .clickable(
                         indication = null,
                         interactionSource = null

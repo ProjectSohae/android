@@ -1,18 +1,28 @@
 package com.example.gongik.view.composables.home
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import com.example.gongik.R
 import com.example.gongik.controller.MyInformationController
+import com.example.gongik.controller.displayAsAmount
+import java.time.LocalDateTime
 
 class HomeViewModel: ViewModel() {
 
     val myInformation = MyInformationController.myInformation
     val myWorkInformation = MyInformationController.myWorkInformation
+    val myWelfare = MyInformationController.myWelfare
     val myRank = MyInformationController.myRank
     val myLeave = MyInformationController.myLeave
     val finishLoadDB = MyInformationController.finishLoadDB
     val isReadyInfo = MyInformationController.isReadyInfo
 
+    private val allDayOfMonth = listOf(
+        31, 28, 31, 30,
+        31, 30, 31, 31,
+        30, 31, 30, 31
+    )
     private val ranksList = listOf(
         "이등병",
         "일등병",
@@ -145,7 +155,11 @@ class HomeViewModel: ViewModel() {
         val promotionDaysListSize = promotionDays.size
         var result: Long = -1
 
-        if (myWorkInformation.value!!.startWorkDay < 0) {
+        if (
+            myWorkInformation.value!!.startWorkDay < 0
+            || myWorkInformation.value!!.finishWorkDay < System.currentTimeMillis()
+            || myWorkInformation.value!!.finishWorkDay < myWorkInformation.value!!.startWorkDay)
+        {
             return "해당 없음"
         }
 
@@ -170,5 +184,50 @@ class HomeViewModel: ViewModel() {
                 "${(it / (1000 * 60 * 60 * 24)) + 1}일 남음"
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getMyCurrentSalary(): String {
+        val isLeapYear = (
+                (LocalDateTime.now().year % 4 == 0 && LocalDateTime.now().year % 100 == 0)
+                        || LocalDateTime.now().year % 400 == 0
+                )
+        val currentDayOfMonth = allDayOfMonth[LocalDateTime.now().monthValue - 1] +
+                if (isLeapYear && LocalDateTime.now().monthValue == 2) { 1 } else { 0 }
+        var noLunchCostCount = 0
+        var noTransportationCostCount = 0
+        val currentRank = getMyCurrentRank()
+        var currentSalary = 0
+
+        when (currentRank) {
+            "이등병" -> {
+                currentSalary = 750000
+            }
+            "일등병" -> {
+                currentSalary = 900000
+            }
+            "상등병" -> {
+                currentSalary = 1200000
+            }
+            "병장" -> {
+                currentSalary = 1500000
+            }
+            else -> {
+                currentSalary = 0
+            }
+        }
+
+        val workDayRatio = currentDayOfMonth.toFloat() / currentDayOfMonth.toFloat()
+        currentSalary = (currentSalary * workDayRatio).toInt()
+
+        currentSalary += myWelfare.value!!.lunchSupport.let {
+            if (it > 0) { it * (currentDayOfMonth - noLunchCostCount) } else { 0 }
+        }
+
+        currentSalary += myWelfare.value!!.transportationSupport.let {
+            if (it > 0) { it * (currentDayOfMonth - noTransportationCostCount) } else { 0 }
+        }
+
+        return displayAsAmount(currentSalary.toString())
     }
 }

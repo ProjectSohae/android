@@ -1,5 +1,7 @@
 package com.example.gongik.view.composables.profile
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,6 +45,7 @@ import com.example.gongik.view.composables.dialog.TypingTextDialog
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
 import com.example.gongik.controller.getDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileView(
     profileViewModel: ProfileViewModel = viewModel()
@@ -289,6 +292,7 @@ private fun MyActivities(
 }
 
 // 복무 정보
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun MilitaryServiceDate(
     profileViewModel: ProfileViewModel
@@ -621,8 +625,8 @@ private fun SalaryDetails(
                 inputsList = inputForm[openDialog],
                 initialValuesList = openDialog.let {
                     when (it) {
-                        0 -> { listOf( myWelfare.foodCosts.toString() ) }
-                        1 -> { listOf( myWelfare.transportationCosts.toString() ) }
+                        0 -> { listOf( myWelfare.lunchSupport.toString() ) }
+                        1 -> { listOf( myWelfare.transportationSupport.toString() ) }
                         else -> { listOf( "" ) }
                     }
                 },
@@ -692,8 +696,8 @@ private fun SalaryDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myWelfare.foodCosts.let {
-                        if (it < 0) { "해당 없음" } else { displayAsAmount(it.toString()) }
+                    text = myWelfare.lunchSupport.let {
+                        if (it < 1) { "해당 없음" } else { "${displayAsAmount(it.toString())}원" }
                     },
                     fontSize = dpToSp(dp = 16.dp),
                     modifier = Modifier.padding(end = 8.dp)
@@ -723,8 +727,8 @@ private fun SalaryDetails(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = myWelfare.transportationCosts.let {
-                        if (it < 0) { "해당 없음" } else { displayAsAmount(it.toString()) }
+                    text = myWelfare.transportationSupport.let {
+                        if (it < 1) { "해당 없음" } else { "${displayAsAmount(it.toString())}원" }
                     },
                     fontSize = dpToSp(dp = 16.dp),
                     modifier = Modifier.padding(end = 8.dp)
@@ -755,8 +759,7 @@ private fun SalaryDetails(
             ) {
                 Text(
                     text = myWelfare.payday.let {
-                        if (it < 0) { "해당 없음" }
-                        else { "${it}일" }
+                        if (it < 0) { "해당 없음" } else { "${it}일" }
                     },
                     fontSize = dpToSp(dp = 16.dp),
                     modifier = Modifier.padding(end = 8.dp)

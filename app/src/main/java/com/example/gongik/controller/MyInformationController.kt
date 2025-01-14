@@ -1,5 +1,7 @@
 package com.example.gongik.controller
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.gongik.model.data.myinformation.MyInformation
 import com.example.gongik.model.data.myinformation.MyLeave
 import com.example.gongik.model.data.myinformation.MyRank
@@ -19,6 +21,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 object MyInformationController {
 
@@ -123,9 +128,25 @@ object MyInformationController {
         return myWorkInfo
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun updateMyWorkInformation(inputMyWorkInformation: MyWorkInformation) {
         myWorkInfoDAO.insert(inputMyWorkInformation)
         _myWorkInformation.value = initMyWorkInformation()
+
+        if (inputMyWorkInformation.startWorkDay > 0) {
+            val startWorkDay = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(inputMyWorkInformation.startWorkDay),
+                ZoneId.systemDefault()
+            ).let { it.minusDays(it.dayOfMonth.toLong() - 1) }
+
+            updateMyRank(
+                MyRank(
+                    firstPromotionDay = startWorkDay.plusMonths(2).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                    secondPromotionDay = startWorkDay.plusMonths(8).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                    thirdPromotionDay = startWorkDay.plusMonths(14).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                )
+            )
+        }
     }
 
     private suspend fun initMyRank(): MyRank? {
@@ -164,9 +185,9 @@ object MyInformationController {
 
                 if (myWelfareDAO.selectAll() == null) {
                     myWelfare = MyWelfare(
-                        foodCosts = -1,
-                        transportationCosts = -1,
-                        payday = -1
+                        lunchSupport = 0,
+                        transportationSupport = 0,
+                        payday = 0
                     )
 
                     myWelfareDAO.insert(myWelfare!!)
