@@ -241,7 +241,7 @@ private fun MyDetails(
 
         Text(
             text = myWorkInfo.startWorkDay.let {
-                if (it < 0) { "직무 없음" } else { "사회복무요원" }
+                if (it < 0 || System.currentTimeMillis() < it) { "직무 없음" } else { "사회복무요원" }
             },
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
@@ -257,8 +257,7 @@ private fun MyDetails(
 
         Text(
             text = myWorkInfo.workPlace.let {
-                if (it.isBlank()) { "복무지 미정" }
-                else { myWorkInfo.workPlace }
+                if (it.isBlank()) { "복무지 미정" } else { myWorkInfo.workPlace }
             },
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
@@ -366,6 +365,7 @@ private fun DateDetails(
                 text = myWorkInfo.finishWorkDay.let {
                     if (
                         myWorkInfo.startWorkDay < 0
+                        || System.currentTimeMillis() < myWorkInfo.startWorkDay
                         || it < myWorkInfo.startWorkDay
                         || it < System.currentTimeMillis())
                     {
@@ -454,31 +454,35 @@ private fun MyVacations(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = "2020년 1월",
-                    fontSize = dpToSp(dp = 16.dp),
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                homeViewModel.getMyCurrentSalary(0).let { getResult ->
                     Text(
-                        text = homeViewModel.getMyCurrentSalary(),
-                        fontSize = dpToSp(dp = 32.dp),
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(end = 4.dp)
-                    )
-
-                    Text(
-                        text = "원",
-                        fontSize = dpToSp(dp = 24.dp),
+                        text = getResult.first,
+                        fontSize = dpToSp(dp = 16.dp),
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
+
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = getResult.second,
+                            fontSize = dpToSp(dp = 32.dp),
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(end = 4.dp)
+                        )
+
+                        if (getResult.first.isNotBlank()) {
+                            Text(
+                                text = "원",
+                                fontSize = dpToSp(dp = 24.dp),
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
                 }
             }
 

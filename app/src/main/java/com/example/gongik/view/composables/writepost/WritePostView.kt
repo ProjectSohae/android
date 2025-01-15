@@ -140,6 +140,7 @@ private fun SelectCategory(
 ) {
     var isPressed by remember { mutableStateOf(false) }
     var selectedCategory by rememberSaveable { mutableStateOf("") }
+    val categoryList = listOf( "자유", "정보", "질문" )
 
     LaunchedEffect(selectedCategory) {
 
@@ -152,17 +153,19 @@ private fun SelectCategory(
 
     if (isPressed) {
         WheelPickerDialog(
+            initIdx = when (selectedCategory) {
+                categoryList[0] -> { 0 }
+                categoryList[1] -> { 1 }
+                categoryList[2] -> { 2 }
+                else -> { 0 }
+            },
             intensity = 0.95f,
             onDismissRequest = { isPressed = false },
             onConfirmation = { getSelectedCategory ->
                 selectedCategory = getSelectedCategory.toString()
                 isPressed = false
             },
-            optionsList = listOf(
-                "자유",
-                "정보",
-                "질문"
-            )
+            optionsList = categoryList
         )
     }
 

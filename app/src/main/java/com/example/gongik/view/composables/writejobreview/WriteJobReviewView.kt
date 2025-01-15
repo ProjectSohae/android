@@ -513,9 +513,19 @@ private fun WriteJobOthersItem(
     callback: (String) -> Unit
 ) {
     var isPressed by remember { mutableStateOf(false) }
+    val initIdx = selectedItemName.let {
+        var tmp = 0
+
+        optionsList.forEachIndexed { idx, item ->
+            if (it == item) { tmp = idx }
+        }
+
+        tmp
+    }
 
     if (isPressed) {
         WheelPickerDialog(
+            initIdx = initIdx,
             intensity = 0.8f,
             onDismissRequest = { isPressed = false },
             onConfirmation = { getItemName ->

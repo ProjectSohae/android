@@ -1,12 +1,16 @@
 package com.example.gongik.view.composables.home
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import com.example.gongik.R
 import com.example.gongik.controller.MyInformationController
 import com.example.gongik.controller.displayAsAmount
+import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 class HomeViewModel: ViewModel() {
 
@@ -120,8 +124,9 @@ class HomeViewModel: ViewModel() {
         return result
     }
 
-    fun getMyCurrentRank(): String {
-        val currentTime = System.currentTimeMillis()
+    fun getMyCurrentRank(
+        currentTime: Long = System.currentTimeMillis()
+    ): String {
         val promotionDays = listOf(
             myRank.value!!.firstPromotionDay,
             myRank.value!!.secondPromotionDay,
@@ -157,6 +162,7 @@ class HomeViewModel: ViewModel() {
 
         if (
             myWorkInformation.value!!.startWorkDay < 0
+            || System.currentTimeMillis() < myWorkInformation.value!!.startWorkDay
             || myWorkInformation.value!!.finishWorkDay < System.currentTimeMillis()
             || myWorkInformation.value!!.finishWorkDay < myWorkInformation.value!!.startWorkDay)
         {
@@ -186,48 +192,91 @@ class HomeViewModel: ViewModel() {
         }
     }
 
+    // Pair < 기간, 월급 >
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getMyCurrentSalary(): String {
+    fun getMyCurrentSalary(monthsCount: Int): Pair<String, String> {
+        val payday: Int = myWelfare.value?.payday.let {
+            if (it == null) { -1 } else {
+                if (it > 0) { it } else { -1 }
+            }
+        }
+
+        if (payday < 0
+            || myWorkInformation.value!!.startWorkDay < 0) {
+            return Pair("", "복무 대기 중")
+        }
+
+        if (myWorkInformation.value!!.finishWorkDay < System.currentTimeMillis()) { return Pair("", "소집 해제") }
+
+        val currentDate = LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(myWorkInformation.value!!.startWorkDay),
+            ZoneId.systemDefault()
+        ).plusMonths(monthsCount.toLong())
         val isLeapYear = (
-                (LocalDateTime.now().year % 4 == 0 && LocalDateTime.now().year % 100 == 0)
-                        || LocalDateTime.now().year % 400 == 0
+                (currentDate.year % 4 == 0 && currentDate.year % 100 == 0)
+                        || currentDate.year % 400 == 0
                 )
-        val currentDayOfMonth = allDayOfMonth[LocalDateTime.now().monthValue - 1] +
-                if (isLeapYear && LocalDateTime.now().monthValue == 2) { 1 } else { 0 }
-        var noLunchCostCount = 0
-        var noTransportationCostCount = 0
+        val getMonthDay: (Int) -> Int = { month ->
+            allDayOfMonth[((month - 1) + 12) % 12] +
+                    if (isLeapYear && currentDate.monthValue == 2) { 1 } else { 0 }
+        }
+        val getMySalary: (String) -> Int = { rank ->
+            when (rank) {
+                "이등병" -> { 750000 }
+                "일등병" -> { 900000 }
+                "상등병" -> { 1200000 }
+                "병장" -> { 1500000 }
+                else -> { 0 }
+            }
+        }
+        val beforeRank = getMyCurrentRank(
+            currentDate.minusMonths(1)
+                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        )
         val currentRank = getMyCurrentRank()
-        var currentSalary = 0
+        val beforeDayOfMonth = getMonthDay(currentDate.monthValue - 1)
+        val currentDayOfMonth = getMonthDay(currentDate.monthValue)
+        val beforeSalary = getMySalary(beforeRank) / beforeDayOfMonth
+        val currentSalary = getMySalary(currentRank) / currentDayOfMonth
 
-        when (currentRank) {
-            "이등병" -> {
-                currentSalary = 750000
-            }
-            "일등병" -> {
-                currentSalary = 900000
-            }
-            "상등병" -> {
-                currentSalary = 1200000
-            }
-            "병장" -> {
-                currentSalary = 1500000
-            }
-            else -> {
-                currentSalary = 0
+        val startWorkDay = LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(myWorkInformation.value!!.startWorkDay),
+            ZoneId.systemDefault()
+        )
+        val startDate = LocalDate.of(startWorkDay.year, startWorkDay.monthValue, payday)
+            .plusMonths(monthsCount.toLong())
+        val endDate = LocalDate.of(startWorkDay.year, startWorkDay.monthValue, payday)
+            .plusMonths(monthsCount.toLong() + 1).minusDays(1)
+
+        // 기본급 계산
+        var resultDate = ""
+        var resultSalary = 0
+        if (monthsCount > 0) {
+            resultDate = "${startDate.year}.${startDate.monthValue}.${startDate.dayOfMonth}" +
+                    " - " +
+                    "${endDate.year}.${endDate.monthValue}.${endDate.dayOfMonth}"
+            resultSalary = ( beforeSalary * ( beforeDayOfMonth - payday + 1 ) ) + ( currentSalary * ( payday - 1 ) )
+        } else {
+
+            if (startWorkDay.dayOfMonth < payday) {
+                resultDate = "${startWorkDay.year}.${startWorkDay.monthValue}.${startWorkDay.dayOfMonth}" +
+                        " - " +
+                        "${startDate.year}.${startDate.monthValue}.${startDate.dayOfMonth - 1}"
+                resultSalary = currentSalary * (payday - startWorkDay.dayOfMonth)
+            } else {
+                resultDate = "${startWorkDay.year}.${startWorkDay.monthValue}.${startWorkDay.dayOfMonth}" +
+                        " - " +
+                        "${endDate.year}.${endDate.monthValue}.${endDate.dayOfMonth}"
+                resultSalary = ( beforeSalary * ( beforeDayOfMonth - startWorkDay.dayOfMonth + 1 ) ) +
+                        ( currentSalary * ( payday - 1 ) )
             }
         }
 
-        val workDayRatio = currentDayOfMonth.toFloat() / currentDayOfMonth.toFloat()
-        currentSalary = (currentSalary * workDayRatio).toInt()
+        // 주말, 휴가로 인한 식비 및 교통비 차감
+        var noLunchSupportCount = 0
+        var noTransportationSupportCount = 0
 
-        currentSalary += myWelfare.value!!.lunchSupport.let {
-            if (it > 0) { it * (currentDayOfMonth - noLunchCostCount) } else { 0 }
-        }
 
-        currentSalary += myWelfare.value!!.transportationSupport.let {
-            if (it > 0) { it * (currentDayOfMonth - noTransportationCostCount) } else { 0 }
-        }
-
-        return displayAsAmount(currentSalary.toString())
+        return Pair(resultDate, displayAsAmount(resultSalary.toString()))
     }
 }

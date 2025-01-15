@@ -259,34 +259,35 @@ private fun PreviewJobItemsList() {
     val tertiary = MaterialTheme.colorScheme.tertiary
     var pressedFilter by rememberSaveable { mutableIntStateOf(-1) }
     val sortByList = listOf(
-        "최신순",
-        "인기순"
+        "별점 낮은 순",
+        "별점 높은 순"
     )
     val sortByMap = mapOf(
-        Pair("최신순", 0),
-        Pair("인기순", 1)
+        Pair("별점 낮은 순", 0),
+        Pair("별점 높은 순", 1)
     )
     var selectedSortBy by rememberSaveable { mutableIntStateOf(1) }
     val posts = listOf(1, 2, 3, 4, 5,)
 
     if (pressedFilter >= 0) {
 
-        WheelPickerDialog(
-            intensity = 0.8f,
-            onDismissRequest = { pressedFilter = -1 },
-            onConfirmation = {
+        if (pressedFilter < 2) {
 
-                when (pressedFilter) {
-                    2 -> { selectedSortBy = sortByMap[it.toString()]!! }
-                }
-
-                pressedFilter = -1
-            },
-            optionsList = when (pressedFilter) {
-                2 -> { sortByList }
-                else -> { listOf( "" ) }
-            }
-        )
+        }
+        else {
+            WheelPickerDialog(
+                initIdx = selectedSortBy.let {
+                    if (it < 0) { 0 } else { it }
+                },
+                intensity = 0.8f,
+                onDismissRequest = { pressedFilter = -1 },
+                onConfirmation = { getSortBy ->
+                    selectedSortBy = sortByMap[getSortBy.toString()]!!
+                    pressedFilter = -1
+                },
+                optionsList = sortByList
+            )
+        }
     }
 
     Box(
@@ -485,12 +486,23 @@ private fun JobCompetitionItemsList() {
     val tertiary = MaterialTheme.colorScheme.tertiary
     var openDialog by rememberSaveable { mutableStateOf(false) }
     var filterNum by rememberSaveable { mutableIntStateOf(0) }
-    var year by rememberSaveable { mutableStateOf("") }
-    var roundNumber by rememberSaveable { mutableIntStateOf(-1) }
+    var yearIdx by rememberSaveable { mutableIntStateOf(-1) }
+    var roundNumberIdx by rememberSaveable { mutableIntStateOf(-1) }
     var intendance by rememberSaveable { mutableStateOf("") }
     var location by rememberSaveable { mutableStateOf("") }
-    val yearList = listOf("2021", "2022", "2023",)
-    val roundList = listOf("재학생입영원", "본인 선택")
+    val filterOptionsList = listOf(
+        listOf( "2021", "2022", "2023" ),
+        listOf("재학생입영원", "본인 선택")
+    )
+    val getItemIdx: (String) -> Int = {
+        var tmp = 0
+
+        filterOptionsList[filterNum].forEachIndexed { idx, item ->
+            if (it == item) { tmp = idx }
+        }
+
+        tmp
+    }
     val posts = listOf(
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
     )
@@ -499,26 +511,26 @@ private fun JobCompetitionItemsList() {
 
         if (filterNum < 2) {
             WheelPickerDialog(
-                suffix = filterNum.let { if (it == 0) { "년" } else { "" } },
+                initIdx = if (filterNum == 0) {
+                    yearIdx.let { if (it < 0) { 0 } else { it } }
+                } else {
+                    roundNumberIdx.let { if (it < 0) { 0 } else { it } }
+                },
                 intensity = 0.75f,
+                suffix = if (filterNum == 0) { "년" } else { "" },
                 onDismissRequest = { openDialog = false },
                 onConfirmation = { getSelectedValue ->
 
                     when (filterNum) {
                         // 접수 년도
-                        0 -> { year = getSelectedValue.toString() }
+                        0 -> { yearIdx = getItemIdx(getSelectedValue.toString()) }
                         // 회차
-                        1 -> {
-                            roundNumber = getSelectedValue.toString().let {
-                                if (it == roundList[0]) { 0 }
-                                else { 1 }
-                            }
-                        }
+                        1 -> { roundNumberIdx = getItemIdx(getSelectedValue.toString()) }
                     }
 
                     openDialog = false
                 },
-                optionsList = filterNum.let { if (it == 0) { yearList } else { roundList } }
+                optionsList = filterOptionsList[filterNum]
             )
         }
         else {
@@ -552,31 +564,30 @@ private fun JobCompetitionItemsList() {
                 LazyRow {
                     item {
                         Text(
-                            text = year.ifBlank { "접수 년도" },
+                            text = yearIdx.let {
+                                if (it < 0) { "접수 년도" } else { "${filterOptionsList[0][it]}년" }
+                            },
                             fontSize = dpToSp(dp = 16.dp),
-                            color = year.let {
-                                if (it.isBlank()) { MaterialTheme.colorScheme.tertiary }
-                                else { MaterialTheme.colorScheme.onPrimary }
+                            color = yearIdx.let {
+                                if (it < 0) {
+                                    MaterialTheme.colorScheme.tertiary
+                                } else { MaterialTheme.colorScheme.onPrimary }
                             },
                             modifier = Modifier
                                 .border(
                                     width = 1.dp,
-                                    color = year.let {
-                                        if (it.isBlank()) {
+                                    color = yearIdx.let {
+                                        if (it < 0) {
                                             MaterialTheme.colorScheme.tertiary
-                                        } else {
-                                            Color.Transparent
-                                        }
+                                        } else { Color.Transparent }
                                     },
                                     shape = RoundedCornerShape(100)
                                 )
                                 .background(
-                                    color = year.let {
-                                        if (it.isBlank()) {
+                                    color = yearIdx.let {
+                                        if (it < 0) {
                                             Color.Transparent
-                                        } else {
-                                            MaterialTheme.colorScheme.primary
-                                        }
+                                        } else { MaterialTheme.colorScheme.primary }
                                     },
                                     shape = RoundedCornerShape(100)
                                 )
@@ -592,34 +603,30 @@ private fun JobCompetitionItemsList() {
                     // 재학생 입영원, 본인 선택
                     item {
                         Text(
-                            text = roundNumber.let {
-                                if (it in 0..1) { roundList[it] }
-                                else { "회차" }
+                            text = roundNumberIdx.let {
+                                if (it < 0) { "회차" } else { filterOptionsList[1][it] }
                             },
                             fontSize = dpToSp(dp = 16.dp),
-                            color = roundNumber.let {
-                                if (it < 0) { MaterialTheme.colorScheme.tertiary }
-                                else { MaterialTheme.colorScheme.onPrimary }
+                            color = roundNumberIdx.let {
+                                if (it < 0) {
+                                    MaterialTheme.colorScheme.tertiary
+                                } else { MaterialTheme.colorScheme.onPrimary }
                             },
                             modifier = Modifier
                                 .border(
                                     width = 1.dp,
-                                    color = roundNumber.let {
+                                    color = roundNumberIdx.let {
                                         if (it < 0) {
                                             MaterialTheme.colorScheme.tertiary
-                                        } else {
-                                            Color.Transparent
-                                        }
+                                        } else { Color.Transparent }
                                     },
                                     shape = RoundedCornerShape(100)
                                 )
                                 .background(
-                                    color = roundNumber.let {
+                                    color = roundNumberIdx.let {
                                         if (it < 0) {
                                             Color.Transparent
-                                        } else {
-                                            MaterialTheme.colorScheme.primary
-                                        }
+                                        } else { MaterialTheme.colorScheme.primary }
                                     },
                                     shape = RoundedCornerShape(100)
                                 )
@@ -712,8 +719,8 @@ private fun JobCompetitionItemsList() {
             }
 
             if (
-                year.isBlank()
-                || roundNumber < 0
+                yearIdx < 0
+                || roundNumberIdx < 0
                 || intendance.isBlank()
                 || location.isBlank()
             ) {

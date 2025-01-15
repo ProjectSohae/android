@@ -129,24 +129,49 @@ object MyInformationController {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun updateMyWorkInformation(inputMyWorkInformation: MyWorkInformation) {
-        myWorkInfoDAO.insert(inputMyWorkInformation)
-        _myWorkInformation.value = initMyWorkInformation()
+    suspend fun updateMyWorkInformation(
+        inputMyWorkInformation: MyWorkInformation,
+        updateRelatedInfo: Boolean = true
+    ) {
+        var tmpMyWorkInfo = inputMyWorkInformation
 
-        if (inputMyWorkInformation.startWorkDay > 0) {
-            val startWorkDay = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(inputMyWorkInformation.startWorkDay),
+        if (updateRelatedInfo) {
+            var startWorkDay = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(tmpMyWorkInfo.startWorkDay),
                 ZoneId.systemDefault()
-            ).let { it.minusDays(it.dayOfMonth.toLong() - 1) }
+            )
+            var additionalMonth = 0
 
+            if (startWorkDay.dayOfMonth > 1) { additionalMonth = 1 }
+
+            // 소집 해제일
+            tmpMyWorkInfo = MyWorkInformation(
+                workPlace = tmpMyWorkInfo.workPlace,
+                startWorkDay = tmpMyWorkInfo.startWorkDay,
+                finishWorkDay = startWorkDay
+                    .plusYears(1).plusMonths(9)
+                    .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            )
+
+            // 진급일
+            startWorkDay = startWorkDay.minusDays( (startWorkDay.dayOfMonth - 1).toLong() )
             updateMyRank(
                 MyRank(
-                    firstPromotionDay = startWorkDay.plusMonths(2).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                    secondPromotionDay = startWorkDay.plusMonths(8).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                    thirdPromotionDay = startWorkDay.plusMonths(14).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    firstPromotionDay = startWorkDay
+                        .plusMonths(2)
+                        .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                    secondPromotionDay = startWorkDay
+                        .plusMonths(8)
+                        .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                    thirdPromotionDay = startWorkDay
+                        .plusMonths(14)
+                        .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 )
             )
         }
+
+        myWorkInfoDAO.insert(tmpMyWorkInfo)
+        _myWorkInformation.value = initMyWorkInformation()
     }
 
     private suspend fun initMyRank(): MyRank? {

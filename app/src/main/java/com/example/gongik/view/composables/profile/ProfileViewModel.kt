@@ -46,11 +46,12 @@ class ProfileViewModel: ViewModel() {
 
         viewModelScope.launch {
             MyInformationController.updateMyWorkInformation(
-                MyWorkInformation(
+                inputMyWorkInformation = MyWorkInformation(
                     workPlace = tmpMyWorkInfo[0].toString(),
                     startWorkDay = tmpMyWorkInfo[1].toString().toLong(),
                     finishWorkDay = tmpMyWorkInfo[2].toString().toLong()
-                )
+                ),
+                updateRelatedInfo = (idx != 2)
             )
         }
     }

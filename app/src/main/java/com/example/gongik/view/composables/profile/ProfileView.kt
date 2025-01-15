@@ -759,7 +759,7 @@ private fun SalaryDetails(
             ) {
                 Text(
                     text = myWelfare.payday.let {
-                        if (it < 0) { "해당 없음" } else { "${it}일" }
+                        if (it < 1) { "해당 없음" } else { "${it}일" }
                     },
                     fontSize = dpToSp(dp = 16.dp),
                     modifier = Modifier.padding(end = 8.dp)
