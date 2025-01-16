@@ -140,9 +140,6 @@ object MyInformationController {
                 Instant.ofEpochMilli(tmpMyWorkInfo.startWorkDay),
                 ZoneId.systemDefault()
             )
-            var additionalMonth = 0
-
-            if (startWorkDay.dayOfMonth > 1) { additionalMonth = 1 }
 
             // 소집 해제일
             tmpMyWorkInfo = MyWorkInformation(

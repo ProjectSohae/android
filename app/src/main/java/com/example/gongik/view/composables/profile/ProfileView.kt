@@ -38,12 +38,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
-import com.example.gongik.controller.displayAsAmount
+import com.example.gongik.util.function.displayAsAmount
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.DatePickerDialog
 import com.example.gongik.view.composables.dialog.TypingTextDialog
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
-import com.example.gongik.controller.getDate
+import com.example.gongik.util.function.getDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

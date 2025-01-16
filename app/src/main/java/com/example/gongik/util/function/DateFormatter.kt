@@ -1,4 +1,4 @@
-package com.example.gongik.controller
+package com.example.gongik.util.function
 
 import java.text.SimpleDateFormat
 import java.util.Locale

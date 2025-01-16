@@ -1,4 +1,4 @@
-package com.example.gongik.controller
+package com.example.gongik.util.function
 
 fun displayAsAmount(input: String): String {
     var result = input

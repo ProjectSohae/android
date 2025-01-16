@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -51,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
-import com.example.gongik.controller.displayAsAmount
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.UseMyLeaveView
 

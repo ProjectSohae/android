@@ -6,7 +6,8 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import com.example.gongik.R
 import com.example.gongik.controller.MyInformationController
-import com.example.gongik.controller.displayAsAmount
+import com.example.gongik.util.function.displayAsAmount
+import com.example.gongik.util.function.getWeekendCount
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -201,22 +202,29 @@ class HomeViewModel: ViewModel() {
             }
         }
 
-        if (payday < 0
+        if (payday < 1
             || myWorkInformation.value!!.startWorkDay < 0) {
             return Pair("", "복무 대기 중")
         }
 
-        if (myWorkInformation.value!!.finishWorkDay < System.currentTimeMillis()) { return Pair("", "소집 해제") }
+        if (myWorkInformation.value!!.finishWorkDay < System.currentTimeMillis()) {
+            return Pair("", "소집 해제")
+        }
 
+        val startWorkDate = LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(myWorkInformation.value!!.startWorkDay),
+            ZoneId.systemDefault()
+        ).toLocalDate()
         val currentDate = LocalDateTime.ofInstant(
             Instant.ofEpochMilli(myWorkInformation.value!!.startWorkDay),
             ZoneId.systemDefault()
         ).plusMonths(monthsCount.toLong())
+
         val isLeapYear = (
                 (currentDate.year % 4 == 0 && currentDate.year % 100 == 0)
                         || currentDate.year % 400 == 0
                 )
-        val getMonthDay: (Int) -> Int = { month ->
+        val getAllDayOfMonth: (Int) -> Int = { month ->
             allDayOfMonth[((month - 1) + 12) % 12] +
                     if (isLeapYear && currentDate.monthValue == 2) { 1 } else { 0 }
         }
@@ -229,53 +237,60 @@ class HomeViewModel: ViewModel() {
                 else -> { 0 }
             }
         }
+        val getWorkDate: (LocalDate, LocalDate) -> String = { startDate, endDate ->
+            "${startDate.year}.${startDate.monthValue}.${startDate.dayOfMonth}" +
+                    " - " +
+                    "${endDate.year}.${endDate.monthValue}.${endDate.dayOfMonth}"
+        }
+
         val beforeRank = getMyCurrentRank(
             currentDate.minusMonths(1)
                 .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         )
-        val currentRank = getMyCurrentRank()
-        val beforeDayOfMonth = getMonthDay(currentDate.monthValue - 1)
-        val currentDayOfMonth = getMonthDay(currentDate.monthValue)
-        val beforeSalary = getMySalary(beforeRank) / beforeDayOfMonth
-        val currentSalary = getMySalary(currentRank) / currentDayOfMonth
-
-        val startWorkDay = LocalDateTime.ofInstant(
-            Instant.ofEpochMilli(myWorkInformation.value!!.startWorkDay),
-            ZoneId.systemDefault()
+        val currentRank = getMyCurrentRank(
+            currentDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         )
-        val startDate = LocalDate.of(startWorkDay.year, startWorkDay.monthValue, payday)
+        val beforeAllDayOfMonth = getAllDayOfMonth(currentDate.monthValue - 1)
+        val currentAllDayOfMonth = getAllDayOfMonth(currentDate.monthValue)
+        val beforeSalary = getMySalary(beforeRank) / beforeAllDayOfMonth
+        val currentSalary = getMySalary(currentRank) / currentAllDayOfMonth
+
+        val beginDate = LocalDate.of(startWorkDate.year, startWorkDate.monthValue, payday)
             .plusMonths(monthsCount.toLong())
-        val endDate = LocalDate.of(startWorkDay.year, startWorkDay.monthValue, payday)
+        val endDate = LocalDate.of(startWorkDate.year, startWorkDate.monthValue, payday)
             .plusMonths(monthsCount.toLong() + 1).minusDays(1)
 
         // 기본급 계산
+        val weekendCount: Int
+        val totalWorkDay: Int
         var resultDate = ""
         var resultSalary = 0
         if (monthsCount > 0) {
-            resultDate = "${startDate.year}.${startDate.monthValue}.${startDate.dayOfMonth}" +
-                    " - " +
-                    "${endDate.year}.${endDate.monthValue}.${endDate.dayOfMonth}"
-            resultSalary = ( beforeSalary * ( beforeDayOfMonth - payday + 1 ) ) + ( currentSalary * ( payday - 1 ) )
+            resultDate = getWorkDate(beginDate, endDate)
+            resultSalary = ( beforeSalary * ( beforeAllDayOfMonth - payday + 1 ) ) + ( currentSalary * ( payday - 1 ) )
+            totalWorkDay = beforeAllDayOfMonth
+            weekendCount = getWeekendCount(beginDate, endDate)
         } else {
 
-            if (startWorkDay.dayOfMonth < payday) {
-                resultDate = "${startWorkDay.year}.${startWorkDay.monthValue}.${startWorkDay.dayOfMonth}" +
-                        " - " +
-                        "${startDate.year}.${startDate.monthValue}.${startDate.dayOfMonth - 1}"
-                resultSalary = currentSalary * (payday - startWorkDay.dayOfMonth)
+            if (startWorkDate.dayOfMonth < payday) {
+                resultDate = getWorkDate(startWorkDate, beginDate.minusDays(1))
+                resultSalary = currentSalary * (payday - startWorkDate.dayOfMonth)
+                totalWorkDay = payday - startWorkDate.dayOfMonth
+                weekendCount = getWeekendCount(startWorkDate, beginDate)
             } else {
-                resultDate = "${startWorkDay.year}.${startWorkDay.monthValue}.${startWorkDay.dayOfMonth}" +
-                        " - " +
-                        "${endDate.year}.${endDate.monthValue}.${endDate.dayOfMonth}"
-                resultSalary = ( beforeSalary * ( beforeDayOfMonth - startWorkDay.dayOfMonth + 1 ) ) +
+                resultDate = getWorkDate(startWorkDate, endDate)
+                resultSalary = ( beforeSalary * ( beforeAllDayOfMonth - startWorkDate.dayOfMonth + 1 ) ) +
                         ( currentSalary * ( payday - 1 ) )
+                totalWorkDay = (beforeAllDayOfMonth - startWorkDate.dayOfMonth + 1) + (payday - 1)
+                weekendCount = getWeekendCount(startWorkDate, endDate)
             }
         }
 
         // 주말, 휴가로 인한 식비 및 교통비 차감
-        var noLunchSupportCount = 0
-        var noTransportationSupportCount = 0
-
+        val noLunchSupportCount = 0
+        val noTransportationSupportCount = 0
+        resultSalary += myWelfare.value!!.lunchSupport * (totalWorkDay - weekendCount - noLunchSupportCount)
+        resultSalary += myWelfare.value!!.transportationSupport * (totalWorkDay - weekendCount - noTransportationSupportCount)
 
         return Pair(resultDate, displayAsAmount(resultSalary.toString()))
     }
