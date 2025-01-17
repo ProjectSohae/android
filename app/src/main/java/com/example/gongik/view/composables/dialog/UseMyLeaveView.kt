@@ -1,21 +1,31 @@
 package com.example.gongik.view.composables.dialog
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults.Container
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,42 +38,96 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.gongik.R
+import com.example.gongik.model.data.myinformation.MyUsedLeave
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.util.function.getDate
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UseMyLeaveView(
-    onDismissRequest: () -> Unit
+    title: String,
+    leaveTypeList: List<String>,
+    onDismissRequest: () -> Unit,
+    onConfirm: (MyUsedLeave) -> Unit
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
     val tertiary = MaterialTheme.colorScheme.tertiary
-    val leaveKind = listOf(
-        "연차",
-        "오전 반차", "오후 반차",
-        "조퇴", "외출"
-    )
+    var selectedLeaveType by remember { mutableIntStateOf(-1) }
+    var reasonUsingLeave by remember { mutableStateOf("") }
+    var leaveStartDate by remember { mutableLongStateOf(-1) }
+    var leaveEndDate by remember { mutableLongStateOf(-1) }
     val welfareOptionsList = listOf("미지급", "지급")
     // 0: 미지급, 1: 지급
     var receiveLunchSupport by remember { mutableIntStateOf(0) }
     // 0: 미지급, 1: 지급
     var receiveTransportationSupport by remember { mutableIntStateOf(0) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val textFieldColors = TextFieldDefaults.colors(
+        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+        unfocusedIndicatorColor = MaterialTheme.colorScheme.tertiary,
+        disabledIndicatorColor = MaterialTheme.colorScheme.tertiary,
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+        errorContainerColor = Color.Transparent,
+        disabledContainerColor = Color.Transparent
+    )
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    if (showDatePicker) {
+        if (selectedLeaveType >= 0) {
+            if (selectedLeaveType == 0) {
+                DateRangePickerDialog(
+                    title = "${leaveTypeList[selectedLeaveType]} 기간 선택",
+                    initialSelectedStartDateMillis = leaveStartDate,
+                    initialSelectedEndDateMillis = leaveEndDate,
+                    onDateRangeSelected = { getStartDate, getEndDate ->
+                        leaveStartDate = getStartDate ?: (-1)
+                        leaveEndDate = getEndDate ?: (-1)
+                        showDatePicker = false
+                    },
+                    onDismissRequest = {
+                        showDatePicker = false
+                    }
+                )
+            } else {
+                DatePickerDialog(
+                    title = "${leaveTypeList[selectedLeaveType]} 기간 선택",
+                    initialSelectedDateMillis = leaveStartDate,
+                    onDateSelected = { getStartDate ->
+                        leaveStartDate = getStartDate ?: (-1)
+                        showDatePicker = false
+                    },
+                    onDismissRequest = {
+                        showDatePicker = false
+                    }
+                )
+            }
+        } else { showDatePicker = false }
+    }
 
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .shadow(20.dp, RoundedCornerShape(15))
                 .clip(RoundedCornerShape(15))
@@ -78,203 +142,418 @@ fun UseMyLeaveView(
                     )
                 ) {
                     progressive = HazeProgressive.LinearGradient(
-                        startIntensity = 0.85f,
-                        endIntensity = 0.85f,
+                        startIntensity = 0.95f,
+                        endIntensity = 0.95f,
                         preferPerformance = true
                     )
                 }
-                .padding(24.dp),
+                .padding(top = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "휴가 사용",
-                fontSize = dpToSp(dp = 20.dp),
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-            ) {
+            item {
                 Text(
-                    text = "휴가 종류",
-                    fontSize = dpToSp(dp = 16.dp),
+                    text = title,
+                    fontSize = dpToSp(dp = 20.dp),
                     fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 4.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .drawBehind {
+                            drawLine(
+                                color = tertiary,
+                                start = Offset(0f, this.size.height),
+                                end = Offset(this.size.width, this.size.height),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        }
+                        .padding(bottom = 12.dp),
                 )
 
-                LazyRow {
-                    item {
-                        leaveKind.forEachIndexed { idx, item ->
-                            Text(
-                                text = item,
+                Column(
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                ) {
+                    // 휴가 종류
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "휴가 종류",
+                            fontSize = dpToSp(dp = 16.dp),
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+
+                        LazyRow {
+                            item {
+                                leaveTypeList.forEachIndexed { idx, item ->
+                                    Text(
+                                        text = item,
+                                        fontSize = dpToSp(dp = 16.dp),
+                                        color = if (idx == selectedLeaveType) { onPrimary } else { tertiary },
+                                        modifier = Modifier
+                                            .padding(end = 12.dp)
+                                            .drawBehind {
+                                                if (idx == selectedLeaveType) {
+                                                    drawRoundRect(
+                                                        color = primary,
+                                                        cornerRadius = CornerRadius(100f, 100f)
+                                                    )
+                                                } else {
+                                                    drawOutline(
+                                                        outline = Outline.Rounded(
+                                                            roundRect = RoundRect(
+                                                                0f,
+                                                                0f,
+                                                                this.size.width,
+                                                                this.size.height,
+                                                                CornerRadius(100f, 100f)
+                                                            )
+                                                        ),
+                                                        color = tertiary,
+                                                        style = Stroke(width = (1.dp).toPx())
+                                                    )
+                                                }
+                                            }
+                                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                                            .clickable { selectedLeaveType = idx }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // 휴가 사유
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "휴가 사유",
+                            fontSize = dpToSp(dp = 16.dp),
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+
+                        BasicTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = reasonUsingLeave,
+                            onValueChange = { reasonUsingLeave = it },
+                            enabled = true,
+                            textStyle = TextStyle(
                                 fontSize = dpToSp(dp = 16.dp),
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier
-                                    .padding(end = 12.dp)
-                                    .drawBehind {
-                                        drawOutline(
-                                            outline = Outline.Rounded(
-                                                roundRect = RoundRect(
-                                                    0f,
-                                                    0f,
-                                                    this.size.width,
-                                                    this.size.height,
-                                                    CornerRadius(100f, 100f)
-                                                )
-                                            ),
-                                            color = tertiary,
-                                            style = Stroke(width = (1.dp).toPx())
+                                platformStyle = PlatformTextStyle(
+                                    includeFontPadding = false
+                                )
+                            ),
+                            interactionSource = interactionSource,
+                            singleLine = true,
+                            decorationBox = { innerTextField ->
+                                OutlinedTextFieldDefaults.DecorationBox(
+                                    value = reasonUsingLeave,
+                                    visualTransformation = VisualTransformation.None,
+                                    innerTextField = innerTextField,
+                                    contentPadding = PaddingValues(
+                                        start = 12.dp,
+                                        end = 12.dp,
+                                        top = 8.dp,
+                                        bottom = 8.dp
+                                    ),
+                                    placeholder = {
+                                        Text(
+                                            text = "내용 입력",
+                                            fontSize = dpToSp(dp = 16.dp),
+                                            color = MaterialTheme.colorScheme.tertiary,
                                         )
-                                    }
-                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    },
+                                    container = @Composable {
+                                        Container(
+                                            enabled = true,
+                                            isError = false,
+                                            interactionSource = interactionSource,
+                                            modifier = Modifier,
+                                            colors = textFieldColors,
+                                            shape = RoundedCornerShape(25),
+                                            focusedBorderThickness = 2.dp,
+                                            unfocusedBorderThickness = 1.dp,
+                                        )
+                                    },
+                                    singleLine = true,
+                                    enabled = true,
+                                    isError = false,
+                                    interactionSource = interactionSource,
+                                    colors = textFieldColors
+                                )
+                            }
+                        )
+                    }
+
+                    // 휴가 기간
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "휴가 기간",
+                            fontSize = dpToSp(dp = 16.dp),
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = if (leaveStartDate < 0) { Color.Transparent } else { primary },
+                                    shape = RoundedCornerShape(25)
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = if (leaveStartDate < 0) { tertiary } else { Color.Transparent },
+                                    shape = RoundedCornerShape(25)
+                                )
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                                .clickable { showDatePicker = true },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (leaveStartDate < 0) {
+                                    "날짜 선택"
+                                } else {
+                                    getDate(leaveStartDate) +
+                                            if (leaveEndDate < 0 || selectedLeaveType > 0) {
+                                                ""
+                                            } else { "\n - ${getDate(leaveEndDate)}" }
+                                },
+                                fontSize = dpToSp(dp = 16.dp),
+                                style = TextStyle(
+                                    platformStyle = PlatformTextStyle(
+                                        includeFontPadding = false
+                                    )
+                                ),
+                                color = if (leaveStartDate < 0) { tertiary } else { onPrimary }
+                            )
+
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24),
+                                tint =  if (leaveStartDate < 0) {
+                                    tertiary
+                                } else { onPrimary },
+                                modifier = Modifier.size(16.dp),
+                                contentDescription = null
                             )
                         }
                     }
+
+                    // 휴가 중 식비 지급 여부
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "휴가 중 식비 지급 여부",
+                            fontSize = dpToSp(dp = 16.dp),
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .drawBehind {
+                                    drawOutline(
+                                        outline = Outline.Rounded(
+                                            roundRect = RoundRect(
+                                                0f,
+                                                0f,
+                                                this.size.width,
+                                                this.size.height,
+                                                CornerRadius(100f, 100f)
+                                            )
+                                        ),
+                                        style = Stroke(width = 1.dp.toPx()),
+                                        color = tertiary
+                                    )
+                                    drawRoundRect(
+                                        topLeft = Offset(
+                                            (this.size.width / 2f) * receiveLunchSupport.toFloat(),
+                                            0f
+                                        ),
+                                        size = Size(
+                                            this.size.width / 2f,
+                                            this.size.height
+                                        ),
+                                        color = primary,
+                                        cornerRadius = CornerRadius(100f, 100f)
+                                    )
+                                }
+                                .padding(vertical = 8.dp)
+                            ,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            welfareOptionsList.forEachIndexed { idx, item ->
+                                Text(
+                                    text = item,
+                                    fontSize = dpToSp(dp = 16.dp),
+                                    textAlign = TextAlign.Center,
+                                    color = if (idx == receiveLunchSupport) {
+                                        onPrimary
+                                    } else { tertiary },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable(indication = null, interactionSource = null) {
+                                            receiveLunchSupport = idx
+                                        }
+                                )
+                            }
+                        }
+                    }
+
+                    // 휴가 중 교통비 지급 여부
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "휴가 중 교통비 지급 여부",
+                            fontSize = dpToSp(dp = 16.dp),
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .drawBehind {
+                                    drawOutline(
+                                        outline = Outline.Rounded(
+                                            roundRect = RoundRect(
+                                                0f,
+                                                0f,
+                                                this.size.width,
+                                                this.size.height,
+                                                CornerRadius(100f, 100f)
+                                            )
+                                        ),
+                                        style = Stroke(width = 1.dp.toPx()),
+                                        color = tertiary
+                                    )
+                                    drawRoundRect(
+                                        topLeft = Offset(
+                                            (this.size.width / 2f) * receiveTransportationSupport.toFloat(),
+                                            0f
+                                        ),
+                                        size = Size(
+                                            this.size.width / 2f,
+                                            this.size.height
+                                        ),
+                                        color = primary,
+                                        cornerRadius = CornerRadius(100f, 100f)
+                                    )
+                                }
+                                .padding(vertical = 8.dp)
+                            ,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            welfareOptionsList.forEachIndexed { idx, item ->
+                                Text(
+                                    text = item,
+                                    fontSize = dpToSp(dp = 16.dp),
+                                    textAlign = TextAlign.Center,
+                                    color = if (idx == receiveTransportationSupport) {
+                                        onPrimary
+                                    } else { tertiary },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable(indication = null, interactionSource = null) {
+                                            receiveTransportationSupport = idx
+                                        }
+                                )
+                            }
+                        }
+                    }
                 }
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-            ) {
-                Text(
-                    text = "휴가 사유",
-                    fontSize = dpToSp(dp = 16.dp),
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-            ) {
-                Text(
-                    text = "휴가 기간",
-                    fontSize = dpToSp(dp = 16.dp),
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-            ) {
-                Text(
-                    text = "휴가 중 식비 지급 여부",
-                    fontSize = dpToSp(dp = 16.dp),
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(top = 12.dp)
                         .drawBehind {
-                            drawRoundRect(
+                            drawLine(
                                 color = tertiary,
-                                cornerRadius = CornerRadius(100f, 100f)
+                                start = Offset(0f, 0f),
+                                end = Offset(this.size.width, 0f),
+                                strokeWidth = 1.dp.toPx()
                             )
-                            drawRoundRect(
-                                topLeft = Offset(
-                                    (this.size.width / 2f) * receiveLunchSupport.toFloat(),
-                                    0f
-                                ),
-                                size = Size(
-                                    this.size.width / 2f,
-                                    this.size.height
-                                ),
-                                color = primary,
-                                cornerRadius = CornerRadius(100f, 100f)
+                            drawLine(
+                                color = tertiary,
+                                start = Offset(this.size.width / 2f, 0f),
+                                end = Offset(this.size.width / 2f, this.size.height),
+                                strokeWidth = 1.dp.toPx()
                             )
                         }
-                        .padding(vertical = 8.dp)
-                    ,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .padding(vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    welfareOptionsList.forEachIndexed { idx, item ->
-                        Text(
-                            text = item,
-                            fontSize = dpToSp(dp = 16.dp),
-                            textAlign = TextAlign.Center,
-                            color = if (idx == receiveLunchSupport) {
-                                MaterialTheme.colorScheme.onPrimary
-                            } else { MaterialTheme.colorScheme.primary },
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable(indication = null, interactionSource = null) {
-                                    receiveLunchSupport = idx
-                                }
-                        )
-                    }
-                }
-            }
+                    Text(
+                        text = "취소",
+                        fontSize = dpToSp(dp = 20.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable(
+                                indication = null,
+                                interactionSource = null
+                            ) { onDismissRequest() }
+                    )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-            ) {
-                Text(
-                    text = "휴가 중 교통비 지급 여부",
-                    fontSize = dpToSp(dp = 16.dp),
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
+                    Text(
+                        text = "확인",
+                        fontSize = dpToSp(dp = 20.dp),
+                        textAlign = TextAlign.Center,
+                        color = if (
+                            selectedLeaveType >= 0
+                            && leaveStartDate >= 0)
+                        {
+                            primary
+                        } else { tertiary },
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable(
+                                indication = null,
+                                interactionSource = null
+                            ) {
+                                if (selectedLeaveType >= 0 && leaveStartDate >= 0) {
+                                    if (leaveStartDate == leaveEndDate) { leaveEndDate = -1 }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            drawRoundRect(
-                                color = tertiary,
-                                cornerRadius = CornerRadius(100f, 100f)
-                            )
-                            drawRoundRect(
-                                topLeft = Offset(
-                                    (this.size.width / 2f) * receiveTransportationSupport.toFloat(),
-                                    0f
-                                ),
-                                size = Size(
-                                    this.size.width / 2f,
-                                    this.size.height
-                                ),
-                                color = primary,
-                                cornerRadius = CornerRadius(100f, 100f)
-                            )
-                        }
-                        .padding(vertical = 8.dp)
-                    ,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    welfareOptionsList.forEachIndexed { idx, item ->
-                        Text(
-                            text = item,
-                            fontSize = dpToSp(dp = 16.dp),
-                            textAlign = TextAlign.Center,
-                            color = if (idx == receiveTransportationSupport) {
-                                MaterialTheme.colorScheme.onPrimary
-                            } else { MaterialTheme.colorScheme.primary },
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable(indication = null, interactionSource = null) {
-                                    receiveTransportationSupport = idx
+                                    onConfirm(
+                                        MyUsedLeave(
+                                            leaveKindIdx = selectedLeaveType,
+                                            leaveTypeIdx = selectedLeaveType,
+                                            reason = reasonUsingLeave,
+                                            usedLeaveTime = 1000 * 60 * 60 * 8,
+                                            leaveStartDate = leaveStartDate,
+                                            leaveEndDate = leaveEndDate,
+                                            receiveLunchSupport = if (receiveLunchSupport < 1) { false } else { true },
+                                            receiveTransportationSupport = if (receiveTransportationSupport < 1) { false } else { true }
+                                        )
+                                    )
                                 }
-                        )
-                    }
+                            }
+                    )
                 }
             }
         }

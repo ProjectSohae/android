@@ -19,9 +19,7 @@ fun getWeekendCount(
 
     while (true) {
 
-        if (currentDate.year == endDate.year && currentDate.monthValue == endDate.monthValue) {
-            if (currentDate.dayOfMonth > endDate.dayOfMonth) { break }
-        }
+        if (currentDate.isAfter(endDate)) { break }
 
         if (currentDate.dayOfWeek == DayOfWeek.SATURDAY
             || currentDate.dayOfWeek == DayOfWeek.SUNDAY) {

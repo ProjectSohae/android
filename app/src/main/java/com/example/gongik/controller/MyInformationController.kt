@@ -50,7 +50,7 @@ object MyInformationController {
     val myLeave = _myLeave.asStateFlow()
 
     private var _myUsedLeaveList = MutableStateFlow<List<MyUsedLeave>>(emptyList())
-    val myUsedLeave = _myUsedLeaveList.asStateFlow()
+    val myUsedLeaveList = _myUsedLeaveList.asStateFlow()
 
     private var _finishLoadDB = MutableStateFlow(false)
     val finishLoadDB = _finishLoadDB.asStateFlow()
@@ -266,5 +266,10 @@ object MyInformationController {
         }
 
         return myUsedLeaveList!!
+    }
+
+    suspend fun updateMyUsedLeave(inputMyUsedLeave: MyUsedLeave) {
+        myUsedLeaveDAO.insert(inputMyUsedLeave)
+        _myUsedLeaveList.value = initMyUsedLeaveList()
     }
 }

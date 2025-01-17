@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,8 +51,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
+import com.example.gongik.model.data.myinformation.leaveKindList
+import com.example.gongik.model.data.myinformation.leaveTypeList
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.view.composables.dialog.MyUsedLeaveListView
 import com.example.gongik.view.composables.dialog.UseMyLeaveView
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -206,7 +214,7 @@ private fun HomeViewBody(
             DateDetails(homeViewModel)
             Spacer(modifier = Modifier.size(12.dp))
 
-            MyVacations(homeViewModel)
+            MySalary(homeViewModel)
             Spacer(modifier = Modifier.size(12.dp))
 
             UseLeave(homeViewModel)
@@ -215,13 +223,13 @@ private fun HomeViewBody(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun MyDetails(
     homeViewModel: HomeViewModel
 ) {
     val myInfo = homeViewModel.myInformation.collectAsState().value!!
     val myWorkInfo = homeViewModel.myWorkInformation.collectAsState().value!!
-    val myRank = homeViewModel.myRank.collectAsState().value!!
 
     Column(
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -264,11 +272,25 @@ private fun MyDetails(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun DateDetails(
     homeViewModel: HomeViewModel
 ) {
     val myWorkInfo = homeViewModel.myWorkInformation.collectAsState().value!!
+    val restWorkDays = ChronoUnit.DAYS
+        .between(
+            LocalDateTime
+                .ofInstant(
+                    Instant.ofEpochMilli(System.currentTimeMillis()),
+                    ZoneId.systemDefault())
+                .toLocalDate(),
+            LocalDateTime
+                .ofInstant(
+                    Instant.ofEpochMilli(myWorkInfo.finishWorkDay),
+                    ZoneId.systemDefault())
+                .toLocalDate()
+        )
 
     Column(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
@@ -288,7 +310,7 @@ private fun DateDetails(
                 text = "전체 근무일",
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = myWorkInfo.startWorkDay.let {
@@ -300,7 +322,7 @@ private fun DateDetails(
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
         }
         HorizontalDivider(
@@ -318,7 +340,7 @@ private fun DateDetails(
                 text = "현재 근무일",
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = myWorkInfo.startWorkDay.let {
@@ -339,7 +361,7 @@ private fun DateDetails(
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
         }
         HorizontalDivider(
@@ -357,7 +379,7 @@ private fun DateDetails(
                 text = "남은 근무일",
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = myWorkInfo.finishWorkDay.let {
@@ -369,12 +391,12 @@ private fun DateDetails(
                     {
                         "해당 없음"
                     } else {
-                        "${((myWorkInfo.finishWorkDay - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)) + 1}일"
+                        "${restWorkDays}일"
                     }
                 },
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
         }
         HorizontalDivider(
@@ -392,13 +414,13 @@ private fun DateDetails(
                 text = "다음 진급일",
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = homeViewModel.getNextPromotionDay(),
                 fontSize = dpToSp(dp = 12.dp),
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
         }
         HorizontalDivider(
@@ -410,7 +432,7 @@ private fun DateDetails(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun MyVacations(
+private fun MySalary(
     homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -574,22 +596,31 @@ private fun UseLeave(
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val myLeave = homeViewModel.myLeave.collectAsState().value!!
-    val useVacationItemsList = homeViewModel.useVacationItemsList
+    val myUsedLeaveList = homeViewModel.myUsedLeaveList.collectAsState().value!!
+    val useLeaveItemsList = leaveKindList
     val maxLeaveDaysList = listOf(
         myLeave.firstAnnualLeave,
         myLeave.secondAnnualLeave,
         myLeave.sickLeave
     )
+    var selectedItemName by remember { mutableStateOf("휴가") }
     var showUsedMyLeaveList by remember { mutableIntStateOf(-1) }
     var showUsingMyLeave by remember { mutableIntStateOf(-1) }
 
     if (showUsedMyLeaveList >= 0) {
-
+        MyUsedLeaveListView(myUsedLeaveList)
+        showUsedMyLeaveList = -1
     }
 
     if (showUsingMyLeave >= 0) {
         UseMyLeaveView(
-            onDismissRequest = { showUsingMyLeave = -1 }
+            title = "$selectedItemName 사용",
+            leaveTypeList = leaveTypeList[showUsingMyLeave],
+            onDismissRequest = { showUsingMyLeave = -1 },
+            onConfirm = { getMyUsedLeave ->
+                homeViewModel.takeMyLeave(getMyUsedLeave)
+                showUsingMyLeave = -1
+            }
         )
     }
 
@@ -609,7 +640,7 @@ private fun UseLeave(
                 .padding(vertical = 24.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            useVacationItemsList.forEachIndexed { idx, item ->
+            useLeaveItemsList.forEachIndexed { idx, item ->
                 UseLeaveItem(
                     itemName = item.first,
                     iconId = item.second,
@@ -630,6 +661,9 @@ private fun UseLeave(
                     },
                     pressedButton = { getPressedButton ->
 
+                        selectedItemName = item.first
+
+                        // 0: 사용한 휴가 목록, 1: 휴가 사용
                         when (getPressedButton) {
                             0 -> { showUsedMyLeaveList = idx }
                             1 -> { showUsingMyLeave = idx }

@@ -298,7 +298,6 @@ private fun MilitaryServiceDate(
     profileViewModel: ProfileViewModel
 ) {
     val myWorkInfo = profileViewModel.myWorkInformation.collectAsState().value!!
-    val myRank = profileViewModel.myRank.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
     var openDialog by remember { mutableIntStateOf(-1) }
 
@@ -309,6 +308,11 @@ private fun MilitaryServiceDate(
         }
         else {
             DatePickerDialog(
+                title = when (openDialog) {
+                    1 -> { "소집일 선택" }
+                    2 -> { "소집 해제일 선택" }
+                    else -> { "날짜 선택" }
+                },
                 initialSelectedDateMillis = when (openDialog) {
                     1 -> { myWorkInfo.startWorkDay }
                     2 -> { myWorkInfo.finishWorkDay }
@@ -322,7 +326,7 @@ private fun MilitaryServiceDate(
 
                     openDialog = -1
                 },
-                onDismiss = {
+                onDismissRequest = {
                     openDialog = -1
                 }
             )
@@ -453,6 +457,12 @@ private fun PromotionDate(
 
     if (openDialog >= 0) {
         DatePickerDialog(
+            title = when (openDialog) {
+                0 -> { "일등병 진급일 선택" }
+                1 -> { "상등병 진급일 선택" }
+                2 -> { "병장 진급일 선택" }
+                else -> { "진급일 선택" }
+            },
             initialSelectedDateMillis = when (openDialog) {
                 0 -> { myRank.firstPromotionDay }
                 1 -> { myRank.secondPromotionDay }
@@ -467,7 +477,7 @@ private fun PromotionDate(
 
                 openDialog = -1
             },
-            onDismiss = {
+            onDismissRequest = {
                 openDialog = -1
             }
         )
@@ -500,7 +510,7 @@ private fun PromotionDate(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "일병 진급일",
+                text = "일등병 진급일",
                 fontSize = dpToSp(dp = 16.dp)
             )
 
@@ -531,7 +541,7 @@ private fun PromotionDate(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "상병 진급일",
+                text = "상등병 진급일",
                 fontSize = dpToSp(dp = 16.dp)
             )
 
@@ -634,10 +644,14 @@ private fun SalaryDetails(
                 keyboardOptionsList = keyboardOptionsList[openDialog],
                 onDismissRequest = { openDialog = -1 },
                 onConfirmation = { getValue ->
-                    profileViewModel.updateMyWelfare(
-                        openDialog,
-                        getValue.toInt()
-                    )
+
+                    if (getValue.isNotBlank()) {
+                        profileViewModel.updateMyWelfare(
+                            openDialog,
+                            getValue.toInt()
+                        )
+                    }
+
                     openDialog = -1
                 }
             )
