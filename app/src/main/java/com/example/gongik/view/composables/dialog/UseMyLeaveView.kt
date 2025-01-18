@@ -1,16 +1,20 @@
 package com.example.gongik.view.composables.dialog
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +27,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults.Container
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -54,16 +59,24 @@ import com.example.gongik.R
 import com.example.gongik.model.data.myinformation.MyUsedLeave
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.util.function.getDate
+import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UseMyLeaveView(
+    myUsedLeave: MyUsedLeave? = null,
     title: String,
+    leaveKindIdx: Int,
     leaveTypeList: List<String>,
     onDismissRequest: () -> Unit,
     onConfirm: (MyUsedLeave) -> Unit
@@ -71,8 +84,10 @@ fun UseMyLeaveView(
     val primary = MaterialTheme.colorScheme.primary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
     val tertiary = MaterialTheme.colorScheme.tertiary
-    var selectedLeaveType by remember { mutableIntStateOf(-1) }
+    var uid by remember { mutableIntStateOf(0) }
+    var selectedLeaveTypeIdx by remember { mutableIntStateOf(-1) }
     var reasonUsingLeave by remember { mutableStateOf("") }
+    var leavePeriod by remember { mutableLongStateOf(-1) }
     var leaveStartDate by remember { mutableLongStateOf(-1) }
     var leaveEndDate by remember { mutableLongStateOf(-1) }
     val welfareOptionsList = listOf("미지급", "지급")
@@ -92,16 +107,41 @@ fun UseMyLeaveView(
     )
     var showDatePicker by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+
+        if (myUsedLeave != null) {
+            uid = myUsedLeave.uid
+            selectedLeaveTypeIdx = myUsedLeave.leaveTypeIdx
+            reasonUsingLeave = myUsedLeave.reason
+            leavePeriod = myUsedLeave.usedLeaveTime
+            leaveStartDate = myUsedLeave.leaveStartDate
+            leaveEndDate = myUsedLeave.leaveEndDate
+            receiveLunchSupport = if (myUsedLeave.receiveLunchSupport) { 1 } else { 0 }
+            receiveTransportationSupport = if (myUsedLeave.receiveTransportationSupport) { 1 } else { 0 }
+        }
+    }
+
     if (showDatePicker) {
-        if (selectedLeaveType >= 0) {
-            if (selectedLeaveType == 0) {
+        if (selectedLeaveTypeIdx >= 0) {
+            if (leaveTypeList[selectedLeaveTypeIdx] == "연차") {
                 DateRangePickerDialog(
-                    title = "${leaveTypeList[selectedLeaveType]} 기간 선택",
+                    title = "${leaveTypeList[selectedLeaveTypeIdx]} 기간 선택",
                     initialSelectedStartDateMillis = leaveStartDate,
                     initialSelectedEndDateMillis = leaveEndDate,
                     onDateRangeSelected = { getStartDate, getEndDate ->
                         leaveStartDate = getStartDate ?: (-1)
                         leaveEndDate = getEndDate ?: (-1)
+
+                        if (leaveStartDate > 0) {
+
+                            leavePeriod = if (leaveEndDate > 0) {
+                                (ChronoUnit.DAYS.between(
+                                    LocalDateTime.ofInstant(Instant.ofEpochMilli(leaveStartDate), ZoneId.systemDefault()),
+                                    LocalDateTime.ofInstant(Instant.ofEpochMilli(leaveEndDate), ZoneId.systemDefault())
+                                ) + 1) * (1000 * 60 * 60 * 8)
+                            } else { (1000 * 60 * 60 * 8) }
+                        }
+
                         showDatePicker = false
                     },
                     onDismissRequest = {
@@ -110,7 +150,7 @@ fun UseMyLeaveView(
                 )
             } else {
                 DatePickerDialog(
-                    title = "${leaveTypeList[selectedLeaveType]} 기간 선택",
+                    title = "${leaveTypeList[selectedLeaveTypeIdx]} 날짜 선택",
                     initialSelectedDateMillis = leaveStartDate,
                     onDateSelected = { getStartDate ->
                         leaveStartDate = getStartDate ?: (-1)
@@ -127,8 +167,9 @@ fun UseMyLeaveView(
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
-        LazyColumn(
+        Column(
             modifier = Modifier
+                .wrapContentSize()
                 .shadow(20.dp, RoundedCornerShape(15))
                 .clip(RoundedCornerShape(15))
                 .hazeChild(
@@ -147,33 +188,35 @@ fun UseMyLeaveView(
                         preferPerformance = true
                     )
                 }
-                .padding(top = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(top = 12.dp)
         ) {
-            item {
-                Text(
-                    text = title,
-                    fontSize = dpToSp(dp = 20.dp),
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            drawLine(
-                                color = tertiary,
-                                start = Offset(0f, this.size.height),
-                                end = Offset(this.size.width, this.size.height),
-                                strokeWidth = 1.dp.toPx()
-                            )
-                        }
-                        .padding(bottom = 12.dp),
-                )
+            Text(
+                text = title,
+                fontSize = dpToSp(dp = 20.dp),
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = tertiary,
+                            start = Offset(0f, this.size.height),
+                            end = Offset(this.size.width, this.size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(bottom = 12.dp),
+            )
 
-                Column(
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                ) {
-                    // 휴가 종류
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f, false)
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // 휴가 종류
+                item {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -193,11 +236,11 @@ fun UseMyLeaveView(
                                     Text(
                                         text = item,
                                         fontSize = dpToSp(dp = 16.dp),
-                                        color = if (idx == selectedLeaveType) { onPrimary } else { tertiary },
+                                        color = if (idx == selectedLeaveTypeIdx) { onPrimary } else { tertiary },
                                         modifier = Modifier
                                             .padding(end = 12.dp)
                                             .drawBehind {
-                                                if (idx == selectedLeaveType) {
+                                                if (idx == selectedLeaveTypeIdx) {
                                                     drawRoundRect(
                                                         color = primary,
                                                         cornerRadius = CornerRadius(100f, 100f)
@@ -218,15 +261,38 @@ fun UseMyLeaveView(
                                                     )
                                                 }
                                             }
+                                            .clickable {
+
+                                                if (item == "오전 반차") {
+                                                    receiveLunchSupport = 0
+                                                    receiveTransportationSupport = 1
+                                                    leavePeriod = 1000 * 60 * 60 * 4
+                                                } else if (item == "오후 반차") {
+                                                    receiveLunchSupport = 1
+                                                    receiveTransportationSupport = 1
+                                                    leavePeriod = 1000 * 60 * 60 * 4
+                                                } else if (
+                                                    item.contains("지각")
+                                                    || item.contains("조퇴")
+                                                    || item.contains("외출")
+                                                ) {
+                                                    leavePeriod = 1000 * 60 * 10
+                                                } else {
+                                                    leavePeriod = 1000 * 60 * 60 * 8
+                                                }
+
+                                                selectedLeaveTypeIdx = idx
+                                            }
                                             .padding(horizontal = 16.dp, vertical = 4.dp)
-                                            .clickable { selectedLeaveType = idx }
                                     )
                                 }
                             }
                         }
                     }
+                }
 
-                    // 휴가 사유
+                // 휴가 사유
+                item {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -292,8 +358,10 @@ fun UseMyLeaveView(
                             }
                         )
                     }
+                }
 
-                    // 휴가 기간
+                // 휴가 기간
+                item {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -311,12 +379,20 @@ fun UseMyLeaveView(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(
-                                    color = if (leaveStartDate < 0) { Color.Transparent } else { primary },
+                                    color = if (leaveStartDate < 0) {
+                                        Color.Transparent
+                                    } else {
+                                        primary
+                                    },
                                     shape = RoundedCornerShape(25)
                                 )
                                 .border(
                                     width = 1.dp,
-                                    color = if (leaveStartDate < 0) { tertiary } else { Color.Transparent },
+                                    color = if (leaveStartDate < 0) {
+                                        tertiary
+                                    } else {
+                                        Color.Transparent
+                                    },
                                     shape = RoundedCornerShape(25)
                                 )
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
@@ -329,7 +405,7 @@ fun UseMyLeaveView(
                                     "날짜 선택"
                                 } else {
                                     getDate(leaveStartDate) +
-                                            if (leaveEndDate < 0 || selectedLeaveType > 0) {
+                                            if (leaveEndDate < 0 || selectedLeaveTypeIdx > 0) {
                                                 ""
                                             } else { "\n - ${getDate(leaveEndDate)}" }
                                 },
@@ -351,9 +427,81 @@ fun UseMyLeaveView(
                                 contentDescription = null
                             )
                         }
-                    }
 
-                    // 휴가 중 식비 지급 여부
+                        if (selectedLeaveTypeIdx >= 0) {
+                            if (leaveTypeList[selectedLeaveTypeIdx].contains("지각")
+                                || leaveTypeList[selectedLeaveTypeIdx].contains("조퇴")
+                                || leaveTypeList[selectedLeaveTypeIdx].contains("외출"))
+                            {
+                                Row(
+                                    modifier = Modifier
+                                        .padding(top = 6.dp)
+                                        .fillMaxWidth(0.85f)
+                                        .clip(RoundedCornerShape(25))
+                                        .background(primary)
+                                        .padding(vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_remove_24),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .drawBehind {
+                                                drawLine(
+                                                    color = onPrimary,
+                                                    start = Offset(this.size.width, 0f),
+                                                    end = Offset(this.size.width, this.size.height),
+                                                    strokeWidth = 1.dp.toPx()
+                                                )
+                                            }
+                                            .clickable(
+                                                indication = null,
+                                                interactionSource = null
+                                            ) {
+                                                if (leavePeriod > 0) {
+                                                    leavePeriod -= 1000 * 60 * 10
+                                                }
+                                            }
+                                    )
+
+                                    Text(
+                                        text = getLeavePeriod(leavePeriod),
+                                        fontSize = dpToSp(dp = 16.dp),
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.weight(4f)
+                                    )
+                                    
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_add_24),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .drawBehind {
+                                                drawLine(
+                                                    color = onPrimary,
+                                                    start = Offset(0f, 0f),
+                                                    end = Offset(0f, this.size.height),
+                                                    strokeWidth = 1.dp.toPx()
+                                                )
+                                            }
+                                            .clickable(
+                                                indication = null,
+                                                interactionSource = null
+                                            ) {
+                                                leavePeriod += 1000 * 60 * 10
+                                            }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 휴가 중 식비 지급 여부
+                item {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -374,10 +522,7 @@ fun UseMyLeaveView(
                                     drawOutline(
                                         outline = Outline.Rounded(
                                             roundRect = RoundRect(
-                                                0f,
-                                                0f,
-                                                this.size.width,
-                                                this.size.height,
+                                                0f, 0f, this.size.width, this.size.height,
                                                 CornerRadius(100f, 100f)
                                             )
                                         ),
@@ -389,10 +534,7 @@ fun UseMyLeaveView(
                                             (this.size.width / 2f) * receiveLunchSupport.toFloat(),
                                             0f
                                         ),
-                                        size = Size(
-                                            this.size.width / 2f,
-                                            this.size.height
-                                        ),
+                                        size = Size(this.size.width / 2f, this.size.height),
                                         color = primary,
                                         cornerRadius = CornerRadius(100f, 100f)
                                     )
@@ -418,12 +560,14 @@ fun UseMyLeaveView(
                             }
                         }
                     }
+                }
 
-                    // 휴가 중 교통비 지급 여부
+                // 휴가 중 교통비 지급 여부
+                item {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 12.dp)
+                            .padding(top = 12.dp, bottom = 20.dp)
                     ) {
                         Text(
                             text = "휴가 중 교통비 지급 여부",
@@ -440,10 +584,7 @@ fun UseMyLeaveView(
                                     drawOutline(
                                         outline = Outline.Rounded(
                                             roundRect = RoundRect(
-                                                0f,
-                                                0f,
-                                                this.size.width,
-                                                this.size.height,
+                                                0f, 0f, this.size.width, this.size.height,
                                                 CornerRadius(100f, 100f)
                                             )
                                         ),
@@ -455,10 +596,7 @@ fun UseMyLeaveView(
                                             (this.size.width / 2f) * receiveTransportationSupport.toFloat(),
                                             0f
                                         ),
-                                        size = Size(
-                                            this.size.width / 2f,
-                                            this.size.height
-                                        ),
+                                        size = Size(this.size.width / 2f, this.size.height),
                                         color = primary,
                                         cornerRadius = CornerRadius(100f, 100f)
                                     )
@@ -485,76 +623,91 @@ fun UseMyLeaveView(
                         }
                     }
                 }
+            }
 
-                Row(
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = tertiary,
+                            start = Offset(0f, 0f),
+                            end = Offset(this.size.width, 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                        drawLine(
+                            color = tertiary,
+                            start = Offset(this.size.width / 2f, 0f),
+                            end = Offset(this.size.width / 2f, this.size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "취소",
+                    fontSize = dpToSp(dp = 20.dp),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
-                        .drawBehind {
-                            drawLine(
-                                color = tertiary,
-                                start = Offset(0f, 0f),
-                                end = Offset(this.size.width, 0f),
-                                strokeWidth = 1.dp.toPx()
-                            )
-                            drawLine(
-                                color = tertiary,
-                                start = Offset(this.size.width / 2f, 0f),
-                                end = Offset(this.size.width / 2f, this.size.height),
-                                strokeWidth = 1.dp.toPx()
-                            )
-                        }
-                        .padding(vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "취소",
-                        fontSize = dpToSp(dp = 20.dp),
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable(
-                                indication = null,
-                                interactionSource = null
-                            ) { onDismissRequest() }
-                    )
+                        .weight(1f)
+                        .clickable(
+                            indication = null,
+                            interactionSource = null
+                        ) { onDismissRequest() }
+                )
 
-                    Text(
-                        text = "확인",
-                        fontSize = dpToSp(dp = 20.dp),
-                        textAlign = TextAlign.Center,
-                        color = if (
-                            selectedLeaveType >= 0
-                            && leaveStartDate >= 0)
-                        {
-                            primary
-                        } else { tertiary },
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable(
-                                indication = null,
-                                interactionSource = null
-                            ) {
-                                if (selectedLeaveType >= 0 && leaveStartDate >= 0) {
-                                    if (leaveStartDate == leaveEndDate) { leaveEndDate = -1 }
-
-                                    onConfirm(
-                                        MyUsedLeave(
-                                            leaveKindIdx = selectedLeaveType,
-                                            leaveTypeIdx = selectedLeaveType,
-                                            reason = reasonUsingLeave,
-                                            usedLeaveTime = 1000 * 60 * 60 * 8,
-                                            leaveStartDate = leaveStartDate,
-                                            leaveEndDate = leaveEndDate,
-                                            receiveLunchSupport = if (receiveLunchSupport < 1) { false } else { true },
-                                            receiveTransportationSupport = if (receiveTransportationSupport < 1) { false } else { true }
-                                        )
-                                    )
+                Text(
+                    text = "확인",
+                    fontSize = dpToSp(dp = 20.dp),
+                    textAlign = TextAlign.Center,
+                    color = if (
+                        selectedLeaveTypeIdx >= 0
+                        && leaveStartDate >= 0
+                        && leavePeriod > 0)
+                    {
+                        primary
+                    } else { tertiary },
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(
+                            indication = null,
+                            interactionSource = null
+                        ) {
+                            if (
+                                selectedLeaveTypeIdx >= 0
+                                && leaveStartDate >= 0
+                                && leavePeriod > 0)
+                            {
+                                if (leaveStartDate == leaveEndDate) {
+                                    leaveEndDate = -1
                                 }
+
+                                onConfirm(
+                                    MyUsedLeave(
+                                        uid = uid,
+                                        leaveKindIdx = leaveKindIdx,
+                                        leaveTypeIdx = selectedLeaveTypeIdx,
+                                        reason = reasonUsingLeave,
+                                        usedLeaveTime = leavePeriod,
+                                        leaveStartDate = leaveStartDate,
+                                        leaveEndDate = leaveEndDate,
+                                        receiveLunchSupport = if (receiveLunchSupport < 1) {
+                                            false
+                                        } else {
+                                            true
+                                        },
+                                        receiveTransportationSupport = if (receiveTransportationSupport < 1) {
+                                            false
+                                        } else {
+                                            true
+                                        }
+                                    )
+                                )
                             }
-                    )
-                }
+                        }
+                )
             }
         }
     }

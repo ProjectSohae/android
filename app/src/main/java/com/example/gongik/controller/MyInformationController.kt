@@ -49,9 +49,6 @@ object MyInformationController {
     private var _myLeave = MutableStateFlow<MyLeave?>(null)
     val myLeave = _myLeave.asStateFlow()
 
-    private var _myUsedLeaveList = MutableStateFlow<List<MyUsedLeave>>(emptyList())
-    val myUsedLeaveList = _myUsedLeaveList.asStateFlow()
-
     private var _finishLoadDB = MutableStateFlow(false)
     val finishLoadDB = _finishLoadDB.asStateFlow()
 
@@ -65,7 +62,6 @@ object MyInformationController {
             _myRank.value = initMyRank()
             _myWelfare.value = initMyWelfare()
             _myLeave.value = initMyLeave()
-            _myUsedLeaveList.value = initMyUsedLeaveList()
             _finishLoadDB.value = true
 
             if (_myInformation.value != null
@@ -270,6 +266,13 @@ object MyInformationController {
 
     suspend fun updateMyUsedLeave(inputMyUsedLeave: MyUsedLeave) {
         myUsedLeaveDAO.insert(inputMyUsedLeave)
-        _myUsedLeaveList.value = initMyUsedLeaveList()
+    }
+
+    suspend fun deleteMyUsedLeave(uid: Int) {
+        myUsedLeaveDAO.deleteById(uid)
+    }
+
+    suspend fun getMyUsedListByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeave> {
+        return myUsedLeaveDAO.selectByLeaveKindIdx(leaveKindIdx) ?: emptyList()
     }
 }

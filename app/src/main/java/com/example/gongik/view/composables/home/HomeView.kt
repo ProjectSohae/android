@@ -1,6 +1,7 @@
 package com.example.gongik.view.composables.home
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -54,6 +55,7 @@ import com.example.gongik.controller.BarColorController
 import com.example.gongik.model.data.myinformation.leaveKindList
 import com.example.gongik.model.data.myinformation.leaveTypeList
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.view.composables.dialog.MyUsedLeaveListView
 import com.example.gongik.view.composables.dialog.UseMyLeaveView
 import java.time.Instant
@@ -255,7 +257,7 @@ private fun MyDetails(
         )
 
         Text(
-            text = homeViewModel.getMyCurrentRank(),
+            text = homeViewModel.getMyCurrentRank(System.currentTimeMillis()),
             fontSize = dpToSp(dp = 16.dp),
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
@@ -590,13 +592,13 @@ private fun MySalary(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun UseLeave(
     homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val myLeave = homeViewModel.myLeave.collectAsState().value!!
-    val myUsedLeaveList = homeViewModel.myUsedLeaveList.collectAsState().value!!
     val useLeaveItemsList = leaveKindList
     val maxLeaveDaysList = listOf(
         myLeave.firstAnnualLeave,
@@ -604,22 +606,42 @@ private fun UseLeave(
         myLeave.sickLeave
     )
     var selectedItemName by remember { mutableStateOf("휴가") }
-    var showUsedMyLeaveList by remember { mutableIntStateOf(-1) }
-    var showUsingMyLeave by remember { mutableIntStateOf(-1) }
+    var showUsedMyLeaveListKindIdx by remember { mutableIntStateOf(-1) }
+    var showUsingMyLeaveKindIdx by remember { mutableIntStateOf(-1) }
 
-    if (showUsedMyLeaveList >= 0) {
-        MyUsedLeaveListView(myUsedLeaveList)
-        showUsedMyLeaveList = -1
+    if (showUsedMyLeaveListKindIdx >= 0) {
+        MyUsedLeaveListView(
+            title = "$selectedItemName 사용 기록",
+            leaveKindIdx = showUsedMyLeaveListKindIdx,
+            maxLeaveDaysList = maxLeaveDaysList,
+            homeViewModel = homeViewModel,
+            onDismissRequest = { showUsedMyLeaveListKindIdx = -1 }
+        )
     }
 
-    if (showUsingMyLeave >= 0) {
+    if (showUsingMyLeaveKindIdx >= 0) {
         UseMyLeaveView(
             title = "$selectedItemName 사용",
-            leaveTypeList = leaveTypeList[showUsingMyLeave],
-            onDismissRequest = { showUsingMyLeave = -1 },
+            leaveKindIdx = showUsingMyLeaveKindIdx,
+            leaveTypeList = leaveTypeList[showUsingMyLeaveKindIdx],
+            onDismissRequest = { showUsingMyLeaveKindIdx = -1 },
             onConfirm = { getMyUsedLeave ->
-                homeViewModel.takeMyLeave(getMyUsedLeave)
-                showUsingMyLeave = -1
+
+                if (showUsingMyLeaveKindIdx < 3) {
+                    if ((1000 * 60 * 60 * 8 * maxLeaveDaysList[showUsingMyLeaveKindIdx]) -
+                        homeViewModel.getTotalUsedLeaveTime(showUsingMyLeaveKindIdx) >= getMyUsedLeave.usedLeaveTime)
+                    {
+                        homeViewModel.takeMyLeave(getMyUsedLeave)
+                    }
+                    // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
+                    else {
+
+                    }
+                } else {
+                    homeViewModel.takeMyLeave(getMyUsedLeave)
+                }
+
+                showUsingMyLeaveKindIdx = -1
             }
         )
     }
@@ -646,15 +668,13 @@ private fun UseLeave(
                     iconId = item.second,
                     leaveTime = if (idx < 3) {
                         homeViewModel.getRestLeaveTime(
-                            0,
-                            maxLeaveDaysList[idx]
+                            leaveKindIdx = idx,
+                            maxDays = maxLeaveDaysList[idx]
                         )
-                    } else {
-                        homeViewModel.getUsedLeaveTime(60 * 8 + 70)
-                    },
+                    } else { getLeavePeriod(homeViewModel.getTotalUsedLeaveTime(idx)) },
                     suffix = if (idx < 3) {
                         "남음"
-                    } else if (idx < 4) {
+                    } else if (idx == 3) {
                         "사용"
                     } else {
                         "누적"
@@ -665,8 +685,8 @@ private fun UseLeave(
 
                         // 0: 사용한 휴가 목록, 1: 휴가 사용
                         when (getPressedButton) {
-                            0 -> { showUsedMyLeaveList = idx }
-                            1 -> { showUsingMyLeave = idx }
+                            0 -> { showUsedMyLeaveListKindIdx = idx }
+                            1 -> { showUsingMyLeaveKindIdx = idx }
                         }
                     }
                 )

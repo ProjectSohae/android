@@ -13,6 +13,9 @@ interface MyUsedLeaveDAO {
     @Query("select * from my_used_leave where uid = :targetUid")
     suspend fun selectById(targetUid: Int): MyUsedLeave?
 
+    @Query("select * from my_used_leave where leave_kind_idx = :leaveKindIdx")
+    suspend fun selectByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeave>?
+
     @Query("select * from my_used_leave")
     suspend fun selectAll(): List<MyUsedLeave>?
 

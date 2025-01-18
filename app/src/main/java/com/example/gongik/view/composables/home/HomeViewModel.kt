@@ -7,8 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.gongik.controller.MyInformationController
 import com.example.gongik.model.data.myinformation.MyUsedLeave
 import com.example.gongik.util.function.displayAsAmount
+import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.util.function.getWeekendCount
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -22,7 +24,6 @@ class HomeViewModel: ViewModel() {
     val myWelfare = MyInformationController.myWelfare
     val myRank = MyInformationController.myRank
     val myLeave = MyInformationController.myLeave
-    val myUsedLeaveList = MyInformationController.myUsedLeaveList
     val finishLoadDB = MyInformationController.finishLoadDB
     val isReadyInfo = MyInformationController.isReadyInfo
 
@@ -38,92 +39,26 @@ class HomeViewModel: ViewModel() {
         "병장"
     )
 
-    fun getRestLeaveTime(usedMinutes: Int, maxDays: Int): String {
-        val maxMinutes = maxDays * 8 * 60
-        var tmp = maxMinutes - usedMinutes
-        var result = ""
+    fun getTotalUsedLeaveTime(leaveKindIdx: Int): Long {
+        var totalUsedLeaveTime: Long = 0
 
-        if (tmp <= 0) {
-            return "0일"
+        runBlocking {
+            val usedLeaveList = MyInformationController.getMyUsedListByLeaveKindIdx(leaveKindIdx)
+
+            usedLeaveList.forEach { totalUsedLeaveTime += it.usedLeaveTime }
         }
 
-        val days: Int = tmp / (60 * 8)
-        tmp %= 60 * 8
-
-        val hours: Int = tmp / 60
-        tmp %= 60
-
-        val minutes: Int = tmp
-
-        if (days > 0) {
-            result += "${days}일"
-        }
-
-        if (hours > 0) {
-
-            if (result.isNotBlank()) {
-                result += " "
-            }
-
-            result += "${hours}시간"
-        }
-
-        if (minutes > 0) {
-
-            if (result.isNotBlank()) {
-                result += " "
-            }
-
-            result += "${minutes}분"
-        }
-
-        return result
+        return totalUsedLeaveTime
     }
 
-    fun getUsedLeaveTime(usedMinutes: Int): String {
-        var tmp = usedMinutes
-        var result = ""
-
-        if (tmp <= 0) {
-            return "0일"
-        }
-
-        val days: Int = tmp / (60 * 8)
-        tmp %= 60 * 8
-
-        val hours: Int = tmp / 60
-        tmp %= 60
-
-        val minutes: Int = tmp
-
-        if (days > 0) {
-            result += "${days}일"
-        }
-
-        if (hours > 0) {
-
-            if (result.isNotBlank()) {
-                result += " "
-            }
-
-            result += "${hours}시간"
-        }
-
-        if (minutes > 0) {
-
-            if (result.isNotBlank()) {
-                result += " "
-            }
-
-            result += "${minutes}분"
-        }
-
-        return result
+    fun getRestLeaveTime(leaveKindIdx: Int, maxDays: Int): String {
+        return getLeavePeriod(
+            (1000 * 60 * 60 * 8 * maxDays) -
+                    getTotalUsedLeaveTime(leaveKindIdx)
+        )
     }
 
-    fun getMyCurrentRank(
-        currentTime: Long = System.currentTimeMillis()
-    ): String {
+    fun getMyCurrentRank(currentTime: Long): String {
         val promotionDays = listOf(
             myRank.value!!.firstPromotionDay,
             myRank.value!!.secondPromotionDay,
@@ -133,6 +68,7 @@ class HomeViewModel: ViewModel() {
         var result = ranksList[0]
 
         if (promotionDays[0] < 0
+            || currentTime < myWorkInformation.value!!.startWorkDay
             || myWorkInformation.value!!.startWorkDay < 0) {
             return "보수 등급 없음"
         }
