@@ -1,20 +1,25 @@
 package com.example.gongik.view.composables.home
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gongik.controller.MyInformationController
+import com.example.gongik.model.data.SalaryDetails
 import com.example.gongik.model.data.myinformation.MyUsedLeave
 import com.example.gongik.util.function.displayAsAmount
 import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.util.function.getWeekendCount
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 class HomeViewModel: ViewModel() {
@@ -43,7 +48,7 @@ class HomeViewModel: ViewModel() {
         var totalUsedLeaveTime: Long = 0
 
         runBlocking {
-            val usedLeaveList = MyInformationController.getMyUsedListByLeaveKindIdx(leaveKindIdx)
+            val usedLeaveList = MyInformationController.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
 
             usedLeaveList.forEach { totalUsedLeaveTime += it.usedLeaveTime }
         }
@@ -127,7 +132,7 @@ class HomeViewModel: ViewModel() {
 
     // Pair < 기간, 월급 >
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getMyCurrentSalary(monthsCount: Int): Pair<String, String> {
+    fun getMyCurrentSalary(monthsCount: Int): SalaryDetails {
         val payday: Int = myWelfare.value?.payday.let {
             if (it == null) { -1 } else {
                 if (it > 0) { it } else { -1 }
@@ -136,15 +141,27 @@ class HomeViewModel: ViewModel() {
 
         if (myWorkInformation.value!!.startWorkDay < 0
             || myWorkInformation.value!!.finishWorkDay < 0) {
-            return Pair("", "복무 대기 중")
+            return SalaryDetails(
+                beginPayDate = LocalDate.MIN,
+                endPayDate = LocalDate.MIN,
+                errorMessage = "복무 대기 중"
+            )
         }
 
         if (payday < 1) {
-            return Pair("", "월급일 미설정")
+            return SalaryDetails(
+                beginPayDate = LocalDate.MIN,
+                endPayDate = LocalDate.MIN,
+                errorMessage = "월급일 미설정"
+            )
         }
 
         if (myWorkInformation.value!!.finishWorkDay < System.currentTimeMillis()) {
-            return Pair("", "소집 해제")
+            return SalaryDetails(
+                beginPayDate = LocalDate.MIN,
+                endPayDate = LocalDate.MIN,
+                errorMessage = "소집 해제"
+            )
         }
 
         val startWorkDate = LocalDateTime.ofInstant(
@@ -229,7 +246,24 @@ class HomeViewModel: ViewModel() {
         resultSalary += myWelfare.value!!.lunchSupport * (totalWorkDay - weekendCount - noLunchSupportCount)
         resultSalary += myWelfare.value!!.transportationSupport * (totalWorkDay - weekendCount - noTransportationSupportCount)
 
-        return Pair(resultDate, displayAsAmount(resultSalary.toString()))
+        return SalaryDetails(
+            startRank = startRank,
+            endRank = endRank,
+            allDayOfStartMonth = allDayOfStartMonth,
+            allDayOfEndMonth = allDayOfEndMonth,
+            startSalary = startSalary,
+            startSalaryPerMonth = getMySalary(startRank),
+            endSalary = endSalary,
+            endSalaryPerMonth = getMySalary(endRank),
+            lunchSupport = myWelfare.value!!.lunchSupport,
+            transportationSupport = myWelfare.value!!.transportationSupport,
+            beginPayDate = beginPayDate,
+            endPayDate = endPayDate,
+            weekendCount = weekendCount,
+            totalWorkDay = totalWorkDay,
+            resultDate = resultDate,
+            resultSalary = resultSalary
+        )
     }
 
     fun takeMyLeave(inputMyUsedLeave: MyUsedLeave) {

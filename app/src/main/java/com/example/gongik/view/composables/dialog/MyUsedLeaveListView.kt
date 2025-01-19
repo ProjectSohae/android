@@ -1,17 +1,17 @@
 package com.example.gongik.view.composables.dialog
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,6 +49,9 @@ import com.example.gongik.util.function.getDate
 import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.view.composables.home.HomeViewModel
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
+import com.example.gongik.view.snackbar.SnackBarBehindTarget
+import com.example.gongik.view.snackbar.SnackBarController
+import com.example.gongik.view.snackbar.SnackbarView
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
@@ -70,7 +75,7 @@ fun MyUsedLeaveListView(
     LaunchedEffect(loadMyUsedLeaveList) {
 
         if (loadMyUsedLeaveList) {
-            myUsedLeaveList = MyInformationController.getMyUsedListByLeaveKindIdx(leaveKindIdx)
+            myUsedLeaveList = MyInformationController.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
             loadMyUsedLeaveList = false
         }
     }
@@ -94,16 +99,19 @@ fun MyUsedLeaveListView(
             onConfirm = { getMyUsedLeave ->
 
                 if (getMyUsedLeave.leaveKindIdx < 3) {
-                    if ((1000 * 60 * 60 * 8 * maxLeaveDaysList[getMyUsedLeave.leaveKindIdx]) +
-                        selectedLeaveItem!!.usedLeaveTime -
-                        homeViewModel.getTotalUsedLeaveTime(getMyUsedLeave.leaveKindIdx)
-                        >= getMyUsedLeave.usedLeaveTime)
-                    {
-                        homeViewModel.takeMyLeave(getMyUsedLeave)
-                    }
-                    // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
-                    else {
+                    ((1000 * 60 * 60 * 8 * maxLeaveDaysList[getMyUsedLeave.leaveKindIdx]) -
+                            homeViewModel.getTotalUsedLeaveTime(getMyUsedLeave.leaveKindIdx)).let {
 
+                            if (it + selectedLeaveItem!!.usedLeaveTime >= getMyUsedLeave.usedLeaveTime) {
+                                homeViewModel.takeMyLeave(getMyUsedLeave)
+                            }
+                            // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
+                            else {
+                                SnackBarController.show(
+                                    "${getLeavePeriod(it)}을 초과하여 휴가 사용할 수 없습니다.",
+                                    SnackBarBehindTarget.DIALOG
+                                )
+                            }
                     }
                 } else {
                     homeViewModel.takeMyLeave(getMyUsedLeave)
@@ -118,93 +126,121 @@ fun MyUsedLeaveListView(
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.8f)
-                .shadow(12.dp, RoundedCornerShape(10))
-                .clip(RoundedCornerShape(10))
-                .hazeChild(
-                    state = MainNavGraphViewModel.hazeState,
-                    style = HazeStyle(
-                        backgroundColor = MaterialTheme.colorScheme.onPrimary,
-                        tint = HazeTint(
-                            color = MaterialTheme.colorScheme.onPrimary
-                        ),
-                        blurRadius = 25.dp
-                    )
-                ) {
-                    progressive = HazeProgressive.LinearGradient(
-                        startIntensity = 0.9f,
-                        endIntensity = 0.9f,
-                        preferPerformance = true
-                    )
-                },
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = title,
-                fontSize = dpToSp(dp = 24.dp),
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .drawBehind {
-                        drawLine(
-                            color = tertiary,
-                            start = Offset(0f, this.size.height),
-                            end = Offset(this.size.width, this.size.height),
-                            strokeWidth = (1.dp).toPx()
-                        )
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = SnackBarController.snackbarHostState
+                ) { getSnackbarData ->
+                    if (SnackBarController.behindTarget == SnackBarBehindTarget.DIALOG) {
+                        SnackBarController.currentSnackbar = getSnackbarData
+                        SnackbarView(snackbarData = getSnackbarData)
                     }
-                    .padding(vertical = 12.dp)
-            )
-
-            LazyColumn(
-                modifier = Modifier.weight(1f)
+                }
+            }
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxHeight()
+                    .clickable(
+                        indication = null,
+                        interactionSource = null
+                    ) { onDismissRequest() },
+                contentAlignment = Alignment.Center
             ) {
-                itemsIndexed(
-                    items = myUsedLeaveList,
-                    key = { idx: Int, item: MyUsedLeave -> idx }
-                ) { idx: Int, item: MyUsedLeave ->
-                    MyUsedLeaveListItem(
-                        item = item,
-                        modifier = if (idx == 0) {
-                            Modifier.padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 12.dp)
-                        } else {
-                            Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
-                        },
-                        pressedButtonIdx = { pressedButtonIdx ->
-
-                            when (pressedButtonIdx) {
-                                0 -> { selectedLeaveItem = item }
-                                1 -> { deleteLeaveItemUid = item.uid }
-                            }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(540.dp)
+                        .shadow(12.dp, RoundedCornerShape(10))
+                        .clip(RoundedCornerShape(10))
+                        .hazeChild(
+                            state = MainNavGraphViewModel.hazeState,
+                            style = HazeStyle(
+                                backgroundColor = MaterialTheme.colorScheme.onPrimary,
+                                tint = HazeTint(
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                ),
+                                blurRadius = 25.dp
+                            )
+                        ) {
+                            progressive = HazeProgressive.LinearGradient(
+                                startIntensity = 0.9f,
+                                endIntensity = 0.9f,
+                                preferPerformance = true
+                            )
                         }
+                        .clickable(
+                            indication = null,
+                            interactionSource = null
+                        ) {},
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = dpToSp(dp = 20.dp),
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .drawBehind {
+                                drawLine(
+                                    color = tertiary,
+                                    start = Offset(0f, this.size.height),
+                                    end = Offset(this.size.width, this.size.height),
+                                    strokeWidth = (1.dp).toPx()
+                                )
+                            }
+                            .padding(vertical = 12.dp)
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        itemsIndexed(
+                            items = myUsedLeaveList,
+                            key = { idx: Int, item: MyUsedLeave -> idx }
+                        ) { idx: Int, item: MyUsedLeave ->
+                            MyUsedLeaveListItem(
+                                item = item,
+                                modifier = if (idx == 0) {
+                                    Modifier.padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 12.dp)
+                                } else {
+                                    Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
+                                },
+                                pressedButtonIdx = { pressedButtonIdx ->
+
+                                    when (pressedButtonIdx) {
+                                        0 -> { selectedLeaveItem = item }
+                                        1 -> { deleteLeaveItemUid = item.uid }
+                                    }
+                                }
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = "닫기",
+                        fontSize = dpToSp(dp = 16.dp),
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .drawBehind {
+                                drawLine(
+                                    color = tertiary,
+                                    start = Offset(0f, 0f),
+                                    end = Offset(this.size.width, 0f),
+                                    strokeWidth = (1.dp).toPx()
+                                )
+                            }
+                            .padding(vertical = 12.dp)
+                            .clickable { onDismissRequest() }
                     )
                 }
             }
-
-            Text(
-                text = "닫기",
-                fontSize = dpToSp(dp = 16.dp),
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .drawBehind {
-                        drawLine(
-                            color = tertiary,
-                            start = Offset(0f, 0f),
-                            end = Offset(this.size.width, 0f),
-                            strokeWidth = (1.dp).toPx()
-                        )
-                    }
-                    .padding(vertical = 12.dp)
-                    .clickable { onDismissRequest() }
-            )
         }
     }
 }
@@ -267,7 +303,9 @@ private fun MyUsedLeaveListItem(
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             LazyRow {
@@ -279,7 +317,13 @@ private fun MyUsedLeaveListItem(
                         },
                         fontSize = dpToSp(dp = 12.dp),
                         color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(end = 12.dp)
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .background(
+                                MaterialTheme.colorScheme.secondary,
+                                RoundedCornerShape(100)
+                            )
+                            .padding(horizontal = 12.dp)
                     )
 
                     // 교통비 지급 여부
@@ -288,7 +332,13 @@ private fun MyUsedLeaveListItem(
                             if (it) { "교통비 지급" } else { "교통비 미지급" }
                         },
                         fontSize = dpToSp(dp = 12.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.secondary,
+                                RoundedCornerShape(100)
+                            )
+                            .padding(horizontal = 12.dp)
                     )
                 }
             }

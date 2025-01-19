@@ -48,7 +48,7 @@ sealed class HomeNavGraphItem(
     )
 
     object jobSearch : HomeNavGraphItem(
-        label = "복무지",
+        label = "복무정보",
         route = HomeNavGraphBarItems.JOBSEARCH.name,
         baseIcon = R.drawable.outline_job_search_24,
         seletedIcon = R.drawable.baseline_job_search_24

@@ -1,5 +1,7 @@
 package com.example.gongik.view.composables.home
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Column
@@ -39,6 +41,7 @@ import com.example.gongik.view.composables.jobsearch.JobSearchView
 import com.example.gongik.view.composables.profile.ProfileView
 import kotlinx.coroutines.runBlocking
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeNavGraphView(
     communityViewModel: CommunityViewModel = viewModel(),

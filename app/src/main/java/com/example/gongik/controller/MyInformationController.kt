@@ -272,7 +272,11 @@ object MyInformationController {
         myUsedLeaveDAO.deleteById(uid)
     }
 
-    suspend fun getMyUsedListByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeave> {
+    suspend fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeave> {
         return myUsedLeaveDAO.selectByLeaveKindIdx(leaveKindIdx) ?: emptyList()
+    }
+
+    suspend fun getMyUsedLeaveListByDate(startDate: Long, endDate: Long): List<MyUsedLeave> {
+        return myUsedLeaveDAO.selectByDate(startDate, endDate) ?: emptyList()
     }
 }

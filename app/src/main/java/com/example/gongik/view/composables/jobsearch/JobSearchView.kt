@@ -111,7 +111,7 @@ private fun JobSearchViewHeader() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "복무지",
+            text = "복무 정보",
             fontSize = dpToSp(dp = 24.dp),
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary

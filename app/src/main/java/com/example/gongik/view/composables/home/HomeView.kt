@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,13 +53,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
+import com.example.gongik.model.data.SalaryDetails
 import com.example.gongik.model.data.myinformation.leaveKindList
 import com.example.gongik.model.data.myinformation.leaveTypeList
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.util.function.displayAsAmount
+import com.example.gongik.util.function.getDate
 import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.view.composables.dialog.MyUsedLeaveListView
 import com.example.gongik.view.composables.dialog.UseMyLeaveView
+import com.example.gongik.view.snackbar.SnackBarBehindTarget
+import com.example.gongik.view.snackbar.SnackBarController
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
@@ -219,7 +226,7 @@ private fun HomeViewBody(
             MySalary(homeViewModel)
             Spacer(modifier = Modifier.size(12.dp))
 
-            UseLeave(homeViewModel)
+            MyLeaveList(homeViewModel)
             Spacer(modifier = Modifier.size(24.dp))
         }
     }
@@ -440,6 +447,29 @@ private fun MySalary(
     val primary = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
+    var salaryDetails by remember {
+        mutableStateOf(
+            SalaryDetails(beginPayDate = LocalDate.MIN, endPayDate = LocalDate.MIN)
+        )
+    }
+    var showSalaryDetails by remember { mutableStateOf(false) }
+
+    if (showSalaryDetails) {
+
+        if (salaryDetails.beginPayDate.isEqual(LocalDate.MIN)
+            || salaryDetails.endPayDate.isEqual(LocalDate.MIN)) {
+            SnackBarController.show(
+                inputMessage = "급여 정보가 존재하지 않습니다.",
+                inputBehindTarget = SnackBarBehindTarget.VIEW
+            )
+            showSalaryDetails = false
+        } else {
+            SalaryDetailsView(
+                salaryDetails = salaryDetails,
+                onDismissRequest = { showSalaryDetails = false }
+            )
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -447,7 +477,8 @@ private fun MySalary(
             .height(200.dp)
             .padding(horizontal = 12.dp)
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(20))
-            .background(color = primary, shape = RoundedCornerShape(20)),
+            .background(color = primary, shape = RoundedCornerShape(20))
+            .clickable { showSalaryDetails = true },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -476,9 +507,11 @@ private fun MySalary(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                homeViewModel.getMyCurrentSalary(0).let { getResult ->
+                homeViewModel.getMyCurrentSalary(0).let { getSalaryDetails ->
+                    salaryDetails = getSalaryDetails
+
                     Text(
-                        text = getResult.first,
+                        text = getSalaryDetails.resultDate,
                         fontSize = dpToSp(dp = 16.dp),
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onPrimary
@@ -489,14 +522,18 @@ private fun MySalary(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = getResult.second,
+                            text = getSalaryDetails.resultSalary.let {
+                                if (it >= 0) {
+                                    displayAsAmount(it.toString())
+                                } else { getSalaryDetails.errorMessage }
+                            },
                             fontSize = dpToSp(dp = 32.dp),
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.padding(end = 4.dp)
                         )
 
-                        if (getResult.first.isNotBlank()) {
+                        if (getSalaryDetails.resultSalary >= 0) {
                             Text(
                                 text = "원",
                                 fontSize = dpToSp(dp = 24.dp),
@@ -594,7 +631,7 @@ private fun MySalary(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun UseLeave(
+private fun MyLeaveList(
     homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -628,14 +665,19 @@ private fun UseLeave(
             onConfirm = { getMyUsedLeave ->
 
                 if (showUsingMyLeaveKindIdx < 3) {
-                    if ((1000 * 60 * 60 * 8 * maxLeaveDaysList[showUsingMyLeaveKindIdx]) -
-                        homeViewModel.getTotalUsedLeaveTime(showUsingMyLeaveKindIdx) >= getMyUsedLeave.usedLeaveTime)
-                    {
-                        homeViewModel.takeMyLeave(getMyUsedLeave)
-                    }
-                    // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
-                    else {
+                    ((1000 * 60 * 60 * 8 * maxLeaveDaysList[showUsingMyLeaveKindIdx]) -
+                            homeViewModel.getTotalUsedLeaveTime(showUsingMyLeaveKindIdx)).let {
 
+                                if (it >= getMyUsedLeave.usedLeaveTime) {
+                                    homeViewModel.takeMyLeave(getMyUsedLeave)
+                                }
+                                // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
+                                else {
+                                    SnackBarController.show(
+                                        "${getLeavePeriod(it)}을 초과하여 휴가 사용할 수 없습니다.",
+                                        SnackBarBehindTarget.VIEW
+                                    )
+                                }
                     }
                 } else {
                     homeViewModel.takeMyLeave(getMyUsedLeave)
