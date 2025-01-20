@@ -1,5 +1,7 @@
 package com.example.gongik.view.composables.main
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
@@ -18,10 +20,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.view.composables.home.HomeNavGraphView
 import com.example.gongik.view.composables.jobreview.JobReviewView
+import com.example.gongik.view.composables.post.PostView
+import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
+import com.example.gongik.view.composables.snackbar.SnackBarController
 import com.example.gongik.view.composables.writejobreview.WriteJobReviewView
 import com.example.gongik.view.composables.writepost.WritePostView
 import dev.chrisbanes.haze.haze
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainNavGraphView(
     mainNavController : NavHostController = rememberNavController()
@@ -29,6 +35,7 @@ fun MainNavGraphView(
     val currentRoute = MainNavGraphViewModel.route.collectAsState().value
     val isBackPressed = MainNavGraphViewModel.backPressed.collectAsState().value
     val isDeactive = MainNavGraphViewModel.isDeactive.collectAsState().value
+    val getParam = MainNavGraphViewModel.param.collectAsState().value
     val transitionDir = 1
     val hazeState by remember { mutableStateOf(MainNavGraphViewModel.hazeState) }
 
@@ -37,6 +44,13 @@ fun MainNavGraphView(
         if (isBackPressed) {
             mainNavController.popBackStack()
             MainNavGraphViewModel.finishPopBack()
+        }
+    }
+
+    LaunchedEffect(getParam) {
+
+        if (getParam.first.isNotBlank()) {
+            mainNavController.currentBackStackEntry?.savedStateHandle?.set(getParam.first, getParam.second)
         }
     }
 
@@ -70,6 +84,13 @@ fun MainNavGraphView(
             }
             composable(MainNavGraphBarItems.WRITEPOST.name) {
                 WritePostView()
+            }
+            composable(MainNavGraphBarItems.POST.name) {
+                val pressedPostUid by remember {
+                    mutableStateOf(mainNavController.previousBackStackEntry?.savedStateHandle?.get<Int>("pressed_post_uidw"))
+                }
+
+                PostView(pressedPostUid)
             }
             composable(MainNavGraphBarItems.FINDPOST.name) {
 

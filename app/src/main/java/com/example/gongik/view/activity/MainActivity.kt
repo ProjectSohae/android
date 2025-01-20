@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,12 +25,13 @@ import androidx.compose.ui.unit.dp
 import com.example.gongik.controller.BarColorController
 import com.example.gongik.ui.theme.GongikTheme
 import com.example.gongik.view.composables.main.MainNavGraphView
-import com.example.gongik.view.snackbar.SnackBarBehindTarget
-import com.example.gongik.view.snackbar.SnackBarController
-import com.example.gongik.view.snackbar.SnackbarView
+import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
+import com.example.gongik.view.composables.snackbar.SnackBarController
+import com.example.gongik.view.composables.snackbar.SnackbarView
 
 class MainActivity : ComponentActivity() {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(

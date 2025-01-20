@@ -53,7 +53,13 @@ class HomeViewModel: ViewModel() {
 
     fun updateMonthsCount(input: Int) {
         if (input >= 0) {
-            _monthsCount.value = input
+            if (input > _monthsCount.value) {
+                if (_salaryDetails.value.errorMessage != "소집 해제") {
+                    _monthsCount.value = input
+                }
+            } else {
+                _monthsCount.value = input
+            }
         } else {
             _monthsCount.value = 0
         }
@@ -277,14 +283,6 @@ class HomeViewModel: ViewModel() {
             )
         }
 
-        if (myWorkInformation.value!!.finishWorkDay < System.currentTimeMillis()) {
-            return SalaryDetails(
-                beginPayDate = LocalDate.MIN,
-                endPayDate = LocalDate.MIN,
-                errorMessage = "소집 해제"
-            )
-        }
-
         val startWorkDate = LocalDateTime.ofInstant(
             Instant.ofEpochMilli(myWorkInformation.value!!.startWorkDay),
             ZoneId.systemDefault()
@@ -338,16 +336,16 @@ class HomeViewModel: ViewModel() {
             }
         val endPayDate = LocalDate.of(beginPayDate.year, beginPayDate.monthValue, payday)
             .plusMonths(1).minusDays(1).let {
-                if (monthsCount > 0) {
-                    if (endWorkDate.isBefore(it)) { endWorkDate } else { it }
-                } else {
-                    if (beginPayDate.dayOfMonth < payday) {
-                        LocalDate.of(beginPayDate.year, beginPayDate.monthValue, payday).minusDays(1)
-                    } else {
-                        if (endWorkDate.isBefore(it)) { endWorkDate } else { it }
-                    }
-                }
+                if (endWorkDate.isBefore(it)) { endWorkDate } else { it }
             }
+
+        if (endPayDate.isBefore(beginPayDate)) {
+            return SalaryDetails(
+                beginPayDate = LocalDate.MIN,
+                endPayDate = LocalDate.MIN,
+                errorMessage = "소집 해제"
+            )
+        }
 
         // 기본급 계산
         val slackOffCountInStartMonth = getSlackOffDays(
@@ -364,13 +362,11 @@ class HomeViewModel: ViewModel() {
         )
         val weekendCount = getWeekendCount(beginPayDate, endPayDate)
         val totalWorkDay = ChronoUnit.DAYS.between(beginPayDate, endPayDate).toInt() + 1
-        var resultDate = ""
-        var resultSalary = 0
-        resultDate = getWorkDate(beginPayDate, endPayDate)
-        resultSalary = if (beginPayDate.monthValue == endPayDate.monthValue) {
+        val resultDate = getWorkDate(beginPayDate, endPayDate)
+        var resultSalary = if (beginPayDate.monthValue == endPayDate.monthValue) {
             startSalary * (totalWorkDay - slackOffCountInStartMonth)
         } else {
-            startSalary * (allDayOfStartMonth - payday + 1 - slackOffCountInStartMonth) +
+            startSalary * (allDayOfStartMonth - beginPayDate.dayOfMonth + 1 - slackOffCountInStartMonth) +
                     endSalary * (endPayDate.dayOfMonth - slackOffCountInEndMonth)
         }
 

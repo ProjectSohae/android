@@ -1,4 +1,4 @@
-package com.example.gongik.view.snackbar
+package com.example.gongik.view.composables.snackbar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,7 +45,7 @@ object SnackBarController{
         inputBehindTarget: SnackBarBehindTarget,
         inputDuration: SnackbarDuration = SnackbarDuration.Short
     ) {
-        this.hide()
+        hide()
         behindTarget = inputBehindTarget
         message = inputMessage
         CoroutineScope(Dispatchers.Default).launch {

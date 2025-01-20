@@ -42,9 +42,15 @@ class CommunityViewModel : ViewModel() {
     var savedStartDestination = CommunityCategories.ALL
     val postsList : List<Pair<String, String>> = emptyList()
 
-    init {
+    fun generateTest(count : Int) : List<Pair<String, String>> {
+        val test = mutableListOf<Pair<String, String>>()
 
+        for (idx : Int in 1..count) {
+            test.add(
+                Pair("코빈스의 이름은 코빈스의 이름은 코빈스의 이름은 코빈스의 이름은", "신준섭 신준섭 신준섭 신준섭 신준섭 신준섭")
+            )
+        }
+
+        return test.toList()
     }
-
-
 }

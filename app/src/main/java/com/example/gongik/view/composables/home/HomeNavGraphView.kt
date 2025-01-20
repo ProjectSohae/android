@@ -44,7 +44,6 @@ import kotlinx.coroutines.runBlocking
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeNavGraphView(
-    communityViewModel: CommunityViewModel = viewModel(),
     homeNavController: NavHostController = rememberNavController()
 ) {
     Scaffold(
@@ -87,7 +86,7 @@ fun HomeNavGraphView(
                 HomeView()
             }
             composable(HomeNavGraphBarItems.COMMUNITY.name) {
-                CommunityView(communityViewModel)
+                CommunityView()
             }
             composable(HomeNavGraphBarItems.JOBSEARCH.name) {
                 JobSearchView()

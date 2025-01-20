@@ -49,9 +49,9 @@ import com.example.gongik.util.function.getDate
 import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.view.composables.home.HomeViewModel
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
-import com.example.gongik.view.snackbar.SnackBarBehindTarget
-import com.example.gongik.view.snackbar.SnackBarController
-import com.example.gongik.view.snackbar.SnackbarView
+import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
+import com.example.gongik.view.composables.snackbar.SnackBarController
+import com.example.gongik.view.composables.snackbar.SnackbarView
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint

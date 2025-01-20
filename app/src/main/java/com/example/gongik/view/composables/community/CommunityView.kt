@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -82,7 +83,7 @@ object CommunityNavController{
 
 @Composable
 fun CommunityView(
-    communityViewModel: CommunityViewModel
+    communityViewModel: CommunityViewModel = viewModel()
 ) {
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
@@ -101,7 +102,10 @@ fun CommunityView(
         ) {
             CommunityViewHeader()
 
-            CommunityViewBody(savedStartDestination = CommunityCategories.ALL)
+            CommunityViewBody(
+                savedStartDestination = CommunityCategories.ALL,
+                communityViewModel = communityViewModel
+            )
         }
     }
 }
@@ -155,7 +159,8 @@ private fun CommunityViewHeader() {
 @Composable
 private fun CommunityViewBody(
     savedStartDestination : CommunityCategories,
-    communityNavController : NavHostController = rememberNavController()
+    communityNavController : NavHostController = rememberNavController(),
+    communityViewModel: CommunityViewModel
 ) {
     val currentSelectedCategory = communityNavController
         .currentBackStackEntryAsState()
@@ -218,19 +223,22 @@ private fun CommunityViewBody(
                 composable(CommunityCategories.ALL.name) {
                     CommunityPostsListBody(
                         savedSelectedSubCategory,
-                        CommunityCategories.ALL
+                        CommunityCategories.ALL,
+                        communityViewModel
                     )
                 }
                 composable(CommunityCategories.HOT.name) {
                     CommunityPostsListBody(
                         savedSelectedSubCategory,
-                        CommunityCategories.HOT
+                        CommunityCategories.HOT,
+                        communityViewModel
                     )
                 }
                 composable(CommunityCategories.NOTICE.name) {
                     CommunityPostsListBody(
                         savedSelectedSubCategory,
-                        CommunityCategories.NOTICE
+                        CommunityCategories.NOTICE,
+                        communityViewModel
                     )
                 }
             }
@@ -328,22 +336,11 @@ private fun CommunityUpperCategory(
     }
 }
 
-private fun generateTest(count : Int) : List<Pair<String, String>> {
-    val test = mutableListOf<Pair<String, String>>()
-
-    for (idx : Int in 1..count) {
-        test.add(
-            Pair("코빈스의 이름은 코빈스의 이름은 코빈스의 이름은 코빈스의 이름은", "신준섭 신준섭 신준섭 신준섭 신준섭 신준섭")
-        )
-    }
-
-    return test.toList()
-}
-
 @Composable
 private fun CommunityPostsListBody(
     savedSelectedSubCategory: Int,
-    currentSelectedCategory: CommunityCategories
+    currentSelectedCategory: CommunityCategories,
+    communityViewModel: CommunityViewModel
 ) {
     // 현재 선택 중인 서브 카테고리
     var currentSelectedSubCategory by rememberSaveable {
@@ -362,7 +359,8 @@ private fun CommunityPostsListBody(
 
         CommunityPostsList(
             currentSelectedCategory,
-            currentSelectedSubCategory
+            currentSelectedSubCategory,
+            communityViewModel
         )
     }
 }
@@ -517,21 +515,26 @@ private fun CommunityLowerCategory(
 @Composable
 private fun CommunityPostsList(
     currentSelectedCategory: CommunityCategories,
-    currentSelectedSubCategory: Int
+    currentSelectedSubCategory: Int,
+    communityViewModel: CommunityViewModel
 ) {
     val tertiary = MaterialTheme.colorScheme.tertiary
+    var loadPostsList by rememberSaveable { mutableStateOf(false) }
+    var isReadyPostsList by rememberSaveable { mutableStateOf(false) }
     var postsList by rememberSaveable {
         mutableStateOf<List<Pair<String, String>>>(emptyList())
     }
 
     LaunchedEffect(currentSelectedSubCategory) {
+        isReadyPostsList = false
         postsList = emptyList()
         delay(1000L)
-        postsList = generateTest(20)
+        postsList = communityViewModel.generateTest(20)
+        isReadyPostsList = true
     }
 
     // 게시글이 없는 경우
-    if (postsList.isEmpty()) {
+    if (!isReadyPostsList) {
 
         if (true) {
 
@@ -556,7 +559,7 @@ private fun CommunityPostsList(
         ) {
             itemsIndexed(
                 items = postsList,
-                key = { index : Int, item-> index }
+                key = { index : Int, item -> index }
             ) { index : Int, previewPost ->
                 Column(
                     modifier = Modifier
@@ -572,14 +575,14 @@ private fun CommunityPostsList(
                         }
                         .padding(vertical = 12.dp)
                         .clickable {
-
+                            MainNavGraphViewModel.setParam("pressed_post_uid", 0)
+                            MainNavGraphViewModel.navigate(MainNavGraphBarItems.POST.name)
                         }
                 ) {
                     if (currentSelectedCategory != CommunityCategories.NOTICE) {
                         Row {
                             if (
                                 currentSelectedCategory != CommunityCategories.HOT
-                                && true
                             ) {
                                 Text(
                                     text = "인기",

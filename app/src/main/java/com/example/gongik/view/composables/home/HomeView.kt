@@ -59,8 +59,8 @@ import com.example.gongik.util.function.displayAsAmount
 import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.view.composables.dialog.MyUsedLeaveListView
 import com.example.gongik.view.composables.dialog.UseMyLeaveView
-import com.example.gongik.view.snackbar.SnackBarBehindTarget
-import com.example.gongik.view.snackbar.SnackBarController
+import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
+import com.example.gongik.view.composables.snackbar.SnackBarController
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

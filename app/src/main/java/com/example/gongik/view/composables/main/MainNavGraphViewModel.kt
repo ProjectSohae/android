@@ -10,6 +10,7 @@ enum class MainNavGraphBarItems {
     JOBREVIEW,
     WRITEJOBREVIEW,
     WRITEPOST,
+    POST,
     FINDPOST,
     FINDJOB,
     SETTING
@@ -17,7 +18,10 @@ enum class MainNavGraphBarItems {
 
 object MainNavGraphViewModel {
     private var _route = MutableStateFlow("")
-    val route : StateFlow<String> = _route.asStateFlow()
+    val route = _route.asStateFlow()
+
+    private var _param = MutableStateFlow(Pair("", -1))
+    val param = _param.asStateFlow()
 
     private var _backPressed = MutableStateFlow(false)
     val backPressed = _backPressed.asStateFlow()
@@ -29,6 +33,10 @@ object MainNavGraphViewModel {
 
     fun navigate(inputRoute : String) {
         _route.value = inputRoute
+    }
+
+    fun setParam(key: String, value: Int) {
+        _param.value = Pair(key, value)
     }
 
     fun popBack() {
