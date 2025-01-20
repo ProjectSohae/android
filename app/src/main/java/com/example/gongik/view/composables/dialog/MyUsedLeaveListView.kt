@@ -108,7 +108,7 @@ fun MyUsedLeaveListView(
                             // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
                             else {
                                 SnackBarController.show(
-                                    "${getLeavePeriod(it)}을 초과하여 휴가 사용할 수 없습니다.",
+                                    "${getLeavePeriod(it + selectedLeaveItem!!.usedLeaveTime)}을 초과하여 휴가 사용할 수 없습니다.",
                                     SnackBarBehindTarget.DIALOG
                                 )
                             }

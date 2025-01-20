@@ -1,27 +1,26 @@
 package com.example.gongik.view.composables.home
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gongik.controller.MyInformationController
 import com.example.gongik.model.data.SalaryDetails
 import com.example.gongik.model.data.myinformation.MyUsedLeave
-import com.example.gongik.util.function.displayAsAmount
 import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.util.function.getWeekendCount
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
+@RequiresApi(Build.VERSION_CODES.O)
 class HomeViewModel: ViewModel() {
 
     val myInformation = MyInformationController.myInformation
@@ -31,6 +30,14 @@ class HomeViewModel: ViewModel() {
     val myLeave = MyInformationController.myLeave
     val finishLoadDB = MyInformationController.finishLoadDB
     val isReadyInfo = MyInformationController.isReadyInfo
+
+    private var _monthsCount = MutableStateFlow(0)
+    val monthsCount = _monthsCount.asStateFlow()
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private var _salaryDetails = MutableStateFlow(SalaryDetails(beginPayDate = LocalDate.MIN, endPayDate = LocalDate.MIN))
+    @RequiresApi(Build.VERSION_CODES.O)
+    val salaryDetails = _salaryDetails.asStateFlow()
 
     private val allDayOfMonth = listOf(
         31, 28, 31, 30,
@@ -43,6 +50,18 @@ class HomeViewModel: ViewModel() {
         "상등병",
         "병장"
     )
+
+    fun updateMonthsCount(input: Int) {
+        if (input >= 0) {
+            _monthsCount.value = input
+        } else {
+            _monthsCount.value = 0
+        }
+    }
+
+    fun updateSalaryDetails() {
+        _salaryDetails.value = getMyCurrentSalary(monthsCount.value ?: 0)
+    }
 
     fun getTotalUsedLeaveTime(leaveKindIdx: Int): Long {
         var totalUsedLeaveTime: Long = 0
@@ -130,9 +149,111 @@ class HomeViewModel: ViewModel() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getSlackOffDays(startDate: LocalDate, endDate: LocalDate): Int {
+        var slackOffList: List<MyUsedLeave> = emptyList()
+
+        runBlocking {
+            slackOffList = MyInformationController.getMyUsedLeaveListByDate(
+                startDate = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                endDate = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            ).filter { it.leaveKindIdx == 4 && it.leaveTypeIdx == 3 }
+        }
+
+        return slackOffList.size
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getNotReceiveLunchSupportDays(startDate: LocalDate, endDate: LocalDate): Int {
+        var result = 0
+        var isExistLeave = false
+        var currentDateValue = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val endDateValue = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        var leaveList: List<MyUsedLeave> = emptyList()
+
+        runBlocking {
+            leaveList = MyInformationController.getMyUsedLeaveListByDate(
+                startDate = currentDateValue,
+                endDate = endDateValue
+            ).filter { !it.receiveLunchSupport }
+        }
+
+        while (currentDateValue <= endDateValue) {
+
+            val currentDayOfWeek = LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateValue), ZoneId.systemDefault()).dayOfWeek
+
+            if (currentDayOfWeek != DayOfWeek.SATURDAY && currentDayOfWeek != DayOfWeek.SUNDAY) {
+                leaveList.forEach breaker@{
+                    if (it.leaveEndDate > it.leaveStartDate) {
+                        if (currentDateValue in it.leaveStartDate..it.leaveEndDate) {
+                            isExistLeave = true
+                            return@breaker
+                        }
+                    } else {
+                        if (currentDateValue == it.leaveStartDate) {
+                            isExistLeave = true
+                            return@breaker
+                        }
+                    }
+                }
+
+                if (isExistLeave) { result++ }
+            }
+
+            isExistLeave = false
+            currentDateValue += 1000 * 60 * 60 * 24
+        }
+
+        return result
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getNotReceiveTransportationSupportDays(startDate: LocalDate, endDate: LocalDate): Int {
+        var result = 0
+        var isExistLeave = false
+        var currentDateValue = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val endDateValue = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        var leaveList: List<MyUsedLeave> = emptyList()
+
+        runBlocking {
+            leaveList = MyInformationController.getMyUsedLeaveListByDate(
+                startDate = currentDateValue,
+                endDate = endDateValue
+            ).filter { !it.receiveTransportationSupport }
+        }
+
+        while (currentDateValue <= endDateValue) {
+
+            val currentDayOfWeek = LocalDateTime.ofInstant(Instant.ofEpochMilli(currentDateValue), ZoneId.systemDefault()).dayOfWeek
+
+            if (currentDayOfWeek != DayOfWeek.SATURDAY && currentDayOfWeek != DayOfWeek.SUNDAY) {
+                leaveList.forEach breaker@{
+                    if (it.leaveEndDate > it.leaveStartDate) {
+                        if (currentDateValue in it.leaveStartDate..it.leaveEndDate) {
+                            isExistLeave = true
+                            return@breaker
+                        }
+                    } else {
+                        if (currentDateValue == it.leaveStartDate) {
+                            isExistLeave = true
+                            return@breaker
+                        }
+                    }
+                }
+
+                if (isExistLeave) { result++ }
+            }
+
+            isExistLeave = false
+            currentDateValue += 1000 * 60 * 60 * 24
+        }
+
+        return result
+    }
+
     // Pair < 기간, 월급 >
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getMyCurrentSalary(monthsCount: Int): SalaryDetails {
+    private fun getMyCurrentSalary(monthsCount: Int): SalaryDetails {
         val payday: Int = myWelfare.value?.payday.let {
             if (it == null) { -1 } else {
                 if (it > 0) { it } else { -1 }
@@ -229,22 +350,73 @@ class HomeViewModel: ViewModel() {
             }
 
         // 기본급 계산
+        val slackOffCountInStartMonth = getSlackOffDays(
+            startDate = beginPayDate,
+            endDate = if (beginPayDate.monthValue == endPayDate.monthValue) {
+                endPayDate
+            } else {
+                LocalDate.of(beginPayDate.year, beginPayDate.monthValue, allDayOfStartMonth)
+            }
+        )
+        val slackOffCountInEndMonth = getSlackOffDays(
+            startDate = LocalDate.of(endPayDate.year, endPayDate.monthValue, 1),
+            endDate = endPayDate
+        )
         val weekendCount = getWeekendCount(beginPayDate, endPayDate)
         val totalWorkDay = ChronoUnit.DAYS.between(beginPayDate, endPayDate).toInt() + 1
         var resultDate = ""
         var resultSalary = 0
         resultDate = getWorkDate(beginPayDate, endPayDate)
         resultSalary = if (beginPayDate.monthValue == endPayDate.monthValue) {
-            startSalary * (totalWorkDay)
+            startSalary * (totalWorkDay - slackOffCountInStartMonth)
         } else {
-            startSalary * (beginPayDate.dayOfMonth - payday) + endSalary * (endPayDate.dayOfMonth)
+            startSalary * (allDayOfStartMonth - payday + 1 - slackOffCountInStartMonth) +
+                    endSalary * (endPayDate.dayOfMonth - slackOffCountInEndMonth)
         }
 
         // 주말, 휴가로 인한 식비 및 교통비 차감
-        val noLunchSupportCount = 0
-        val noTransportationSupportCount = 0
-        resultSalary += myWelfare.value!!.lunchSupport * (totalWorkDay - weekendCount - noLunchSupportCount)
-        resultSalary += myWelfare.value!!.transportationSupport * (totalWorkDay - weekendCount - noTransportationSupportCount)
+        val noLunchSupportCountInStartMonth = getNotReceiveLunchSupportDays(
+            startDate = beginPayDate,
+            endDate = if (beginPayDate.monthValue == endPayDate.monthValue) {
+                endPayDate
+            } else {
+                LocalDate.of(beginPayDate.year, beginPayDate.monthValue, allDayOfStartMonth)
+            }
+        )
+        val noLunchSupportCountInEndMonth = if (beginPayDate.monthValue == endPayDate.monthValue) {
+            0
+        } else {
+            getNotReceiveLunchSupportDays(
+                startDate = LocalDate.of(endPayDate.year, endPayDate.monthValue, 1),
+                endDate = endPayDate
+            )
+        }
+        val noTransportationSupportCountInStartMonth = getNotReceiveTransportationSupportDays(
+            startDate = beginPayDate,
+            endDate = if (beginPayDate.monthValue == endPayDate.monthValue) {
+                endPayDate
+            } else {
+                LocalDate.of(beginPayDate.year, beginPayDate.monthValue, allDayOfStartMonth)
+            }
+        )
+        val noTransportationSupportCountInEndMonth = if (beginPayDate.monthValue == endPayDate.monthValue) {
+            0
+        } else {
+            getNotReceiveTransportationSupportDays(
+                startDate = LocalDate.of(endPayDate.year, endPayDate.monthValue, 1),
+                endDate = endPayDate
+            )
+        }
+        resultSalary += myWelfare.value!!.lunchSupport *
+                (totalWorkDay
+                        - (weekendCount
+                        + (noLunchSupportCountInStartMonth + noLunchSupportCountInEndMonth))
+                        )
+        resultSalary += myWelfare.value!!.transportationSupport *
+                (totalWorkDay
+                        - (weekendCount
+                        + (noTransportationSupportCountInStartMonth + noTransportationSupportCountInEndMonth))
+                        )
 
         return SalaryDetails(
             startRank = startRank,
@@ -255,11 +427,16 @@ class HomeViewModel: ViewModel() {
             startSalaryPerMonth = getMySalary(startRank),
             endSalary = endSalary,
             endSalaryPerMonth = getMySalary(endRank),
+            slackOffCountInStartMonth =slackOffCountInStartMonth,
+            slackOffCountInEndMonth = slackOffCountInEndMonth,
             lunchSupport = myWelfare.value!!.lunchSupport,
+            noLunchSupportCountInStartMonth = noLunchSupportCountInStartMonth,
+            noLunchSupportCountInEndMonth = noLunchSupportCountInEndMonth,
             transportationSupport = myWelfare.value!!.transportationSupport,
+            noTransportationSupportCountInStartMonth = noTransportationSupportCountInStartMonth,
+            noTransportationSupportCountInEndMonth = noTransportationSupportCountInEndMonth,
             beginPayDate = beginPayDate,
             endPayDate = endPayDate,
-            weekendCount = weekendCount,
             totalWorkDay = totalWorkDay,
             resultDate = resultDate,
             resultSalary = resultSalary

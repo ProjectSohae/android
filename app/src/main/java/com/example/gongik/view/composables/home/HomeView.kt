@@ -1,7 +1,6 @@
 package com.example.gongik.view.composables.home
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -27,10 +26,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,12 +52,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
-import com.example.gongik.model.data.SalaryDetails
 import com.example.gongik.model.data.myinformation.leaveKindList
 import com.example.gongik.model.data.myinformation.leaveTypeList
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.util.function.displayAsAmount
-import com.example.gongik.util.function.getDate
 import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.view.composables.dialog.MyUsedLeaveListView
 import com.example.gongik.view.composables.dialog.UseMyLeaveView
@@ -447,12 +444,13 @@ private fun MySalary(
     val primary = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.secondary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
-    var salaryDetails by remember {
-        mutableStateOf(
-            SalaryDetails(beginPayDate = LocalDate.MIN, endPayDate = LocalDate.MIN)
-        )
-    }
+    val monthsCount = homeViewModel.monthsCount.collectAsState().value
+    val salaryDetails = homeViewModel.salaryDetails.collectAsState().value
     var showSalaryDetails by remember { mutableStateOf(false) }
+
+    LaunchedEffect(monthsCount) {
+        homeViewModel.updateSalaryDetails()
+    }
 
     if (showSalaryDetails) {
 
@@ -497,9 +495,7 @@ private fun MySalary(
                     .clickable(
                         indication = null,
                         interactionSource = null
-                    ) {
-
-                    },
+                    ) { homeViewModel.updateMonthsCount(monthsCount - 1) },
                 contentDescription = null
             )
 
@@ -507,40 +503,36 @@ private fun MySalary(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                homeViewModel.getMyCurrentSalary(0).let { getSalaryDetails ->
-                    salaryDetails = getSalaryDetails
+                Text(
+                    text = salaryDetails.resultDate,
+                    fontSize = dpToSp(dp = 16.dp),
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
 
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        text = getSalaryDetails.resultDate,
-                        fontSize = dpToSp(dp = 16.dp),
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        text = salaryDetails.resultSalary.let {
+                            if (it >= 0) {
+                                displayAsAmount(it.toString())
+                            } else { salaryDetails.errorMessage }
+                        },
+                        fontSize = dpToSp(dp = 32.dp),
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(end = 4.dp)
                     )
 
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    if (salaryDetails.resultSalary >= 0) {
                         Text(
-                            text = getSalaryDetails.resultSalary.let {
-                                if (it >= 0) {
-                                    displayAsAmount(it.toString())
-                                } else { getSalaryDetails.errorMessage }
-                            },
-                            fontSize = dpToSp(dp = 32.dp),
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.padding(end = 4.dp)
+                            text = "원",
+                            fontSize = dpToSp(dp = 24.dp),
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
-
-                        if (getSalaryDetails.resultSalary >= 0) {
-                            Text(
-                                text = "원",
-                                fontSize = dpToSp(dp = 24.dp),
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
                     }
                 }
             }
@@ -552,9 +544,7 @@ private fun MySalary(
                     .clickable(
                         indication = null,
                         interactionSource = null
-                    ) {
-
-                    },
+                    ) { homeViewModel.updateMonthsCount(monthsCount + 1) },
                 contentDescription = null
             )
         }
@@ -652,7 +642,10 @@ private fun MyLeaveList(
             leaveKindIdx = showUsedMyLeaveListKindIdx,
             maxLeaveDaysList = maxLeaveDaysList,
             homeViewModel = homeViewModel,
-            onDismissRequest = { showUsedMyLeaveListKindIdx = -1 }
+            onDismissRequest = {
+                homeViewModel.updateSalaryDetails()
+                showUsedMyLeaveListKindIdx = -1
+            }
         )
     }
 
@@ -683,6 +676,7 @@ private fun MyLeaveList(
                     homeViewModel.takeMyLeave(getMyUsedLeave)
                 }
 
+                homeViewModel.updateSalaryDetails()
                 showUsingMyLeaveKindIdx = -1
             }
         )

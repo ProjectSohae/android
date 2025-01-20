@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,11 +34,13 @@ import com.example.gongik.model.data.SalaryDetails
 import com.example.gongik.model.data.myinformation.MyUsedLeave
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.util.function.displayAsAmount
+import com.example.gongik.util.function.getWeekendCount
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import java.time.LocalDate
 import java.time.ZoneId
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -65,7 +66,7 @@ fun SalaryDetailsView(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(540.dp)
+                .height(640.dp)
                 .shadow(12.dp, RoundedCornerShape(10))
                 .clip(RoundedCornerShape(10))
                 .hazeChild(
@@ -106,10 +107,79 @@ fun SalaryDetailsView(
             )
 
             LazyColumn(
-                modifier = Modifier.weight(1f).padding(horizontal = 12.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp)
             ) {
                 item {
-                    SalaryDetailsItem(salaryDetails)
+                    SalaryDetailsItem(
+                        payDate = salaryDetails.beginPayDate,
+                        lastPayDate =
+                        if (salaryDetails.beginPayDate.monthValue == salaryDetails.endPayDate.monthValue) {
+                            salaryDetails.endPayDate
+                        } else {
+                            LocalDate.of(salaryDetails.beginPayDate.year, salaryDetails.beginPayDate.monthValue, salaryDetails.allDayOfStartMonth)
+                        },
+                        rank = salaryDetails.startRank,
+                        salaryValue = salaryDetails.startSalaryPerMonth,
+                        slackOffCount = salaryDetails.slackOffCountInStartMonth,
+                        lunchSupport = salaryDetails.lunchSupport,
+                        noLunchSupportCount = salaryDetails.noLunchSupportCountInStartMonth,
+                        transportationSupport = salaryDetails.transportationSupport,
+                        noTransportationSupportCount = salaryDetails.noTransportationSupportCountInStartMonth,
+                        allDayOfMonth = salaryDetails.allDayOfStartMonth,
+                        totalWorkDay =
+                        if (salaryDetails.beginPayDate.monthValue == salaryDetails.endPayDate.monthValue) {
+                            salaryDetails.totalWorkDay
+                        } else {
+                            salaryDetails.allDayOfStartMonth - salaryDetails.beginPayDate.dayOfMonth + 1
+                        }
+                    )
+                }
+
+                item {
+                    if (salaryDetails.beginPayDate.monthValue != salaryDetails.endPayDate.monthValue) {
+                        SalaryDetailsItem(
+                            payDate = LocalDate.of(salaryDetails.endPayDate.year, salaryDetails.endPayDate.monthValue, 1),
+                            lastPayDate = salaryDetails.endPayDate,
+                            rank = salaryDetails.endRank,
+                            salaryValue = salaryDetails.endSalaryPerMonth,
+                            slackOffCount = salaryDetails.slackOffCountInEndMonth,
+                            lunchSupport = salaryDetails.lunchSupport,
+                            noLunchSupportCount = salaryDetails.noLunchSupportCountInEndMonth,
+                            transportationSupport = salaryDetails.transportationSupport,
+                            noTransportationSupportCount = salaryDetails.noTransportationSupportCountInEndMonth,
+                            allDayOfMonth = salaryDetails.allDayOfEndMonth,
+                            totalWorkDay = salaryDetails.endPayDate.dayOfMonth
+                        )
+                    }
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp, bottom = 24.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "총 급여 합산액",
+                            fontSize = dpToSp(dp = 16.dp),
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Text(
+                            text = "${displayAsAmount(salaryDetails.resultSalary.toString())}원",
+                            fontSize = dpToSp(dp = 16.dp),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
 
@@ -139,284 +209,432 @@ fun SalaryDetailsView(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SalaryDetailsItem(
-    salaryDetails: SalaryDetails
+    payDate: LocalDate,
+    lastPayDate: LocalDate,
+    rank: String,
+    salaryValue: Int,
+    slackOffCount: Int,
+    lunchSupport: Int,
+    noLunchSupportCount: Int,
+    transportationSupport: Int,
+    noTransportationSupportCount: Int,
+    allDayOfMonth: Int,
+    totalWorkDay: Int,
 ) {
-    val totalWorkDay = if (salaryDetails.beginPayDate.monthValue == salaryDetails.endPayDate.monthValue) {
-        salaryDetails.totalWorkDay
-    } else { salaryDetails.allDayOfStartMonth - salaryDetails.beginPayDate.dayOfMonth + 1 }
+    val tertiary = MaterialTheme.colorScheme.tertiary
+    val weekendCount = getWeekendCount(payDate, lastPayDate)
 
-    Text(
-        text = "${salaryDetails.beginPayDate.year}년 ${salaryDetails.beginPayDate.monthValue}월 기준",
-        fontSize = dpToSp(dp = 16.dp),
-        fontWeight = FontWeight.Medium,
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    // 보수 등급, 월급
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "보수 등급",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = salaryDetails.startRank,
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "월급",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "${displayAsAmount(salaryDetails.startSalaryPerMonth.toString())}원",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-
-    // 전체 일수, 일급
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "${salaryDetails.beginPayDate.monthValue}월 일수",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "${salaryDetails.allDayOfStartMonth}일",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "일급",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "${displayAsAmount(salaryDetails.startSalary.toString())}원",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-
-    // 식비, 교통비
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "식비",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "${displayAsAmount(salaryDetails.lunchSupport.toString())}원",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "교통비",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "${displayAsAmount(salaryDetails.transportationSupport.toString())}원",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-
-    // 근무일, 주말 일수
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "근무일",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "${totalWorkDay}일",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "주말 휴일",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "${salaryDetails.weekendCount}일",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-
-    // 휴가 사용일, 누적 복무이탈 일수
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "휴가 사용일",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "${salaryDetails.weekendCount}일",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "복무이탈",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "없음",
-                fontSize = dpToSp(dp = 12.dp),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-
-    // 총 급여 계산
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier
+            .drawBehind {
+                drawLine(
+                    color = tertiary,
+                    start = Offset(0f, this.size.height),
+                    end = Offset(this.size.width, this.size.height),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
+            .padding(vertical = 12.dp)
     ) {
         Text(
-            text = "급여 총액",
-            fontSize = dpToSp(dp = 12.dp),
+            text = "${payDate.year}년 ${payDate.monthValue}월 기준",
+            fontSize = dpToSp(dp = 16.dp),
+            fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
         )
 
-        Text(
-            text = "${salaryDetails.startSalary} * ${totalWorkDay}\n" +
-                    "+ ${salaryDetails.lunchSupport} * (${totalWorkDay} - ${salaryDetails.weekendCount})\n" +
-                    "+ ${salaryDetails.transportationSupport} * (${totalWorkDay} - ${salaryDetails.weekendCount})\n" +
-                    "= 원",
-            fontSize = dpToSp(dp = 12.dp),
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.weight(3f)
-        )
+        Column(
+            modifier = Modifier
+                .drawBehind {
+                    drawLine(
+                        color = tertiary,
+                        start = Offset(this.size.width / 2f, 0f),
+                        end = Offset(this.size.width / 2f, this.size.height),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
+        ) {
+            // 보수 등급, 월급
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = tertiary,
+                            start = Offset(0f, this.size.height),
+                            end = Offset(this.size.width, this.size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "보수 등급",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = rank,
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "월급",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = "${displayAsAmount(salaryValue.toString())}원",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // 전체 일수, 일급
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = tertiary,
+                            start = Offset(0f, this.size.height),
+                            end = Offset(this.size.width, this.size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "${payDate.monthValue}월 일수",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = "${allDayOfMonth}일",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "일급",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = "${displayAsAmount((salaryValue / allDayOfMonth).toString())}원",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // 식비, 교통비
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = tertiary,
+                            start = Offset(0f, this.size.height),
+                            end = Offset(this.size.width, this.size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "식비",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = "${displayAsAmount(lunchSupport.toString())}원",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "교통비",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = "${displayAsAmount(transportationSupport.toString())}원",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // 근무일, 주말 일수
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = tertiary,
+                            start = Offset(0f, this.size.height),
+                            end = Offset(this.size.width, this.size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "근무일",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = totalWorkDay.let {
+                            if (it < 1) { "없음" } else { "${it}일" }
+                        },
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "주말 휴일",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = weekendCount.let {
+                            if (it < 1) { "없음" } else { "${it}일" }
+                        },
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // 식비 미지급 일수, 교통비 미지급 일수
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = tertiary,
+                            start = Offset(0f, this.size.height),
+                            end = Offset(this.size.width, this.size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "식비 미지급 휴가",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = noLunchSupportCount.let {
+                            if (it < 1) { "없음" } else { "${it}일" }
+                        },
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "교통비 미지급 휴가",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = noTransportationSupportCount.let {
+                            if (it < 1) { "없음" } else { "${it}일" }
+                        },
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // 복무 이탈
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = tertiary,
+                            start = Offset(0f, this.size.height),
+                            end = Offset(this.size.width, this.size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "복무이탈",
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = slackOffCount.let {
+                            if (it < 1) { "없음" } else { "${it}일" }
+                        },
+                        fontSize = dpToSp(dp = 12.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {}
+            }
+        }
+
+        // 총 급여 계산
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "급여 총액",
+                fontSize = dpToSp(dp = 12.dp),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f)
+            )
+
+            Text(
+                text = "${displayAsAmount((salaryValue / allDayOfMonth).toString())} * (${totalWorkDay} - ${slackOffCount})\n" +
+                        "+ ${displayAsAmount(lunchSupport.toString())} * (${totalWorkDay} - (${weekendCount} + ${noLunchSupportCount}))\n" +
+                        "+ ${displayAsAmount(transportationSupport.toString())} * (${totalWorkDay} - (${weekendCount} + ${noTransportationSupportCount}))\n" +
+                        "= ${displayAsAmount((
+                                ((salaryValue / allDayOfMonth) * (totalWorkDay - slackOffCount))
+                                        + (lunchSupport * (totalWorkDay - (weekendCount + noLunchSupportCount)))
+                                        + (transportationSupport * (totalWorkDay - (weekendCount + noTransportationSupportCount)))
+                                ).toString())}원",
+                fontSize = dpToSp(dp = 12.dp),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(3f)
+            )
+        }
     }
 }
