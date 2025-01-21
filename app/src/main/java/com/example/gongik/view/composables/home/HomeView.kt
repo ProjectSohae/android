@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,6 +60,7 @@ import com.example.gongik.util.function.displayAsAmount
 import com.example.gongik.util.function.getLeavePeriod
 import com.example.gongik.view.composables.dialog.MyUsedLeaveListView
 import com.example.gongik.view.composables.dialog.UseMyLeaveView
+import com.example.gongik.view.composables.profile.ProfileImage
 import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
 import com.example.gongik.view.composables.snackbar.SnackBarController
 import java.time.Instant
@@ -140,32 +142,17 @@ private fun HomeViewHeader(
         }
 
         // profile image
-        Surface(
+        ProfileImage(
             modifier = Modifier
                 .size(140.dp)
                 .align(Alignment.CenterStart)
                 .offset(x = leftPadding + 16.dp, y = 48.dp)
                 .shadow(4.dp, shape = RoundedCornerShape(100))
-                .clickable(
-                    indication = null,
-                    interactionSource = null
-                ) {
+                .clickable {
                 },
-            color = onPrimary,
-            shape = RoundedCornerShape(100)
-        ) {
-            if (false) {
-
-            }
-            else {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_profile_basic_icon_24),
-                    tint = primary,
-                    modifier = Modifier.offset(y = 8.dp),
-                    contentDescription = null
-                )
-            }
-        }
+            innerPadding = PaddingValues(top = 8.dp),
+            imageUrl = ""
+        )
 
         // notification
         Box(

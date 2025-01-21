@@ -51,6 +51,6 @@ class CommunityViewModel : ViewModel() {
             )
         }
 
-        return test.toList()
+        return emptyList()
     }
 }

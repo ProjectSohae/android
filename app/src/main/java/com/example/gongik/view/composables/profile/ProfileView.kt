@@ -2,8 +2,10 @@ package com.example.gongik.view.composables.profile
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,11 +31,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -179,18 +185,10 @@ private fun PreviewProfileDetails(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
+            ProfileImage(
                 modifier = Modifier.size(64.dp),
-                color = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(100)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_profile_basic_icon_24),
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.offset(y = 4.dp),
-                    contentDescription = null
-                )
-            }
+                innerPadding = PaddingValues(top = 4.dp)
+            )
             Spacer(modifier = Modifier.size(12.dp))
 
             Column {
@@ -217,6 +215,31 @@ private fun PreviewProfileDetails(
             modifier = Modifier.size(24.dp),
             contentDescription = null
         )
+    }
+}
+
+@Composable
+fun ProfileImage(
+    modifier: Modifier,
+    innerPadding: PaddingValues,
+    imageUrl: String = ""
+) {
+    Box(
+        modifier = modifier.clip(RoundedCornerShape(100))
+    ) {
+        if (imageUrl.isBlank()) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_profile_basic_icon_24),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.onPrimary)
+                    .padding(innerPadding),
+                contentDescription = null
+            )
+        } else {
+
+        }
     }
 }
 

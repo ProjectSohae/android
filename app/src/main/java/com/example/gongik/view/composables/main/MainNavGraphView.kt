@@ -87,7 +87,7 @@ fun MainNavGraphView(
             }
             composable(MainNavGraphBarItems.POST.name) {
                 val pressedPostUid by remember {
-                    mutableStateOf(mainNavController.previousBackStackEntry?.savedStateHandle?.get<Int>("pressed_post_uidw"))
+                    mutableStateOf(mainNavController.previousBackStackEntry?.savedStateHandle?.get<Int>("pressed_post_uid"))
                 }
 
                 PostView(pressedPostUid)

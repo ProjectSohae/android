@@ -534,12 +534,9 @@ private fun CommunityPostsList(
     }
 
     // 게시글이 없는 경우
-    if (!isReadyPostsList) {
+    if (postsList.isEmpty()) {
 
-        if (true) {
-
-        }
-        else {
+        if (isReadyPostsList) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -551,6 +548,8 @@ private fun CommunityPostsList(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
+        }
+        else {
         }
     }
     else {
@@ -657,32 +656,40 @@ private fun CommunityPostsList(
 
                         // like count and replies count
                         Row {
-                            Icon(
-                                painter = painterResource(id = R.drawable.baseline_thumb_up_24),
-                                tint = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier.scale(0.75f),
-                                contentDescription = null
-                            )
-                            Text(
-                                text = "999",
-                                fontWeight = FontWeight.Medium,
-                                fontSize = dpToSp(dp = 12.dp),
-                                color = MaterialTheme.colorScheme.tertiary
-                            )
-                            Spacer(modifier = Modifier.size(8.dp))
+                            Row(
+                                modifier = Modifier.padding(end = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_thumb_up_24),
+                                    tint = MaterialTheme.colorScheme.tertiary,
+                                    modifier = Modifier.size(18.dp),
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = " 999",
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = dpToSp(dp = 12.dp),
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
+                            }
 
-                            Icon(
-                                painter = painterResource(id = R.drawable.outline_comment_24),
-                                tint = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier.scale(0.75f),
-                                contentDescription = null
-                            )
-                            Text(
-                                text = "999",
-                                fontWeight = FontWeight.Medium,
-                                fontSize = dpToSp(dp = 12.dp),
-                                color = MaterialTheme.colorScheme.tertiary
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_comment_24),
+                                    tint = MaterialTheme.colorScheme.tertiary,
+                                    modifier = Modifier.size(18.dp),
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = " 999",
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = dpToSp(dp = 12.dp),
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
+                            }
                         }
                     }
                 }
