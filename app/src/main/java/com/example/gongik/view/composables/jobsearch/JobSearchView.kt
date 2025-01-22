@@ -60,7 +60,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.R
-import com.example.gongik.view.composables.main.MainNavGraphBarItems
+import com.example.gongik.view.composables.main.MainNavGraphItems
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
@@ -297,6 +297,7 @@ private fun PreviewJobItemsList() {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+            // 복무지 리뷰 검색 필터
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -368,7 +369,8 @@ private fun PreviewJobItemsList() {
                     )
                 }
             }
-            
+
+            // 복무지 리뷰 목록
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -381,12 +383,19 @@ private fun PreviewJobItemsList() {
                         index
                     }
                 ) { index: Int, previewPost ->
-                    Box(
-                        modifier = Modifier
-                            .fillParentMaxWidth()
-                            .padding(12.dp)
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(12.dp)
                     ) {
                         PreviewJobItem()
+
+                        // 광고
+                        if (index % 2 == 0) {
+                            Surface(
+                                modifier = Modifier.padding(top = 24.dp).fillParentMaxWidth().height(120.dp)
+                            ) {
+
+                            }
+                        }
                     }
                 }
             }
@@ -399,7 +408,7 @@ private fun PreviewJobItemsList() {
                 .offset(x = (-12).dp, y = (-12).dp)
                 .clip(RoundedCornerShape(100))
                 .clickable {
-                    MainNavGraphViewModel.navigate(MainNavGraphBarItems.WRITEJOBREVIEW.name)
+                    MainNavGraphViewModel.navigate(MainNavGraphItems.WRITEJOBREVIEW.name)
                 }
         ) {
             Icon(
@@ -432,11 +441,11 @@ private fun PreviewJobItem() {
                         )
                     ),
                     color = tertiary,
-                    style = Stroke(width = 2f)
+                    style = Stroke(width = 1.dp.toPx())
                 )
             }
             .clickable {
-                MainNavGraphViewModel.navigate(MainNavGraphBarItems.JOBREVIEW.name)
+                MainNavGraphViewModel.navigate(MainNavGraphItems.JOBREVIEW.name)
             }
             .padding(16.dp)
     ) {
@@ -579,7 +588,9 @@ private fun JobCompetitionItemsList() {
                                     color = yearIdx.let {
                                         if (it < 0) {
                                             MaterialTheme.colorScheme.tertiary
-                                        } else { Color.Transparent }
+                                        } else {
+                                            Color.Transparent
+                                        }
                                     },
                                     shape = RoundedCornerShape(100)
                                 )
@@ -587,7 +598,9 @@ private fun JobCompetitionItemsList() {
                                     color = yearIdx.let {
                                         if (it < 0) {
                                             Color.Transparent
-                                        } else { MaterialTheme.colorScheme.primary }
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        }
                                     },
                                     shape = RoundedCornerShape(100)
                                 )
@@ -618,7 +631,9 @@ private fun JobCompetitionItemsList() {
                                     color = roundNumberIdx.let {
                                         if (it < 0) {
                                             MaterialTheme.colorScheme.tertiary
-                                        } else { Color.Transparent }
+                                        } else {
+                                            Color.Transparent
+                                        }
                                     },
                                     shape = RoundedCornerShape(100)
                                 )
@@ -626,7 +641,9 @@ private fun JobCompetitionItemsList() {
                                     color = roundNumberIdx.let {
                                         if (it < 0) {
                                             Color.Transparent
-                                        } else { MaterialTheme.colorScheme.primary }
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        }
                                     },
                                     shape = RoundedCornerShape(100)
                                 )

@@ -5,14 +5,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-enum class MainNavGraphBarItems {
+enum class MainNavGraphItems {
     HOMENAV,
     JOBREVIEW,
     WRITEJOBREVIEW,
     WRITEPOST,
     POST,
-    FINDPOST,
-    FINDJOB,
+    SEARCHPOST,
+    SEARCHJOB,
     SETTING
 }
 

@@ -50,6 +50,12 @@ class HomeViewModel: ViewModel() {
         "상등병",
         "병장"
     )
+    private val rankSalary = mutableListOf(
+        750000,
+        900000,
+        1200000,
+        1500000
+    )
 
     fun updateMonthsCount(input: Int) {
         if (input >= 0) {
@@ -304,10 +310,10 @@ class HomeViewModel: ViewModel() {
         }
         val getMySalary: (String) -> Int = { rank ->
             when (rank) {
-                "이등병" -> { 750000 }
-                "일등병" -> { 900000 }
-                "상등병" -> { 1200000 }
-                "병장" -> { 1500000 }
+                "이등병" -> { rankSalary[0] }
+                "일등병" -> { rankSalary[1] }
+                "상등병" -> { rankSalary[2] }
+                "병장" -> { rankSalary[3] }
                 else -> { 0 }
             }
         }

@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -15,6 +17,7 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -107,48 +110,58 @@ private fun HomeBottomNavBar(
 ) {
     val currentBackStackEntry = homeNavController.currentBackStackEntryAsState()
 
-    BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.onPrimary,
-        elevation = 0.dp
-    ) {
-        HomeNavGraphItemsList.forEach { item ->
-            val isSelected : Boolean = currentBackStackEntry
-                .value?.destination?.route?.let {
-                    it == item.route
-                } ?: false
+    Column {
+        // 광고
+        if (false) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().height(80.dp),
+                color = MaterialTheme.colorScheme.secondary
+            ) {}
+        }
 
-            BottomNavigationItem(
-                modifier = Modifier.padding(vertical = 4.dp),
-                selected = isSelected,
-                onClick = {
-                    if (!isSelected) {
-                        homeNavController.navigate(item.route) {
-                            homeNavController.popBackStack()
+        BottomNavigation(
+            backgroundColor = MaterialTheme.colorScheme.onPrimary,
+            elevation = 0.dp
+        ) {
+            HomeNavGraphItemsList.forEach { item ->
+                val isSelected : Boolean = currentBackStackEntry
+                    .value?.destination?.route?.let {
+                        it == item.route
+                    } ?: false
+
+                BottomNavigationItem(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    selected = isSelected,
+                    onClick = {
+                        if (!isSelected) {
+                            homeNavController.navigate(item.route) {
+                                homeNavController.popBackStack()
+                            }
                         }
-                    }
-                },
-                icon = {
-                    Column {
-                        Icon(
-                            painter = isSelected.let{
-                                if (it) { painterResource(id = item.seletedIcon) }
-                                else { painterResource(id = item.baseIcon) }
-                            },
-                            tint = MaterialTheme.colorScheme.primaryContainer,
-                            contentDescription = null,
-                            modifier = Modifier.size(28.dp)
+                    },
+                    icon = {
+                        Column {
+                            Icon(
+                                painter = isSelected.let{
+                                    if (it) { painterResource(id = item.seletedIcon) }
+                                    else { painterResource(id = item.baseIcon) }
+                                },
+                                tint = MaterialTheme.colorScheme.primaryContainer,
+                                contentDescription = null,
+                                modifier = Modifier.size(28.dp)
+                            )
+                            Spacer(modifier = Modifier.size(4.dp))
+                        }
+                    },
+                    label = {
+                        Text(
+                            text = item.label,
+                            fontSize = dpToSp(dp = 12.dp),
+                            color = MaterialTheme.colorScheme.primary
                         )
-                        Spacer(modifier = Modifier.size(4.dp))
                     }
-                       },
-                label = {
-                    Text(
-                        text = item.label,
-                        fontSize = dpToSp(dp = 12.dp),
-                        color = MaterialTheme.colorScheme.primary
-                        )
-                }
-            )
+                )
+            }
         }
     }
 }

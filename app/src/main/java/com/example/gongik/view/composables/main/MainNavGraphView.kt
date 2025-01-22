@@ -21,8 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gongik.view.composables.home.HomeNavGraphView
 import com.example.gongik.view.composables.jobreview.JobReviewView
 import com.example.gongik.view.composables.post.PostView
-import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
-import com.example.gongik.view.composables.snackbar.SnackBarController
+import com.example.gongik.view.composables.searchpost.SearchPostView
 import com.example.gongik.view.composables.writejobreview.WriteJobReviewView
 import com.example.gongik.view.composables.writepost.WritePostView
 import dev.chrisbanes.haze.haze
@@ -69,36 +68,36 @@ fun MainNavGraphView(
         NavHost(
             modifier = Modifier.haze(hazeState),
             navController = mainNavController,
-            startDestination = MainNavGraphBarItems.HOMENAV.name,
+            startDestination = MainNavGraphItems.HOMENAV.name,
             enterTransition = { slideInVertically { (-transitionDir) * it } },
             exitTransition = { slideOutVertically { transitionDir * it } }
         ) {
-            composable(MainNavGraphBarItems.HOMENAV.name) {
+            composable(MainNavGraphItems.HOMENAV.name) {
                 HomeNavGraphView()
             }
-            composable(MainNavGraphBarItems.JOBREVIEW.name) {
+            composable(MainNavGraphItems.JOBREVIEW.name) {
                 JobReviewView()
             }
-            composable(MainNavGraphBarItems.WRITEJOBREVIEW.name) {
+            composable(MainNavGraphItems.WRITEJOBREVIEW.name) {
                 WriteJobReviewView()
             }
-            composable(MainNavGraphBarItems.WRITEPOST.name) {
+            composable(MainNavGraphItems.WRITEPOST.name) {
                 WritePostView()
             }
-            composable(MainNavGraphBarItems.POST.name) {
+            composable(MainNavGraphItems.POST.name) {
                 val pressedPostUid by remember {
                     mutableStateOf(mainNavController.previousBackStackEntry?.savedStateHandle?.get<Int>("pressed_post_uid"))
                 }
 
                 PostView(pressedPostUid)
             }
-            composable(MainNavGraphBarItems.FINDPOST.name) {
+            composable(MainNavGraphItems.SEARCHPOST.name) {
+                SearchPostView()
+            }
+            composable(MainNavGraphItems.SEARCHJOB.name) {
 
             }
-            composable(MainNavGraphBarItems.FINDJOB.name) {
-
-            }
-            composable(MainNavGraphBarItems.SETTING.name) {
+            composable(MainNavGraphItems.SETTING.name) {
 
             }
         }

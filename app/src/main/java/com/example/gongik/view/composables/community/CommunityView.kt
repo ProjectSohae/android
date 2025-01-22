@@ -41,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
@@ -64,7 +63,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.R
 import com.example.gongik.controller.BarColorController
-import com.example.gongik.view.composables.main.MainNavGraphBarItems
+import com.example.gongik.view.composables.main.MainNavGraphItems
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
 import kotlinx.coroutines.delay
@@ -131,25 +130,38 @@ private fun CommunityViewHeader() {
             Icon(
                 painter = painterResource(id = R.drawable.outline_search_24),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.scale(1.2f),
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(28.dp)
+                    .clickable {
+                        MainNavGraphViewModel.navigate(MainNavGraphItems.SEARCHPOST.name)
+                    },
                 contentDescription = null
             )
-            Spacer(modifier = Modifier.size(16.dp))
 
             // notification
             Icon(
                 painter = painterResource(id = R.drawable.outline_notifications_none_24),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.scale(1.2f),
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(28.dp)
+                    .clickable {
+
+                    },
                 contentDescription = null
             )
-            Spacer(modifier = Modifier.size(16.dp))
 
             // my posts list
             Icon(
                 painter = painterResource(id = R.drawable.profile_24),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.scale(1.2f),
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(28.dp)
+                    .clickable {
+
+                    },
                 contentDescription = null
             )
         }
@@ -248,7 +260,7 @@ private fun CommunityViewBody(
                     .size(48.dp)
                     .offset(x = (-12).dp, y = (-12).dp)
                     .clickable {
-                        MainNavGraphViewModel.navigate(MainNavGraphBarItems.WRITEPOST.name)
+                        MainNavGraphViewModel.navigate(MainNavGraphItems.WRITEPOST.name)
                     },
                 shape = RoundedCornerShape(100)
             ) {
@@ -518,7 +530,6 @@ private fun CommunityPostsList(
     currentSelectedSubCategory: Int,
     communityViewModel: CommunityViewModel
 ) {
-    val tertiary = MaterialTheme.colorScheme.tertiary
     var loadPostsList by rememberSaveable { mutableStateOf(false) }
     var isReadyPostsList by rememberSaveable { mutableStateOf(false) }
     var postsList by rememberSaveable {
@@ -560,138 +571,164 @@ private fun CommunityPostsList(
                 items = postsList,
                 key = { index : Int, item -> index }
             ) { index : Int, previewPost ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .drawWithContent {
-                            drawContent()
-                            drawLine(
-                                color = tertiary,
-                                start = Offset(0f, this.size.height),
-                                end = Offset(this.size.width, this.size.height)
-                            )
-                        }
-                        .padding(vertical = 12.dp)
-                        .clickable {
-                            MainNavGraphViewModel.setParam("pressed_post_uid", 0)
-                            MainNavGraphViewModel.navigate(MainNavGraphBarItems.POST.name)
-                        }
+
+                Column {
+                    CommunityPostsListItem(
+                        currentSelectedCategory = currentSelectedCategory,
+                        currentSelectedSubCategory = currentSelectedSubCategory,
+                        previewPost = previewPost
+                    )
+
+                    // 광고
+                    if ((index + 1) % 5 == 0) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().height(120.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        ) {}
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CommunityPostsListItem(
+    currentSelectedCategory: CommunityCategories,
+    currentSelectedSubCategory: Int,
+    previewPost: Pair<String, String>
+) {
+    val tertiary = MaterialTheme.colorScheme.tertiary
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .drawWithContent {
+                drawContent()
+                drawLine(
+                    color = tertiary,
+                    start = Offset(0f, this.size.height),
+                    end = Offset(this.size.width, this.size.height)
+                )
+            }
+            .padding(vertical = 12.dp)
+            .clickable {
+                MainNavGraphViewModel.setParam("pressed_post_uid", 0)
+                MainNavGraphViewModel.navigate(MainNavGraphItems.POST.name)
+            }
+    ) {
+        if (currentSelectedCategory != CommunityCategories.NOTICE) {
+            Row {
+                if (
+                    currentSelectedCategory != CommunityCategories.HOT
                 ) {
-                    if (currentSelectedCategory != CommunityCategories.NOTICE) {
-                        Row {
-                            if (
-                                currentSelectedCategory != CommunityCategories.HOT
-                            ) {
-                                Text(
-                                    text = "인기",
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = dpToSp(dp = 12.dp),
-                                    color = Color(0xFFAF1740),
-                                    modifier = Modifier
-                                        .background(
-                                            color = Color(0xFFFFB0B0),
-                                            shape = RoundedCornerShape(15)
-                                        )
-                                        .padding(horizontal = 6.dp)
-                                )
-                                Spacer(modifier = Modifier.size(4.dp))
-                            }
-
-                            if (currentSelectedSubCategory == -1
-                                || currentSelectedCategory == CommunityCategories.HOT) {
-                                Text(
-                                    text = "카테고리",
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = dpToSp(dp = 12.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier
-                                        .background(
-                                            color = tertiary,
-                                            shape = RoundedCornerShape(15)
-                                        )
-                                        .padding(horizontal = 6.dp)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.size(4.dp))
-                    }
-
-                    // title
                     Text(
-                        text = previewPost.first,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = dpToSp(dp = 16.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.fillMaxWidth(0.75f),
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1
-                    )
-                    Spacer(modifier = Modifier.size(4.dp))
-
-                    // content
-                    Text(
-                        text = previewPost.second,
+                        text = "인기",
                         fontWeight = FontWeight.Medium,
-                        fontSize = dpToSp(dp = 16.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.fillMaxWidth(0.75f),
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1
+                        fontSize = dpToSp(dp = 12.dp),
+                        color = Color(0xFFAF1740),
+                        modifier = Modifier
+                            .background(
+                                color = Color(0xFFFFB0B0),
+                                shape = RoundedCornerShape(15)
+                            )
+                            .padding(horizontal = 6.dp)
                     )
                     Spacer(modifier = Modifier.size(4.dp))
+                }
 
-                    // details
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        // posted time and view count
-                        Text(
-                            text = "0분 전 • 조회 999",
-                            fontWeight = FontWeight.Medium,
-                            fontSize = dpToSp(dp = 12.dp),
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
+                if (currentSelectedSubCategory == -1
+                    || currentSelectedCategory == CommunityCategories.HOT) {
+                    Text(
+                        text = "카테고리",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = dpToSp(dp = 12.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .background(
+                                color = tertiary,
+                                shape = RoundedCornerShape(15)
+                            )
+                            .padding(horizontal = 6.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.size(4.dp))
+        }
 
-                        // like count and replies count
-                        Row {
-                            Row(
-                                modifier = Modifier.padding(end = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.baseline_thumb_up_24),
-                                    tint = MaterialTheme.colorScheme.tertiary,
-                                    modifier = Modifier.size(18.dp),
-                                    contentDescription = null
-                                )
-                                Text(
-                                    text = " 999",
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = dpToSp(dp = 12.dp),
-                                    color = MaterialTheme.colorScheme.tertiary
-                                )
-                            }
+        // title
+        Text(
+            text = previewPost.first,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = dpToSp(dp = 16.dp),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.fillMaxWidth(0.75f),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.size(4.dp))
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.baseline_comment_24),
-                                    tint = MaterialTheme.colorScheme.tertiary,
-                                    modifier = Modifier.size(18.dp),
-                                    contentDescription = null
-                                )
-                                Text(
-                                    text = " 999",
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = dpToSp(dp = 12.dp),
-                                    color = MaterialTheme.colorScheme.tertiary
-                                )
-                            }
-                        }
-                    }
+        // content
+        Text(
+            text = previewPost.second,
+            fontWeight = FontWeight.Medium,
+            fontSize = dpToSp(dp = 16.dp),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.fillMaxWidth(0.75f),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.size(4.dp))
+
+        // details
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // posted time and view count
+            Text(
+                text = "0분 전 • 조회 999",
+                fontWeight = FontWeight.Medium,
+                fontSize = dpToSp(dp = 12.dp),
+                color = MaterialTheme.colorScheme.tertiary
+            )
+
+            // like count and replies count
+            Row {
+                Row(
+                    modifier = Modifier.padding(end = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_thumb_up_24),
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(18.dp),
+                        contentDescription = null
+                    )
+                    Text(
+                        text = " 999",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = dpToSp(dp = 12.dp),
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_comment_24),
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(18.dp),
+                        contentDescription = null
+                    )
+                    Text(
+                        text = " 999",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = dpToSp(dp = 12.dp),
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
                 }
             }
         }

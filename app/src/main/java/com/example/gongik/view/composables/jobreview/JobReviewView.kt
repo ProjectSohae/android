@@ -59,7 +59,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gongik.R
 import com.example.gongik.view.composables.jobsearch.JobReviewScoreNamesList
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.main.MainNavGraphBarItems
+import com.example.gongik.view.composables.main.MainNavGraphItems
 import com.example.gongik.view.composables.main.MainNavGraphViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -249,7 +249,7 @@ private fun JobReviewSimpleInformation() {
                 .clip(RoundedCornerShape(25))
                 .background(color = MaterialTheme.colorScheme.primary)
                 .clickable {
-                    MainNavGraphViewModel.navigate(MainNavGraphBarItems.WRITEJOBREVIEW.name)
+                    MainNavGraphViewModel.navigate(MainNavGraphItems.WRITEJOBREVIEW.name)
                 }
                 .padding(horizontal = 24.dp, vertical = 4.dp)
         )
@@ -335,178 +335,204 @@ private fun JobInformation(
     }
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
+        // 복무지 소개
         item {
-            Text(
-                text = "서울교통공사 복무지 소개",
-                fontSize = dpToSp(dp = 20.dp),
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 24.dp)
+                    .padding(horizontal = 24.dp)
             ) {
-                for (index: Int in 0..jobInformationDetailsCount / 2) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                Text(
+                    text = "서울교통공사 복무지 소개",
+                    fontSize = dpToSp(dp = 20.dp),
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 24.dp)
+                ) {
+                    for (index: Int in 0..jobInformationDetailsCount / 2) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            if (index * 2 < jobInformationDetailsCount) {
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 12.dp),
+                                ) {
+                                    Text(
+                                        text = jobInfotmationDetails[index * 2],
+                                        fontSize = dpToSp(dp = 12.dp),
+                                        color = MaterialTheme.colorScheme.tertiary,
+                                        textAlign = TextAlign.Start,
+                                    )
+
+                                    Text(
+                                        text = "사회복지시설",
+                                        fontSize = dpToSp(dp = 12.dp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        textAlign = TextAlign.End,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            }
+
+                            if (index * 2 + 1 < jobInformationDetailsCount) {
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(start = 12.dp),
+                                ) {
+                                    Text(
+                                        text = jobInfotmationDetails[index * 2 + 1],
+                                        fontSize = dpToSp(dp = 12.dp),
+                                        color = MaterialTheme.colorScheme.tertiary,
+                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = "서울",
+                                        fontSize = dpToSp(dp = 12.dp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        textAlign = TextAlign.End,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 복무지 위치
+        item {
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp)
+            ) {
+                Text(
+                    text = "지도",
+                    fontSize = dpToSp(dp = 20.dp),
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 24.dp)
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(240.dp),
+                        shape = RoundedCornerShape(5)
                     ) {
-                        if (index * 2 < jobInformationDetailsCount) {
-                            Row(
-                                modifier = Modifier
-                                    .fillParentMaxWidth(0.5f)
-                                    .padding(end = 12.dp),
-                            ) {
-                                Text(
-                                    text = jobInfotmationDetails[index * 2],
-                                    fontSize = dpToSp(dp = 12.dp),
-                                    color = MaterialTheme.colorScheme.tertiary,
-                                    textAlign = TextAlign.Start,
-                                )
 
-                                Text(
-                                    text = "사회복지시설",
-                                    fontSize = dpToSp(dp = 12.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    textAlign = TextAlign.End,
-                                    modifier = Modifier.weight(1f)
+                    }
+                }
+            }
+        }
+
+        // 광고
+        item {
+            Surface(
+                modifier = Modifier.fillParentMaxWidth().height(120.dp).padding(bottom = 24.dp),
+                color = MaterialTheme.colorScheme.primary
+            ) {}
+        }
+
+        // 복무지 재학생입영원 이력
+        item {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+            ) {
+                Text(
+                    text = "재학생입영원 이력",
+                    fontSize = dpToSp(dp = 20.dp),
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp)
+                            .drawBehind {
+                                drawLine(
+                                    color = tertiary,
+                                    start = Offset(0f, this.size.height),
+                                    end = Offset(this.size.width, this.size.height)
                                 )
                             }
-                        }
-
-                        if (index * 2 + 1 < jobInformationDetailsCount) {
-                            Row(
-                                modifier = Modifier
-                                    .fillParentMaxWidth(0.5f)
-                                    .padding(start = 12.dp),
-                            ) {
-                                Text(
-                                    text = jobInfotmationDetails[index * 2 + 1],
-                                    fontSize = dpToSp(dp = 12.dp),
-                                    color = MaterialTheme.colorScheme.tertiary,
-                                    textAlign = TextAlign.Start,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    text = "서울",
-                                    fontSize = dpToSp(dp = 12.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    textAlign = TextAlign.End,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
+                            .padding(bottom = 4.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        jobCompetitionRecordCategory.forEachIndexed { index, item ->
+                            Text(
+                                text = item,
+                                fontSize = dpToSp(dp = 12.dp),
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.tertiary,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                     }
                 }
             }
         }
 
+        // 복무지 본인선택 이력
         item {
-            Text(
-                text = "지도",
-                fontSize = dpToSp(dp = 20.dp),
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 24.dp)
-            ) {
-                Surface(
-                    modifier = Modifier.fillParentMaxWidth().height(240.dp),
-                    shape = RoundedCornerShape(5)
-                ) {
-
-                }
-            }
-        }
-
-        item {
-            Text(
-                text = "재학생입영원 이력",
-                fontSize = dpToSp(dp = 20.dp),
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 24.dp)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillParentMaxWidth()
-                        .padding(bottom = 4.dp)
-                        .drawBehind {
-                            drawLine(
-                                color = tertiary,
-                                start = Offset(0f, this.size.height),
-                                end = Offset(this.size.width, this.size.height)
+                Text(
+                    text = "본인선택 이력",
+                    fontSize = dpToSp(dp = 20.dp),
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp)
+                            .drawBehind {
+                                drawLine(
+                                    color = tertiary,
+                                    start = Offset(0f, this.size.height),
+                                    end = Offset(this.size.width, this.size.height)
+                                )
+                            }
+                            .padding(bottom = 4.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        jobCompetitionRecordCategory.forEachIndexed { index, item ->
+                            Text(
+                                text = item,
+                                fontSize = dpToSp(dp = 12.dp),
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.tertiary,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.weight(1f)
                             )
                         }
-                        .padding(bottom = 4.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    jobCompetitionRecordCategory.forEachIndexed { index, item ->
-                        Text(
-                            text = item,
-                            fontSize = dpToSp(dp = 12.dp),
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.tertiary,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
-            Text(
-                text = "본인선택 이력",
-                fontSize = dpToSp(dp = 20.dp),
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 24.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillParentMaxWidth()
-                        .padding(bottom = 4.dp)
-                        .drawBehind {
-                            drawLine(
-                                color = tertiary,
-                                start = Offset(0f, this.size.height),
-                                end = Offset(this.size.width, this.size.height)
-                            )
-                        }
-                        .padding(bottom = 4.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    jobCompetitionRecordCategory.forEachIndexed { index, item ->
-                        Text(
-                            text = item,
-                            fontSize = dpToSp(dp = 12.dp),
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.tertiary,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.weight(1f)
-                        )
                     }
                 }
             }
@@ -539,8 +565,25 @@ private fun JobReviewItemsList() {
                 index
             }
         ) { index: Int, previewPost ->
-            JobReviewItem()
-            Spacer(modifier = Modifier.size(24.dp))
+            Column {
+                JobReviewItem()
+
+                // 광고
+                Box(
+                    modifier = Modifier.padding(vertical = 24.dp)
+                ) {
+                    if (index % 2 == 0) {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+
+                        }
+                    }
+                }
+            }
         }
     }
 }
