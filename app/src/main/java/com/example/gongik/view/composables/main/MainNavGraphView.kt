@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gongik.view.composables.home.HomeNavGraphView
 import com.example.gongik.view.composables.jobreview.JobReviewView
 import com.example.gongik.view.composables.post.PostView
+import com.example.gongik.view.composables.searchjob.SearchJobView
 import com.example.gongik.view.composables.searchpost.SearchPostView
 import com.example.gongik.view.composables.writejobreview.WriteJobReviewView
 import com.example.gongik.view.composables.writepost.WritePostView
@@ -95,7 +96,7 @@ fun MainNavGraphView(
                 SearchPostView()
             }
             composable(MainNavGraphItems.SEARCHJOB.name) {
-
+                SearchJobView()
             }
             composable(MainNavGraphItems.SETTING.name) {
 

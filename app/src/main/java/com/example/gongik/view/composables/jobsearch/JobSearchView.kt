@@ -122,7 +122,9 @@ private fun JobSearchViewHeader() {
             Icon(
                 painter = painterResource(id = R.drawable.outline_search_24),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.scale(1.2f),
+                modifier = Modifier.size(28.dp).clickable {
+                    MainNavGraphViewModel.navigate(MainNavGraphItems.SEARCHJOB.name)
+                },
                 contentDescription = null
             )
         }
