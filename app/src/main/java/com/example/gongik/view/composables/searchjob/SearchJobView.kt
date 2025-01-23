@@ -1,5 +1,6 @@
 package com.example.gongik.view.composables.searchjob
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -10,9 +11,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +40,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
@@ -193,11 +198,76 @@ private fun SearchJobViewHeader(
 private fun SearchJobViewBody(
     searchJobViewModel: SearchJobViewModel
 ) {
-    // 검색어 일치 복무지 목록
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        item {
+    val tertiary = MaterialTheme.colorScheme.tertiary
+    val searchJobName = searchJobViewModel.searchJobName.collectAsState().value
+    val searchJobList = searchJobViewModel.searchJobList.collectAsState().value
+
+    if (searchJobName.isBlank()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "찾고자 하는 복무지를 입력해주세요.",
+                fontWeight = FontWeight.Medium,
+                fontSize = dpToSp(dp = 20.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+    else {
+        // 검색어 일치 복무지 목록
+        if (searchJobList.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "검색 결과가 존재하지 않습니다.",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = dpToSp(dp = 20.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                itemsIndexed(
+                    items = searchJobList,
+                    key = { idx: Int, item: String -> idx }
+                ) { idx: Int, item: String ->
+
+                    Text(
+                        text = item,
+                        fontSize = dpToSp(dp = 20.dp),
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp)
+                            .drawBehind {
+                                if (idx > 0) {
+                                    drawLine(
+                                        color = tertiary,
+                                        start = Offset(0f, 0f),
+                                        end = Offset(this.size.width, 0f),
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }
+                            }
+                            .clickable {
+
+                            }
+                            .padding(vertical = 16.dp)
+                    )
+                }
+            }
         }
     }
 }
