@@ -40,4 +40,37 @@ val jobDetailsCategory = listOf(
 
 class JobSearchViewModel : ViewModel() {
 
+    val jeopsu_yy = mapOf(
+        Pair("2021년", "2021"),
+        Pair("2022년", "2022"),
+        Pair("2023년", "2023"),
+        Pair("2024년", "2024")
+    )
+
+    val jeopsu_tms = mapOf(
+        Pair("재학생입영원", "1"),
+        Pair("본인선택", "2")
+    )
+
+    val ghjbc_cd = mapOf(
+        Pair("서울", "02"),
+        Pair("부산•울산", "03"),
+        Pair("대구•경북", "04"),
+        Pair("경인", "05"),
+        Pair("광주•전남", "06"),
+        Pair("대전•충남", "07"),
+        Pair("강원", "08"),
+        Pair("충북", "09"),
+        Pair("전북", "10"),
+        Pair("경남", "11"),
+        Pair("제주", "12"),
+        Pair("인천", "13"),
+        Pair("경기•북부", "14"),
+        Pair( "강원•영동", "15")
+    )
+
+    val sortByList = listOf(
+        "별점 낮은 순",
+        "별점 높은 순"
+    )
 }

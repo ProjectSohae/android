@@ -295,31 +295,31 @@ private fun CommunityUpperCategory(
                     color = tertiary,
                     start = Offset(this.size.width / 3f, this.size.height * 0.35f),
                     end = Offset(this.size.width / 3f, this.size.height * 0.75f),
-                    strokeWidth = 4f
+                    strokeWidth = 1.dp.toPx()
                 )
                 drawLine(
                     color = tertiary,
                     start = Offset((this.size.width * 2f) / 3f, this.size.height * 0.35f),
                     end = Offset((this.size.width * 2f) / 3f, this.size.height * 0.75f),
-                    strokeWidth = 4f
+                    strokeWidth = 1.dp.toPx()
                 )
                 drawLine(
                     color = tertiary,
                     start = Offset(0f, this.size.height),
                     end = Offset(this.size.width, this.size.height),
-                    strokeWidth = 1f
+                    strokeWidth = 1.dp.toPx()
                 )
                 drawLine(
                     color = primary,
                     start = Offset(
                         (this.size.width / 3f) * (0.1f + lowerLineStartPos),
-                        this.size.height - 2f
+                        this.size.height
                     ),
                     end = Offset(
                         (this.size.width / 3f) * (0.9f + lowerLineStartPos),
-                        this.size.height - 2f
+                        this.size.height
                     ),
-                    strokeWidth = 4f
+                    strokeWidth = 2.dp.toPx()
                 )
             },
         horizontalArrangement = Arrangement.Center,
@@ -435,7 +435,7 @@ private fun CommunityLowerCategory(
                     color = tertiary,
                     start = Offset(0f, this.size.height),
                     end = Offset(this.size.width, this.size.height),
-                    strokeWidth = 1f
+                    strokeWidth = 1.dp.toPx()
                 )
                 drawOutline(
                     outline = Outline.Rounded(
@@ -609,7 +609,8 @@ private fun CommunityPostsListItem(
                 drawLine(
                     color = tertiary,
                     start = Offset(0f, this.size.height),
-                    end = Offset(this.size.width, this.size.height)
+                    end = Offset(this.size.width, this.size.height),
+                    strokeWidth = 1.dp.toPx()
                 )
             }
             .padding(vertical = 12.dp)

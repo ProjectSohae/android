@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
@@ -54,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -79,7 +79,7 @@ object JobSearchNavController {
 
 @Composable
 fun JobSearchView(
-    
+    jobSearchViewModel: JobSearchViewModel = viewModel()
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -96,7 +96,7 @@ fun JobSearchView(
         ) {
             JobSearchViewHeader()
 
-            JobSearchViewBody()
+            JobSearchViewBody(jobSearchViewModel)
         }
     }
 }
@@ -122,9 +122,11 @@ private fun JobSearchViewHeader() {
             Icon(
                 painter = painterResource(id = R.drawable.outline_search_24),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(28.dp).clickable {
-                    MainNavGraphViewModel.navigate(MainNavGraphItems.SEARCHJOB.name)
-                },
+                modifier = Modifier
+                    .size(28.dp)
+                    .clickable {
+                        MainNavGraphViewModel.navigate(MainNavGraphItems.SEARCHJOB.name)
+                    },
                 contentDescription = null
             )
         }
@@ -133,6 +135,7 @@ private fun JobSearchViewHeader() {
 
 @Composable
 private fun JobSearchViewBody(
+    jobSearchViewModel: JobSearchViewModel,
     jobSearchNavController : NavHostController = rememberNavController()
 ) {
     val currentSelectedCategory = jobSearchNavController
@@ -180,10 +183,10 @@ private fun JobSearchViewBody(
             exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
         ) {
             composable(JobSearchCategory.REVIEW.name) {
-                PreviewJobItemsList()
+                PreviewJobListView(jobSearchViewModel)
             }
             composable(JobSearchCategory.COMPRETITION.name) {
-                JobCompetitionItemsList()
+                JobCompetitionListView(jobSearchViewModel)
             }
         }
     }
@@ -197,7 +200,7 @@ private fun JobSearchUpperCategory(
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
     var selectedCategory by rememberSaveable { mutableIntStateOf(currentSelectedCategory.idx) }
-    val lowerLineStartPos = animateFloatAsState(targetValue = selectedCategory.toFloat()).value
+    val underLineStartPos = animateFloatAsState(targetValue = selectedCategory.toFloat()).value
 
     Row(
         modifier = Modifier
@@ -209,25 +212,25 @@ private fun JobSearchUpperCategory(
                     color = tertiary,
                     start = Offset(this.size.width / 2f, this.size.height * 0.35f),
                     end = Offset(this.size.width / 2f, this.size.height * 0.75f),
-                    strokeWidth = 4f
+                    strokeWidth = 1.dp.toPx()
                 )
                 drawLine(
                     color = tertiary,
                     start = Offset(0f, this.size.height),
                     end = Offset(this.size.width, this.size.height),
-                    strokeWidth = 1f
+                    strokeWidth = 1.dp.toPx()
                 )
                 drawLine(
                     color = primary,
                     start = Offset(
-                        (this.size.width / 2f) * (0.1f + lowerLineStartPos),
-                        this.size.height - 2f
+                        (this.size.width / 2f) * (0.1f + underLineStartPos),
+                        this.size.height
                     ),
                     end = Offset(
-                        (this.size.width / 2f) * (0.9f + lowerLineStartPos),
-                        this.size.height - 2f
+                        (this.size.width / 2f) * (0.9f + underLineStartPos),
+                        this.size.height
                     ),
-                    strokeWidth = 4f
+                    strokeWidth = 2.dp.toPx()
                 )
             },
         horizontalArrangement = Arrangement.Center,
@@ -239,8 +242,7 @@ private fun JobSearchUpperCategory(
                 fontSize = dpToSp(dp = 16.dp),
                 fontWeight = FontWeight.SemiBold,
                 color = selectedCategory.let {
-                    if (it == item.idx) { primary }
-                    else { tertiary }
+                    if (it == item.idx) { primary } else { tertiary }
                 },
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -256,39 +258,61 @@ private fun JobSearchUpperCategory(
     }
 }
 
+// 복무지 목록
 @Composable
-private fun PreviewJobItemsList() {
+private fun PreviewJobListView(
+    jobSearchViewModel: JobSearchViewModel
+) {
     val tertiary = MaterialTheme.colorScheme.tertiary
-    var pressedFilter by rememberSaveable { mutableIntStateOf(-1) }
-    val sortByList = listOf(
-        "별점 낮은 순",
-        "별점 높은 순"
+    val previewJobList = listOf(1, 2, 3, 4, 5,)
+    var ghjbc_cd by rememberSaveable { mutableStateOf("") }
+    var address by rememberSaveable { mutableStateOf("") }
+    var pressedFilterIdx by rememberSaveable { mutableIntStateOf(-1) }
+    var sortBy by rememberSaveable { mutableStateOf(jobSearchViewModel.sortByList[0]) }
+    val filterOptionsList = listOf(
+        jobSearchViewModel.ghjbc_cd.keys.toList(),
+        emptyList(),
+        jobSearchViewModel.sortByList
     )
-    val sortByMap = mapOf(
-        Pair("별점 낮은 순", 0),
-        Pair("별점 높은 순", 1)
-    )
-    var selectedSortBy by rememberSaveable { mutableIntStateOf(1) }
-    val posts = listOf(1, 2, 3, 4, 5,)
+    val getItemIdx: (String, List<String>) -> Int = { value, optionsList ->
+        var tmp = 0
 
-    if (pressedFilter >= 0) {
-
-        if (pressedFilter < 2) {
-
+        optionsList.forEachIndexed breaker@{ index, optionValue ->
+            if (optionValue == value) {
+                tmp = index
+                return@breaker
+            }
         }
-        else {
+
+        tmp
+    }
+
+    if (pressedFilterIdx >= 0) {
+
+        // 관할 지방청, 별점순 정렬
+        if (pressedFilterIdx == 0 || pressedFilterIdx == 2) {
             WheelPickerDialog(
-                initIdx = selectedSortBy.let {
-                    if (it < 0) { 0 } else { it }
+                initIdx = when (pressedFilterIdx) {
+                    0 -> { getItemIdx(ghjbc_cd, filterOptionsList[pressedFilterIdx]) }
+                    2 -> { getItemIdx(sortBy, filterOptionsList[pressedFilterIdx]) }
+                    else -> { 0 }
                 },
                 intensity = 0.8f,
-                onDismissRequest = { pressedFilter = -1 },
-                onConfirmation = { getSortBy ->
-                    selectedSortBy = sortByMap[getSortBy.toString()]!!
-                    pressedFilter = -1
+                onDismissRequest = { pressedFilterIdx = -1 },
+                onConfirmation = { getOptionValue ->
+
+                    when (pressedFilterIdx) {
+                        0 -> { ghjbc_cd = getOptionValue.toString() }
+                        2 -> { sortBy = getOptionValue.toString() }
+                    }
+
+                    pressedFilterIdx = -1
                 },
-                optionsList = sortByList
+                optionsList = filterOptionsList[pressedFilterIdx]
             )
+        }
+        // 시.군.구
+        else {
         }
     }
 
@@ -299,14 +323,14 @@ private fun PreviewJobItemsList() {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // 복무지 리뷰 검색 필터
+            // 복무지 검색 필터
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .drawBehind {
                         drawLine(
                             color = tertiary,
-                            strokeWidth = 4f,
+                            strokeWidth = 1.dp.toPx(),
                             start = Offset(0f, this.size.height),
                             end = Offset(this.size.width, this.size.height)
                         )
@@ -318,20 +342,11 @@ private fun PreviewJobItemsList() {
                     modifier = Modifier.weight(1f)
                 ) {
                     item {
-                        Text(
-                            text = "관할 지방청",
-                            fontSize = dpToSp(dp = 16.dp),
-                            color = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier
-                                .border(
-                                    width = 1.dp,
-                                    color = MaterialTheme.colorScheme.tertiary,
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clickable { pressedFilter = 0 }
+                        JobSearchFilterItem(
+                            filterName = "관할 지방청",
+                            filterValue = ghjbc_cd,
+                            pressFilterItem = { pressedFilterIdx = 0 }
                         )
-                        Spacer(modifier = Modifier.size(12.dp))
                     }
 
                     item {
@@ -346,7 +361,7 @@ private fun PreviewJobItemsList() {
                                     shape = RoundedCornerShape(100)
                                 )
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clickable { pressedFilter = 1 }
+                                .clickable { pressedFilterIdx = 1 }
                         )
                     }
                 }
@@ -354,12 +369,12 @@ private fun PreviewJobItemsList() {
                 Row(
                     modifier = Modifier
                         .padding(start = 12.dp)
-                        .clickable { pressedFilter = 2 },
+                        .clickable { pressedFilterIdx = 2 },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // 인기순, 리뷰 많은 순 정렬
                     Text(
-                        text = sortByList[selectedSortBy],
+                        text = sortBy,
                         fontSize = dpToSp(dp = 16.dp),
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -372,30 +387,51 @@ private fun PreviewJobItemsList() {
                 }
             }
 
-            // 복무지 리뷰 목록
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.onPrimary),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                itemsIndexed(
-                    items = posts,
-                    key = { index: Int, previewPost ->
-                        index
-                    }
-                ) { index: Int, previewPost ->
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(12.dp)
-                    ) {
-                        PreviewJobItem()
+            // 복무지 목록
+            if (ghjbc_cd.isBlank() || address.isBlank()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "관할 지방청, 시 • 군 • 구를\n선택해 주세요.",
+                        textAlign = TextAlign.Center,
+                        fontSize = dpToSp(dp = 20.dp),
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.onPrimary),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    itemsIndexed(
+                        items = previewJobList,
+                        key = { index: Int, previewPost ->
+                            index
+                        }
+                    ) { index: Int, previewPost ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp)
+                        ) {
+                            PreviewJobItem()
 
-                        // 광고
-                        if (index % 2 == 0) {
-                            Surface(
-                                modifier = Modifier.padding(top = 24.dp).fillParentMaxWidth().height(120.dp)
-                            ) {
+                            // 광고
+                            if (index % 2 == 0) {
+                                Surface(
+                                    modifier = Modifier
+                                        .padding(top = 24.dp)
+                                        .fillParentMaxWidth()
+                                        .height(120.dp)
+                                ) {
 
+                                }
                             }
                         }
                     }
@@ -421,6 +457,49 @@ private fun PreviewJobItemsList() {
             )
         }
     }
+}
+
+@Composable
+private fun JobSearchFilterItem(
+    modifier: Modifier = Modifier,
+    filterName: String,
+    filterValue: String,
+    pressFilterItem: () -> Unit
+) {
+    Text(
+        text = filterValue.ifBlank { filterName },
+        fontSize = dpToSp(dp = 16.dp),
+        color = filterValue.let {
+            if (it.isBlank()) {
+                MaterialTheme.colorScheme.tertiary
+            } else { MaterialTheme.colorScheme.onPrimary }
+        },
+        modifier = modifier
+            .padding(end = 12.dp)
+            .border(
+                width = 1.dp,
+                color = filterValue.let {
+                    if (it.isBlank()) {
+                        MaterialTheme.colorScheme.tertiary
+                    } else {
+                        Color.Transparent
+                    }
+                },
+                shape = RoundedCornerShape(100)
+            )
+            .background(
+                color = filterValue.let {
+                    if (it.isBlank()) {
+                        Color.Transparent
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
+                },
+                shape = RoundedCornerShape(100)
+            )
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .clickable { pressFilterItem() }
+    )
 }
 
 @Composable
@@ -493,17 +572,20 @@ private fun PreviewJobItem() {
 
 // 이전 경쟁률
 @Composable
-private fun JobCompetitionItemsList() {
+private fun JobCompetitionListView(
+    jobSearchViewModel: JobSearchViewModel
+) {
     val tertiary = MaterialTheme.colorScheme.tertiary
     var openDialog by rememberSaveable { mutableStateOf(false) }
     var filterNum by rememberSaveable { mutableIntStateOf(0) }
-    var yearIdx by rememberSaveable { mutableIntStateOf(-1) }
-    var roundNumberIdx by rememberSaveable { mutableIntStateOf(-1) }
-    var intendance by rememberSaveable { mutableStateOf("") }
-    var location by rememberSaveable { mutableStateOf("") }
+    var jeopsu_yy by rememberSaveable { mutableStateOf("") }
+    var jeopsu_tms by rememberSaveable { mutableStateOf("") }
+    var ghjbc_cd by rememberSaveable { mutableStateOf("") }
+    var address by rememberSaveable { mutableStateOf("") }
     val filterOptionsList = listOf(
-        listOf( "2021", "2022", "2023" ),
-        listOf("재학생입영원", "본인 선택")
+        jobSearchViewModel.jeopsu_yy.keys.toList(),
+        jobSearchViewModel.jeopsu_tms.keys.toList(),
+        jobSearchViewModel.ghjbc_cd.keys.toList()
     )
     val getItemIdx: (String) -> Int = {
         var tmp = 0
@@ -520,23 +602,25 @@ private fun JobCompetitionItemsList() {
 
     if (openDialog) {
 
-        if (filterNum < 2) {
+        if (filterNum < 3) {
             WheelPickerDialog(
-                initIdx = if (filterNum == 0) {
-                    yearIdx.let { if (it < 0) { 0 } else { it } }
-                } else {
-                    roundNumberIdx.let { if (it < 0) { 0 } else { it } }
+                initIdx = when (filterNum) {
+                    0 -> { getItemIdx(jeopsu_yy) }
+                    1 -> { getItemIdx(jeopsu_tms) }
+                    2 -> { getItemIdx(ghjbc_cd) }
+                    else -> { 0 }
                 },
-                intensity = 0.75f,
-                suffix = if (filterNum == 0) { "년" } else { "" },
+                intensity = 0.85f,
                 onDismissRequest = { openDialog = false },
                 onConfirmation = { getSelectedValue ->
 
                     when (filterNum) {
                         // 접수 년도
-                        0 -> { yearIdx = getItemIdx(getSelectedValue.toString()) }
+                        0 -> { jeopsu_yy = getSelectedValue.toString() }
                         // 회차
-                        1 -> { roundNumberIdx = getItemIdx(getSelectedValue.toString()) }
+                        1 -> { jeopsu_tms = getSelectedValue.toString() }
+                        // 관할 지방청
+                        2 -> { ghjbc_cd = getSelectedValue.toString() }
                     }
 
                     openDialog = false
@@ -558,190 +642,77 @@ private fun JobCompetitionItemsList() {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Row(
+            // 접수 년도, 회차, 관할 지방청, 시.군.구 필터
+            LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .drawBehind {
                         drawLine(
                             color = tertiary,
-                            strokeWidth = 4f,
                             start = Offset(0f, this.size.height),
-                            end = Offset(this.size.width, this.size.height)
+                            end = Offset(this.size.width, this.size.height),
+                            strokeWidth = 1.dp.toPx()
                         )
                     }
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(vertical = 12.dp)
             ) {
-                LazyRow {
-                    item {
-                        Text(
-                            text = yearIdx.let {
-                                if (it < 0) { "접수 년도" } else { "${filterOptionsList[0][it]}년" }
-                            },
-                            fontSize = dpToSp(dp = 16.dp),
-                            color = yearIdx.let {
-                                if (it < 0) {
-                                    MaterialTheme.colorScheme.tertiary
-                                } else { MaterialTheme.colorScheme.onPrimary }
-                            },
-                            modifier = Modifier
-                                .border(
-                                    width = 1.dp,
-                                    color = yearIdx.let {
-                                        if (it < 0) {
-                                            MaterialTheme.colorScheme.tertiary
-                                        } else {
-                                            Color.Transparent
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .background(
-                                    color = yearIdx.let {
-                                        if (it < 0) {
-                                            Color.Transparent
-                                        } else {
-                                            MaterialTheme.colorScheme.primary
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clickable {
-                                    filterNum = 0
-                                    openDialog = true
-                                }
-                        )
-                        Spacer(modifier = Modifier.size(12.dp))
-                    }
+                // 접수 년도
+                item {
+                    JobSearchFilterItem(
+                        modifier = Modifier.padding(start = 16.dp),
+                        filterName = "접수 년도",
+                        filterValue = jeopsu_yy,
+                        pressFilterItem = {
+                            filterNum = 0
+                            openDialog = true
+                        }
+                    )
+                }
 
-                    // 재학생 입영원, 본인 선택
-                    item {
-                        Text(
-                            text = roundNumberIdx.let {
-                                if (it < 0) { "회차" } else { filterOptionsList[1][it] }
-                            },
-                            fontSize = dpToSp(dp = 16.dp),
-                            color = roundNumberIdx.let {
-                                if (it < 0) {
-                                    MaterialTheme.colorScheme.tertiary
-                                } else { MaterialTheme.colorScheme.onPrimary }
-                            },
-                            modifier = Modifier
-                                .border(
-                                    width = 1.dp,
-                                    color = roundNumberIdx.let {
-                                        if (it < 0) {
-                                            MaterialTheme.colorScheme.tertiary
-                                        } else {
-                                            Color.Transparent
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .background(
-                                    color = roundNumberIdx.let {
-                                        if (it < 0) {
-                                            Color.Transparent
-                                        } else {
-                                            MaterialTheme.colorScheme.primary
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clickable {
-                                    filterNum = 1
-                                    openDialog = true
-                                }
-                        )
-                        Spacer(modifier = Modifier.size(12.dp))
-                    }
+                // 재학생 입영원, 본인 선택
+                item {
+                    JobSearchFilterItem(
+                        filterName = "회차",
+                        filterValue = jeopsu_tms,
+                        pressFilterItem = {
+                            filterNum = 1
+                            openDialog = true
+                        }
+                    )
+                }
 
-                    item {
-                        Text(
-                            text = intendance.ifBlank { "관할 지방청" },
-                            fontSize = dpToSp(dp = 16.dp),
-                            color = intendance.let {
-                                if (it.isBlank()) { MaterialTheme.colorScheme.tertiary }
-                                else { MaterialTheme.colorScheme.onPrimary }
-                            },
-                            modifier = Modifier
-                                .border(
-                                    width = 1.dp,
-                                    color = intendance.let {
-                                        if (it.isBlank()) {
-                                            MaterialTheme.colorScheme.tertiary
-                                        } else {
-                                            Color.Transparent
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .background(
-                                    color = intendance.let {
-                                        if (it.isBlank()) {
-                                            Color.Transparent
-                                        } else {
-                                            MaterialTheme.colorScheme.primary
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clickable {
-                                    filterNum = 2
-                                    openDialog = true
-                                }
-                        )
-                        Spacer(modifier = Modifier.size(12.dp))
-                    }
+                // 관할 지방청
+                item {
+                    JobSearchFilterItem(
+                        filterName = "관할 지방청",
+                        filterValue = ghjbc_cd,
+                        pressFilterItem = {
+                            filterNum = 2
+                            openDialog = true
+                        }
+                    )
+                }
 
-                    item {
-                        Text(
-                            text = location.ifBlank { "시 • 군 • 구" },
-                            fontSize = dpToSp(dp = 16.dp),
-                            color = location.let {
-                                if (it.isBlank()) { MaterialTheme.colorScheme.tertiary }
-                                else { MaterialTheme.colorScheme.onPrimary }
-                            },
-                            modifier = Modifier
-                                .border(
-                                    width = 1.dp,
-                                    color = location.let {
-                                        if (it.isBlank()) {
-                                            MaterialTheme.colorScheme.tertiary
-                                        } else {
-                                            Color.Transparent
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .background(
-                                    color = location.let {
-                                        if (it.isBlank()) {
-                                            Color.Transparent
-                                        } else {
-                                            MaterialTheme.colorScheme.primary
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clickable {
-                                    filterNum = 3
-                                    openDialog = true
-                                }
-                        )
-                    }
+                // 시.군.구
+                item {
+                    JobSearchFilterItem(
+                        filterName = "시 • 군 • 구",
+                        filterValue = "",
+                        pressFilterItem = {
+
+                        }
+                    )
                 }
             }
 
+            var pressedItemIdx by rememberSaveable { mutableIntStateOf(-1) }
+
             if (
-                yearIdx < 0
-                || roundNumberIdx < 0
-                || intendance.isBlank()
-                || location.isBlank()
+                false
+//                yearIdx < 0
+//                || roundNumberIdx < 0
+//                || intendance.isBlank()
+//                || address.isBlank()
             ) {
                 Column(
                     modifier = Modifier
@@ -772,17 +743,21 @@ private fun JobCompetitionItemsList() {
                             JobDetailsCategory()
 
                             LazyColumn {
-                                item {
-                                    Spacer(modifier = Modifier.size(4.dp))
-                                }
-
                                 itemsIndexed(
                                     items = posts,
-                                    key = { index: Int, previewPost ->
+                                    key = { index: Int, item ->
                                         index
                                     }
-                                ) { index: Int, previewPost ->
-                                    JobCompetitionItem()
+                                ) { index: Int, item ->
+                                    JobCompetitionItem(
+                                        drawOverline = (index > 0),
+                                        isPressed = (index == pressedItemIdx),
+                                        pressItem = {
+                                            if (index == pressedItemIdx) {
+                                                pressedItemIdx = -1
+                                            } else { pressedItemIdx = index }
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -804,7 +779,7 @@ private fun JobDetailsCategory(
             .drawBehind {
                 drawLine(
                     color = primary,
-                    strokeWidth = 2f,
+                    strokeWidth = 1.dp.toPx(),
                     start = Offset(0f, this.size.height),
                     end = Offset(this.size.width, this.size.height)
                 )
@@ -815,7 +790,7 @@ private fun JobDetailsCategory(
             Text(
                 text = item.first,
                 fontSize = dpToSp(dp = 16.dp),
-                color = MaterialTheme.colorScheme.primary,
+                color = primary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.width(item.second)
             )
@@ -825,8 +800,12 @@ private fun JobDetailsCategory(
 
 @Composable
 private fun JobCompetitionItem(
-
+    drawOverline: Boolean,
+    isPressed: Boolean,
+    pressItem: () -> Unit
 ) {
+    val primary = MaterialTheme.colorScheme.primary
+    val onPrimary = MaterialTheme.colorScheme.onPrimary
     val test = listOf(
         "20250120",
         "지방자치단체",
@@ -845,8 +824,23 @@ private fun JobCompetitionItem(
 
     Row(
         modifier = Modifier
-            .clickable {
-
+            .background(
+                if (isPressed) {
+                    primary
+                } else {
+                    onPrimary
+                }
+            )
+            .clickable { pressItem() }
+            .drawBehind {
+                if (drawOverline) {
+                    drawLine(
+                        color = primary,
+                        start = Offset(0f, 0f),
+                        end = Offset(this.size.width, 0f),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
             }
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -855,7 +849,7 @@ private fun JobCompetitionItem(
             Text(
                 text = item,
                 fontSize = dpToSp(dp = 16.dp),
-                color = MaterialTheme.colorScheme.primary,
+                color = if (isPressed) { onPrimary } else { primary },
                 textAlign = TextAlign.Center,
                 modifier = Modifier.width(jobDetailsCategory[index].second)
             )

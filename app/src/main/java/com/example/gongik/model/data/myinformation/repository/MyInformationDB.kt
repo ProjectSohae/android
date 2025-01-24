@@ -1,4 +1,4 @@
-package com.example.gongik.model.repository
+package com.example.gongik.model.data.myinformation.repository
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
