@@ -1,7 +1,7 @@
 package com.example.gongik.view.activity
 
 import android.app.Application
-import com.example.gongik.model.repository.MyInformationRepository
+import com.example.gongik.model.data.myinformation.repository.MyInformationRepository
 
 class InitApp: Application() {
 
