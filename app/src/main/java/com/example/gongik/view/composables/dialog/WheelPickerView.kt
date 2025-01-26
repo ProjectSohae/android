@@ -40,7 +40,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.core.graphics.ColorUtils
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.composables.main.MainNavGraphViewModel
+import com.example.gongik.view.main.MainNavGraphViewModel
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint

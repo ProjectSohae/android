@@ -65,8 +65,8 @@ object DistrictRepository {
 
                     convertedToJson.asJsonArray.forEach {
                         result.put(
-                            it.asJsonObject.get("sigungu_addr").toString(),
-                            it.asJsonObject.get("bjdsggjuso_cd").toString()
+                            it.asJsonObject.get("sigungu_addr").asString,
+                            it.asJsonObject.get("bjdsggjuso_cd").asString
                         )
                     }
 

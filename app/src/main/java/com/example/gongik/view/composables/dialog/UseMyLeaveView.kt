@@ -65,7 +65,7 @@ import com.example.gongik.model.data.myinformation.MyUsedLeave
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.util.function.getDate
 import com.example.gongik.util.function.getLeavePeriod
-import com.example.gongik.view.composables.main.MainNavGraphViewModel
+import com.example.gongik.view.main.MainNavGraphViewModel
 import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
 import com.example.gongik.view.composables.snackbar.SnackBarController
 import com.example.gongik.view.composables.snackbar.SnackbarView

@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.gongik.controller.BarColorController
 import com.example.gongik.ui.theme.GongikTheme
-import com.example.gongik.view.composables.main.MainNavGraphView
+import com.example.gongik.view.main.MainNavGraphView
 import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
 import com.example.gongik.view.composables.snackbar.SnackBarController
 import com.example.gongik.view.composables.snackbar.SnackbarView
