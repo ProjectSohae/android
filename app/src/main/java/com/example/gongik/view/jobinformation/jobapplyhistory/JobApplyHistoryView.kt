@@ -1,7 +1,6 @@
 package com.example.gongik.view.jobinformation.jobapplyhistory
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,9 +20,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,9 +42,6 @@ import com.example.gongik.view.composables.dialog.SearchListView
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
 import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
 import com.example.gongik.view.composables.snackbar.SnackBarController
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 // 이전 경쟁률
 @RequiresApi(Build.VERSION_CODES.O)
@@ -57,6 +56,7 @@ fun JobApplyHistoryView(
     var ghjbc_cd by rememberSaveable { mutableStateOf("") }
     var bjdsggjuso_cd by rememberSaveable { mutableStateOf("") }
     var isReadyBjdsggjusoCd by rememberSaveable { mutableStateOf(false) }
+    var loadJobApplyHistoryList by rememberSaveable { mutableStateOf(false) }
     val filterOptionsList = listOf(
         jobApplyHistoryViewModel.jeopsu_yy.keys.toList(),
         jobApplyHistoryViewModel.jeopsu_tms.keys.toList(),
@@ -70,6 +70,34 @@ fun JobApplyHistoryView(
         }
 
         tmp
+    }
+    val checkAllFilterSelected: () -> Boolean = {
+
+        if (jeopsu_yy.isBlank()
+            || jeopsu_tms.isBlank()
+            || ghjbc_cd.isBlank()
+            || bjdsggjuso_cd.isBlank())
+        {
+            false
+        } else { true }
+    }
+
+    LaunchedEffect(loadJobApplyHistoryList) {
+
+        if (loadJobApplyHistoryList) {
+            jobApplyHistoryViewModel.updateJobApplyHistoryList(emptyList())
+            jobApplyHistoryViewModel.getJobApplyHistoryList(
+                jobApplyHistoryViewModel.jeopsu_yy.get(jeopsu_yy) ?: "",
+                jobApplyHistoryViewModel.jeopsu_tms.get(jeopsu_tms) ?: "",
+                jobApplyHistoryViewModel.ghjbc_cd.get(ghjbc_cd) ?: "",
+                jobApplyHistoryViewModel.bjdsggjuso_cd.get(bjdsggjuso_cd) ?: "",
+                callback = {
+                    SnackBarController.show(it, SnackBarBehindTarget.VIEW)
+                }
+            )
+        }
+
+        loadJobApplyHistoryList = false
     }
 
     if (selectedFilterIdx >= 0) {
@@ -94,13 +122,9 @@ fun JobApplyHistoryView(
                         // 관할 지방청
                         2 -> {
                             ghjbc_cd = getSelectedValue.toString()
+                            bjdsggjuso_cd = ""
 
                             jobApplyHistoryViewModel.getBjdsggjusoCd(
-                                jeopsu_yy = LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(System.currentTimeMillis()),
-                                    ZoneId.systemDefault()
-                                ).year.toString(),
-                                jeopsu_tms = "1",
                                 ghjbc_cd = jobApplyHistoryViewModel.ghjbc_cd[ghjbc_cd] ?: "",
                                 callback = { errorMessage ->
 
@@ -115,6 +139,10 @@ fun JobApplyHistoryView(
                     }
 
                     selectedFilterIdx = -1
+
+                    if (checkAllFilterSelected()) {
+                        loadJobApplyHistoryList = true
+                    }
                 },
                 optionsList = filterOptionsList[selectedFilterIdx]
             )
@@ -136,14 +164,16 @@ fun JobApplyHistoryView(
 
                     selectedFilterIdx = -1
                 } else {
-                    Log.d("getResponse", "${jobApplyHistoryViewModel.bjdsggjuso_cd}")
-
                     SearchListView(
                         content = jobApplyHistoryViewModel.bjdsggjuso_cd.keys.toList(),
                         onDismissRequest = { selectedFilterIdx = -1 },
                         onConfirm = {
                             bjdsggjuso_cd = it
                             selectedFilterIdx = -1
+
+                            if (checkAllFilterSelected()) {
+                                loadJobApplyHistoryList = true
+                            }
                         }
                     )
                 }
@@ -210,6 +240,7 @@ fun JobApplyHistoryView(
                 }
             }
 
+            val jobApplyHistoryList = jobApplyHistoryViewModel.jobApplyHistoryList.collectAsState().value
             var pressedItemIdx by rememberSaveable { mutableIntStateOf(-1) }
 
             if (
@@ -241,19 +272,18 @@ fun JobApplyHistoryView(
                         .background(MaterialTheme.colorScheme.onPrimary)
                 ) {
                     item {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            JobDetailsListView(jobApplyHistoryViewModel)
+                        Column(modifier = Modifier.width(3600.dp)) {
+                            JobDetailsCategoryView(jobApplyHistoryViewModel)
 
                             LazyColumn {
                                 itemsIndexed(
-                                    items = jobApplyHistoryViewModel.posts,
+                                    items = jobApplyHistoryList,
                                     key = { index: Int, item ->
                                         index
                                     }
                                 ) { index: Int, item ->
                                     JobApplyHistoryItem(
+                                        jobApplyHistory = item,
                                         drawOverline = (index > 0),
                                         isPressed = (index == pressedItemIdx),
                                         jobApplyHistoryViewModel = jobApplyHistoryViewModel,
@@ -317,37 +347,80 @@ private fun JobSearchFilterItem(
 }
 
 @Composable
-private fun JobDetailsListView(
+private fun JobDetailsCategoryView(
     jobApplyHistoryViewModel: JobApplyHistoryViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
 
-    Row(
-        modifier = Modifier
-            .drawBehind {
-                drawLine(
+    Column {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            jobApplyHistoryViewModel.jobDetailsFirstCategory.forEachIndexed { idx: Int, item ->
+                Text(
+                    text = item.first,
+                    fontSize = dpToSp(dp = 16.dp),
                     color = primary,
-                    strokeWidth = 1.dp.toPx(),
-                    start = Offset(0f, this.size.height),
-                    end = Offset(this.size.width, this.size.height)
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(item.second)
+                        .drawBehind {
+                            if (item.first.isNotBlank()) {
+                                drawLine(
+                                    color = primary,
+                                    start = Offset(0f, this.size.height),
+                                    end = Offset(this.size.width, this.size.height),
+                                    strokeWidth = 1.dp.toPx()
+                                )
+                                drawLine(
+                                    color = primary,
+                                    start = Offset(0f, 0f),
+                                    end = Offset(0f, this.size.height * 2f),
+                                    strokeWidth = 1.dp.toPx()
+                                )
+
+                                if (idx == 4) {
+                                    drawLine(
+                                        color = primary,
+                                        start = Offset(this.size.width, 0f),
+                                        end = Offset(this.size.width, this.size.height * 2f),
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }
+                            }
+                        }
+                        .padding(vertical = 8.dp)
                 )
             }
-            .padding(bottom = 8.dp)
-    ) {
-        jobApplyHistoryViewModel.jobDetailsCategory.forEach { item ->
-            Text(
-                text = item.first,
-                fontSize = dpToSp(dp = 16.dp),
-                color = primary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.width(item.second)
-            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    drawLine(
+                        color = primary,
+                        strokeWidth = 2.dp.toPx(),
+                        start = Offset(0f, this.size.height),
+                        end = Offset(this.size.width, this.size.height)
+                    )
+                }
+                .padding(vertical = 8.dp)
+        ) {
+            jobApplyHistoryViewModel.jobDetailsSecondCategory.forEach { item ->
+                Text(
+                    text = item.first,
+                    fontSize = dpToSp(dp = 16.dp),
+                    color = primary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(item.second)
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun JobApplyHistoryItem(
+    jobApplyHistory: List<String>,
     drawOverline: Boolean,
     isPressed: Boolean,
     jobApplyHistoryViewModel: JobApplyHistoryViewModel,
@@ -355,24 +428,10 @@ private fun JobApplyHistoryItem(
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
-    val test = listOf(
-        "20250120",
-        "지방자치단체",
-        "울산남구청",
-        "3스택+",
-        "999:1",
-        "999",
-        "999",
-        "999:1",
-        "999",
-        "999",
-        "999",
-        "999",
-        "육군훈련소"
-    )
 
     Row(
         modifier = Modifier
+            .fillMaxWidth()
             .background(
                 if (isPressed) {
                     primary
@@ -394,13 +453,13 @@ private fun JobApplyHistoryItem(
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        test.forEachIndexed { index: Int, item ->
+        jobApplyHistory.forEachIndexed { index: Int, item ->
             Text(
                 text = item,
                 fontSize = dpToSp(dp = 16.dp),
                 color = if (isPressed) { onPrimary } else { primary },
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(jobApplyHistoryViewModel.jobDetailsCategory[index].second)
+                modifier = Modifier.weight(jobApplyHistoryViewModel.jobDetailsSecondCategory[index].second)
             )
         }
     }

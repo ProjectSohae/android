@@ -1,11 +1,8 @@
 package com.example.gongik.model.data.jobinformation.repository
 
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import okhttp3.ResponseBody
-import org.json.JSONObject
-import org.jsoup.Jsoup
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -33,22 +30,18 @@ object DistrictRepository {
 
     private const val DISTRICT_URL = "https://mwpt.mma.go.kr/caisBMHS/dmem/dmem/mwgr/shbm/"
 
-    private val requestDistrict: DistrictRequests = Retrofit.Builder()
+    private val client: DistrictRequests = Retrofit.Builder()
         .baseUrl(DISTRICT_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(DistrictRequests::class.java)
 
     fun getDistrictList(
-        jeopsu_yy: String,
-        jeopsu_tms: String,
         ghjbc_cd: String,
         codegubun: String,
         callback: (Map<String, String>, String) -> Unit
     ) {
-        val request = requestDistrict.getDistrictList(
+        val request = client.getDistrictList(
             fieldMap = mapOf(
-                Pair("jeopsu_yy", jeopsu_yy),
-                Pair("jeopsu_tms", jeopsu_tms),
                 Pair("ghjbc_cd", ghjbc_cd),
                 Pair("codegubun", codegubun)
             )
@@ -77,7 +70,7 @@ object DistrictRepository {
             }
 
             override fun onFailure(p0: Call<ResponseBody>, p1: Throwable) {
-                callback(emptyMap(), "주소 목록을 불러 오는데 실패했습니다.")
+                callback(emptyMap(), "목록을 불러 오는데 실패했습니다.")
             }
         } )
     }

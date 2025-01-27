@@ -73,17 +73,11 @@ class PreviewJobInfoListViewModel: ViewModel() {
 
 
     fun getBjdsggjusoCd(
-        jeopsu_yy: String,
-        jeopsu_tms: String,
         ghjbc_cd: String,
         codegubun: String = "2",
         callback: (String) -> Unit
     ) {
-        if (
-            jeopsu_yy.isBlank()
-            || jeopsu_tms.isBlank()
-            || ghjbc_cd.isBlank()
-        ) {
+        if (ghjbc_cd.isBlank()) {
             callback("다시 시도해 주세요.")
             return
         }
@@ -92,8 +86,6 @@ class PreviewJobInfoListViewModel: ViewModel() {
 
         viewModelScope.launch {
             DistrictRepository.getDistrictList(
-                jeopsu_yy,
-                jeopsu_tms,
                 ghjbc_cd,
                 codegubun,
                 callback = { response, errorMessage ->

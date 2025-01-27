@@ -1,7 +1,6 @@
 package com.example.gongik.view.jobinformation.jobinfolist
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,9 +54,6 @@ import com.example.gongik.view.composables.snackbar.SnackBarBehindTarget
 import com.example.gongik.view.composables.snackbar.SnackBarController
 import com.example.gongik.view.main.MainNavGraphItems
 import com.example.gongik.view.main.MainNavGraphViewModel
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 // 복무지 목록
 @RequiresApi(Build.VERSION_CODES.O)
@@ -110,11 +106,6 @@ fun PreviewJobInfoListView(
                             ghjbc_cd = getOptionValue.toString()
 
                             previewJobInfoListViewModel.getBjdsggjusoCd(
-                                jeopsu_yy = LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(System.currentTimeMillis()),
-                                    ZoneId.systemDefault()
-                                ).year.toString(),
-                                jeopsu_tms = "1",
                                 ghjbc_cd = previewJobInfoListViewModel.ghjbc_cd[ghjbc_cd] ?: "",
                                 callback = { errorMessage ->
 
@@ -152,8 +143,6 @@ fun PreviewJobInfoListView(
 
                     pressedFilterIdx = -1
                 } else {
-                    Log.d("getResponse", "${previewJobInfoListViewModel.bjdsggjuso_cd}")
-
                     SearchListView(
                         content = previewJobInfoListViewModel.bjdsggjuso_cd.keys.toList(),
                         onDismissRequest = { pressedFilterIdx = -1 },
