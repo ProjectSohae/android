@@ -59,6 +59,7 @@ fun TypingTextDialog(
     // placeholder, suffix
     inputFormatsList: List<Pair<String, String>>,
     initialValuesList: List<String>,
+    limitLength: Int = 20,
     isIntegerList: List<Boolean>,
     keyboardOptionsList: List<KeyboardOptions>,
     onDismissRequest: () -> Unit,
@@ -76,6 +77,19 @@ fun TypingTextDialog(
     )
     val inputsListSize = inputFormatsList.size
     var inputTextsList by remember { mutableStateOf<List<TextFieldState>>(emptyList()) }
+    val checkValuesChanged: () -> Boolean = {
+        var result = false
+
+        initialValuesList.forEachIndexed breaker@{ idx, item ->
+
+            if (inputTextsList[idx].text != item) {
+                result = true
+                return@breaker
+            }
+        }
+
+        result
+    }
 
     LaunchedEffect(Unit) {
         val tmpList = mutableListOf<TextFieldState>()
@@ -129,7 +143,7 @@ fun TypingTextDialog(
             ) {
                 // dialog title 및 content
                 Column(
-                    modifier = Modifier.padding(top = 24.dp),
+                    modifier = Modifier.padding(top = 24.dp, bottom = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -141,13 +155,12 @@ fun TypingTextDialog(
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        modifier = Modifier.padding(start = 36.dp, end = 36.dp),
+                        modifier = Modifier.padding(start = 36.dp, end = 36.dp, bottom = 20.dp),
                         text = content,
                         fontSize = dpToSp(dp = 16.dp),
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.size(20.dp))
 
                     // 텍스트 입력 필드들
                     for (idx in 0..<inputsListSize) {
@@ -168,6 +181,9 @@ fun TypingTextDialog(
                                         asCharSequence().any { !it.isDigit() }
                                         || length > 5
                                     ) { revertAllChanges() }
+                                } else {
+
+                                    if (length > limitLength) { revertAllChanges() }
                                 }
                             },
                             outputTransformation = {
@@ -243,7 +259,6 @@ fun TypingTextDialog(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.size(16.dp))
 
                 // 버튼
                 Row(
@@ -267,10 +282,16 @@ fun TypingTextDialog(
                         fontSize = dpToSp(dp = 16.dp),
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = if (checkValuesChanged()) {
+                            MaterialTheme.colorScheme.primary
+                        } else { tertiary },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onConfirmation(inputTextsList[0].text.toString()) }
+                            .clickable {
+                                if (checkValuesChanged()) {
+                                    onConfirmation(inputTextsList[0].text.toString())
+                                }
+                            }
                     )
                 }
             }

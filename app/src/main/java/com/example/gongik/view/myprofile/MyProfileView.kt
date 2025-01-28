@@ -131,8 +131,9 @@ private fun MyProfileBodyView(
                 intensity = 0.75f,
                 title = "닉네임 설정",
                 content = "설정 하고자 하는 닉네임을 입력해 주세요.",
-                inputFormatsList = listOf( Pair("닉네임 입력", "") ),
+                inputFormatsList = listOf( Pair("닉네임 입력(10자 이내)", "") ),
                 initialValuesList = listOf(""),
+                limitLength = 10,
                 isIntegerList = listOf(false),
                 keyboardOptionsList = listOf(
                     KeyboardOptions(keyboardType = KeyboardType.Ascii)
