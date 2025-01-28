@@ -1,4 +1,4 @@
-package com.example.gongik.view.jobinformation.jobapplyhistory
+package com.example.gongik.view.jobapplyhistory
 
 import android.os.Build
 import androidx.annotation.RequiresApi

@@ -1,4 +1,4 @@
-package com.example.gongik.view.jobinformation.navigation
+package com.example.gongik.view.jobinformation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -46,8 +46,8 @@ import com.example.gongik.R
 import com.example.gongik.view.main.MainNavGraphItems
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.main.MainNavGraphViewModel
-import com.example.gongik.view.jobinformation.jobapplyhistory.JobApplyHistoryView
-import com.example.gongik.view.jobinformation.jobinfolist.PreviewJobInfoListView
+import com.example.gongik.view.jobapplyhistory.JobApplyHistoryView
+import com.example.gongik.view.jobinfolist.PreviewJobInfoListView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking

@@ -1,4 +1,4 @@
-package com.example.gongik.view.jobinformation.jobinfolist
+package com.example.gongik.view.jobinfolist
 
 import android.os.Build
 import androidx.annotation.RequiresApi

@@ -1,4 +1,4 @@
-package com.example.gongik.view.jobinformation.navigation
+package com.example.gongik.view.jobinformation
 
 import androidx.lifecycle.ViewModel
 

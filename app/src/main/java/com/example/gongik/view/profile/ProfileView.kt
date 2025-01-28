@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,23 +30,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gongik.R
-import com.example.gongik.util.function.displayAsAmount
 import com.example.gongik.util.font.dpToSp
+import com.example.gongik.util.function.displayAsAmount
+import com.example.gongik.util.function.getDate
 import com.example.gongik.view.composables.dialog.DatePickerDialog
 import com.example.gongik.view.composables.dialog.TypingTextDialog
 import com.example.gongik.view.composables.dialog.WheelPickerDialog
-import com.example.gongik.util.function.getDate
+import com.example.gongik.view.main.MainNavGraphItems
+import com.example.gongik.view.main.MainNavGraphViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -149,7 +145,7 @@ private fun ProfileViewHeader(
                 modifier = Modifier
                     .size(28.dp)
                     .clickable {
-
+                        MainNavGraphViewModel.navigate(MainNavGraphItems.SETTINGOPTIONS.name)
                     },
                 contentDescription = null
             )
@@ -170,7 +166,7 @@ private fun PreviewProfileDetails(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable {
-
+                MainNavGraphViewModel.navigate(MainNavGraphItems.MYPROFILE.name)
             }
             .drawBehind {
                 drawRoundRect(
@@ -186,10 +182,9 @@ private fun PreviewProfileDetails(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProfileImage(
-                modifier = Modifier.size(64.dp),
+                modifier = Modifier.padding(end = 12.dp).size(64.dp),
                 innerPadding = PaddingValues(top = 4.dp)
             )
-            Spacer(modifier = Modifier.size(12.dp))
 
             Column {
                 Text(
@@ -265,12 +260,13 @@ private fun MyActivities(
         Text(
             text = "나의 활동",
             fontWeight = FontWeight.SemiBold,
-            fontSize = dpToSp(dp = 20.dp)
+            fontSize = dpToSp(dp = 20.dp),
+            modifier = Modifier.padding(bottom = 12.dp)
         )
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
+                .padding(bottom = 12.dp)
                 .fillMaxWidth()
                 .clickable {
 
@@ -289,7 +285,6 @@ private fun MyActivities(
                 modifier = Modifier.size(16.dp)
             )
         }
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
@@ -655,7 +650,7 @@ private fun SalaryDetails(
             TypingTextDialog(
                 title = title[openDialog],
                 content = content[openDialog],
-                inputsList = inputForm[openDialog],
+                inputFormatsList = inputForm[openDialog],
                 initialValuesList = openDialog.let {
                     when (it) {
                         0 -> { listOf( myWelfare.lunchSupport.toString() ) }
@@ -714,12 +709,13 @@ private fun SalaryDetails(
         Text(
             text = "복지",
             fontWeight = FontWeight.SemiBold,
-            fontSize = dpToSp(dp = 20.dp)
+            fontSize = dpToSp(dp = 20.dp),
+            modifier = Modifier.padding(bottom = 12.dp)
         )
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
+                .padding(bottom = 12.dp)
                 .fillMaxWidth()
                 .clickable { openDialog = 0 },
             horizontalArrangement = Arrangement.SpaceBetween
@@ -747,10 +743,10 @@ private fun SalaryDetails(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
+                .padding(bottom = 12.dp)
                 .fillMaxWidth()
                 .clickable { openDialog = 1 },
             horizontalArrangement = Arrangement.SpaceBetween
@@ -778,7 +774,6 @@ private fun SalaryDetails(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
@@ -870,12 +865,13 @@ private fun RestTimeDetails(
         Text(
             text = "휴가 일수",
             fontWeight = FontWeight.SemiBold,
-            fontSize = dpToSp(dp = 20.dp)
+            fontSize = dpToSp(dp = 20.dp),
+            modifier = Modifier.padding(bottom = 12.dp)
         )
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
+                .padding(bottom = 12.dp)
                 .fillMaxWidth()
                 .clickable { openDialog = 0 },
             horizontalArrangement = Arrangement.SpaceBetween
@@ -903,10 +899,10 @@ private fun RestTimeDetails(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier
+                .padding(bottom = 12.dp)
                 .fillMaxWidth()
                 .clickable { openDialog = 1 },
             horizontalArrangement = Arrangement.SpaceBetween
@@ -934,7 +930,6 @@ private fun RestTimeDetails(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(12.dp))
 
         Row(
             modifier = Modifier

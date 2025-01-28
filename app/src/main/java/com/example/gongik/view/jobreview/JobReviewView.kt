@@ -58,7 +58,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.R
 import com.example.gongik.util.font.dpToSp
-import com.example.gongik.view.jobinformation.jobinfolist.JobReviewScoreNamesList
+import com.example.gongik.view.jobinfolist.JobReviewScoreNamesList
 import com.example.gongik.view.main.MainNavGraphItems
 import com.example.gongik.view.main.MainNavGraphViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

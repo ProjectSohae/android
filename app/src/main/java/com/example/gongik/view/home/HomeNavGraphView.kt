@@ -38,7 +38,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gongik.util.font.dpToSp
 import com.example.gongik.view.community.CommunityView
 import com.example.gongik.view.houseaccount.HouseAccountView
-import com.example.gongik.view.jobinformation.navigation.JobSearchView
+import com.example.gongik.view.jobinformation.JobSearchView
 import com.example.gongik.view.profile.ProfileView
 import kotlinx.coroutines.runBlocking
 

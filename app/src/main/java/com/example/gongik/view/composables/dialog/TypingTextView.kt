@@ -53,10 +53,11 @@ import dev.chrisbanes.haze.hazeChild
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TypingTextDialog(
+    intensity: Float = 0.9f,
     title: String,
     content: String,
     // placeholder, suffix
-    inputsList: List<Pair<String, String>>,
+    inputFormatsList: List<Pair<String, String>>,
     initialValuesList: List<String>,
     isIntegerList: List<Boolean>,
     keyboardOptionsList: List<KeyboardOptions>,
@@ -73,7 +74,7 @@ fun TypingTextDialog(
         errorContainerColor = Color.Transparent,
         disabledContainerColor = Color.Transparent
     )
-    val inputsListSize = inputsList.size
+    val inputsListSize = inputFormatsList.size
     var inputTextsList by remember { mutableStateOf<List<TextFieldState>>(emptyList()) }
 
     LaunchedEffect(Unit) {
@@ -119,8 +120,8 @@ fun TypingTextDialog(
                         )
                     ) {
                         progressive = HazeProgressive.LinearGradient(
-                            startIntensity = 0.9f,
-                            endIntensity = 0.9f,
+                            startIntensity = intensity,
+                            endIntensity = intensity,
                             preferPerformance = true
                         )
                     },
@@ -202,7 +203,7 @@ fun TypingTextDialog(
                                     ),
                                     placeholder = {
                                         Text(
-                                            text = inputsList[idx].first,
+                                            text = inputFormatsList[idx].first,
                                             fontSize = dpToSp(dp = 16.dp),
                                             textAlign = TextAlign.Center,
                                             color = MaterialTheme.colorScheme.tertiary,
@@ -210,7 +211,7 @@ fun TypingTextDialog(
                                     },
                                     suffix = {
                                         Text(
-                                            text = inputsList[idx].second,
+                                            text = inputFormatsList[idx].second,
                                             fontSize = dpToSp(dp = 16.dp),
                                             color = MaterialTheme.colorScheme.primary
                                         )

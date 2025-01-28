@@ -7,13 +7,17 @@ import kotlinx.coroutines.flow.asStateFlow
 
 enum class MainNavGraphItems {
     HOMENAV,
-    JOBREVIEW,
-    WRITEJOBREVIEW,
+
     WRITEPOST,
     POST,
     SEARCHPOST,
+
+    JOBREVIEW,
+    WRITEJOBREVIEW,
     SEARCHJOB,
-    SETTING
+
+    MYPROFILE,
+    SETTINGOPTIONS
 }
 
 object MainNavGraphViewModel {

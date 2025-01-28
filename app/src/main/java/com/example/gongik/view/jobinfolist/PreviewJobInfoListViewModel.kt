@@ -1,4 +1,4 @@
-package com.example.gongik.view.jobinformation.jobinfolist
+package com.example.gongik.view.jobinfolist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

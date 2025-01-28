@@ -20,9 +20,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gongik.view.home.HomeNavGraphView
 import com.example.gongik.view.jobreview.JobReviewView
+import com.example.gongik.view.myprofile.MyProfileView
 import com.example.gongik.view.post.PostView
 import com.example.gongik.view.searchjob.SearchJobView
 import com.example.gongik.view.searchpost.SearchPostView
+import com.example.gongik.view.settingoptions.SettingOptionsView
 import com.example.gongik.view.writejobreview.WriteJobReviewView
 import com.example.gongik.view.writepost.WritePostView
 import dev.chrisbanes.haze.haze
@@ -76,12 +78,7 @@ fun MainNavGraphView(
             composable(MainNavGraphItems.HOMENAV.name) {
                 HomeNavGraphView()
             }
-            composable(MainNavGraphItems.JOBREVIEW.name) {
-                JobReviewView()
-            }
-            composable(MainNavGraphItems.WRITEJOBREVIEW.name) {
-                WriteJobReviewView()
-            }
+            // in community view
             composable(MainNavGraphItems.WRITEPOST.name) {
                 WritePostView()
             }
@@ -95,11 +92,22 @@ fun MainNavGraphView(
             composable(MainNavGraphItems.SEARCHPOST.name) {
                 SearchPostView()
             }
+            // in job information view
+            composable(MainNavGraphItems.WRITEJOBREVIEW.name) {
+                WriteJobReviewView()
+            }
+            composable(MainNavGraphItems.JOBREVIEW.name) {
+                JobReviewView()
+            }
             composable(MainNavGraphItems.SEARCHJOB.name) {
                 SearchJobView()
             }
-            composable(MainNavGraphItems.SETTING.name) {
-
+            // in profile view
+            composable(MainNavGraphItems.MYPROFILE.name) {
+                MyProfileView()
+            }
+            composable(MainNavGraphItems.SETTINGOPTIONS.name) {
+                SettingOptionsView()
             }
         }
 
