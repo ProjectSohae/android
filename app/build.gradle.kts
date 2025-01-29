@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.gongik"
+    namespace = "com.example.sohae"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.gongik"
+        applicationId = "com.example.sohae"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
