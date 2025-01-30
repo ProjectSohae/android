@@ -110,6 +110,5 @@ fun MainNavGraphView(
                 SettingOptionsView()
             }
         }
-
     }
 }

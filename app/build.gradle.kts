@@ -1,8 +1,14 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
 }
+
+val properties = Properties()
+properties.load(FileInputStream("local.properties"))
 
 android {
     namespace = "com.example.sohae"
@@ -19,8 +25,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-    }
 
+        buildConfigField("String", "KAKAO_NATIVE_KEY", properties.getProperty("kakao.native.app.key"))
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", properties.getProperty("google.web.client.id"))
+        buildConfigField("String", "GOOGLE_ANDROID_CLIENT_ID", properties.getProperty("google.android.client.id"))
+    }
+    buildFeatures {
+        buildConfig = true
+        compose = true
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -36,9 +49,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-    }
-    buildFeatures {
-        compose = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -75,6 +85,12 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.converter.gson)
     implementation(libs.jsoup)
+
+    // 로그인
+    implementation(libs.kakao.v2.user)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
