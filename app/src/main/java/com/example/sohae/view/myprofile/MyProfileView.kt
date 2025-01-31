@@ -1,5 +1,7 @@
 package com.example.sohae.view.myprofile
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,10 +42,11 @@ import androidx.core.graphics.ColorUtils
 import com.example.sohae.R
 import com.example.sohae.util.font.dpToSp
 import com.example.sohae.view.composables.dialog.TypingTextDialog
-import com.example.sohae.view.login.LoginView
+import com.example.sohae.view.signin.SignInView
 import com.example.sohae.view.main.MainNavGraphViewModel
 import com.example.sohae.view.profile.ProfileImage
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun MyProfileView(
 
@@ -107,6 +110,7 @@ private fun MyProfileHeaderView(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 private fun MyProfileBodyView(
 
@@ -153,7 +157,7 @@ private fun MyProfileBodyView(
         }
         // 로그인
         2 -> {
-            LoginView(
+            SignInView(
                 onDismissRequest = { showDialog = -1 },
                 onConfirm = {
 

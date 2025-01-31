@@ -1,5 +1,7 @@
-package com.example.sohae.view.login
+package com.example.sohae.view.signin
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,17 +15,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sohae.R
 import com.example.sohae.util.font.dpToSp
 import com.example.sohae.view.main.MainNavGraphViewModel
@@ -32,12 +40,16 @@ import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
-fun LoginView(
+fun SignInView(
     intensity: Float = 0.85f,
+    signInViewModel: SignInViewModel = viewModel(),
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit
 ) {
+    val currentContext = LocalContext.current
+    var pressedButton by remember { mutableStateOf(false) }
 
     Dialog(
         onDismissRequest = onDismissRequest
@@ -76,6 +88,7 @@ fun LoginView(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
+            // 카카오 로그인
             Box(
                 modifier = Modifier
                     .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
@@ -84,6 +97,12 @@ fun LoginView(
                     .background(Color(0xFFFEE500))
                     .clickable {
 
+                        if (!pressedButton) {
+                            pressedButton = true
+                            signInViewModel.kakaoSignIn(currentContext) {
+                                pressedButton = false
+                            }
+                        }
                     }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 contentAlignment = Alignment.CenterStart
@@ -100,10 +119,13 @@ fun LoginView(
                     fontSize = dpToSp(dp = 14.dp),
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.fillMaxWidth().alpha(0.85f)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .alpha(0.85f)
                 )
             }
 
+            // 구글 로그인
             Box(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -112,6 +134,12 @@ fun LoginView(
                     .background(Color(0xFFF2F2F2))
                     .clickable {
 
+                        if (!pressedButton) {
+                            pressedButton = true
+                            signInViewModel.googleSignIn(currentContext){
+                                pressedButton = false
+                            }
+                        }
                     }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 contentAlignment = Alignment.CenterStart
@@ -128,7 +156,9 @@ fun LoginView(
                     fontSize = dpToSp(dp = 14.dp),
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.fillMaxWidth().alpha(0.54f)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .alpha(0.54f)
                 )
             }
         }
