@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">sohae</string>
+    <string name="kakao_redirect_uri">kakaob59aa4c5e8fb5368d2ab5581fa40dd03</string>
 </resources>
