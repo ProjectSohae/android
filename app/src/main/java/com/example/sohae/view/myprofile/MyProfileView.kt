@@ -51,6 +51,13 @@ import com.example.sohae.view.profile.ProfileImage
 fun MyProfileView(
 
 ) {
+    val brightTertiary = Color(
+        ColorUtils.blendARGB(
+            MaterialTheme.colorScheme.tertiary.toArgb(),
+            MaterialTheme.colorScheme.onPrimary.toArgb(),
+            0.75f
+        )
+    )
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -63,7 +70,9 @@ fun MyProfileView(
         )
 
         Column(
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(brightTertiary),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             MyProfileHeaderView()
@@ -81,6 +90,7 @@ private fun MyProfileHeaderView(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.onPrimary)
             .drawBehind {
                 drawLine(
                     color = tertiary,
@@ -117,13 +127,15 @@ private fun MyProfileBodyView(
 ) {
     val tertiary = MaterialTheme.colorScheme.tertiary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
-    val brightTertiary = Color(
-        ColorUtils.blendARGB(
-            MaterialTheme.colorScheme.tertiary.toArgb(),
-            MaterialTheme.colorScheme.onPrimary.toArgb(),
-            0.75f
-        )
-    )
+    val itemModifier = Modifier
+        .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
+        .fillMaxWidth()
+        .drawBehind {
+            drawRoundRect(
+                color = onPrimary,
+                cornerRadius = CornerRadius(50f, 50f)
+            )
+        }
     var myNickname by rememberSaveable { mutableStateOf("") }
     val myEmail = ""
     var showDialog by remember { mutableIntStateOf(-1) }
@@ -172,9 +184,7 @@ private fun MyProfileBodyView(
     }
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(brightTertiary),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
@@ -188,16 +198,7 @@ private fun MyProfileBodyView(
 
         item {
             Column(
-                modifier = Modifier
-                    .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
-                    .fillMaxWidth()
-                    .drawBehind {
-                        drawRoundRect(
-                            color = onPrimary,
-                            cornerRadius = CornerRadius(50f, 50f)
-                        )
-                    }
-                    .padding(16.dp)
+                modifier = itemModifier.padding(16.dp)
             ) {
                 Text(
                     text = "내 정보",
@@ -263,15 +264,7 @@ private fun MyProfileBodyView(
 
         item {
             Column(
-                modifier = Modifier
-                    .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
-                    .fillMaxWidth()
-                    .drawBehind {
-                        drawRoundRect(
-                            color = onPrimary,
-                            cornerRadius = CornerRadius(50f, 50f)
-                        )
-                    },
+                modifier = itemModifier,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (false) {

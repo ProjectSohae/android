@@ -73,7 +73,9 @@ fun WritePostView(
         )
 
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.onPrimary)
         ) {
             WritePostViewHeader()
 

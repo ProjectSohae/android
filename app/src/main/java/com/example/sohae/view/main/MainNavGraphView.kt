@@ -2,8 +2,8 @@ package com.example.sohae.view.main
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -72,8 +72,8 @@ fun MainNavGraphView(
             modifier = Modifier.haze(hazeState),
             navController = mainNavController,
             startDestination = MainNavGraphItems.HOMENAV.name,
-            enterTransition = { slideInVertically { (-transitionDir) * it } },
-            exitTransition = { slideOutVertically { transitionDir * it } }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             composable(MainNavGraphItems.HOMENAV.name) {
                 HomeNavGraphView()

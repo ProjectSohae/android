@@ -54,7 +54,9 @@ fun SearchPostView(
         )
 
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.onPrimary)
         ) {
             SearchPostViewHeader(searchPostViewModel)
 
