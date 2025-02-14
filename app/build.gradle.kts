@@ -5,17 +5,19 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 val properties = Properties()
 properties.load(FileInputStream("local.properties"))
 
 android {
-    namespace = "com.example.sohae"
+    namespace = "com.jhw.sohae"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.sohae"
+        applicationId = "com.jhw.sohae"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -62,6 +64,17 @@ android {
 
 dependencies {
 
+    // 멀티 모듈
+    implementation(project(":navigation:mainnavgraph"))
+
+    implementation(libs.hilt.android)
+    implementation(project(":common:ui:custom"))
+    implementation(project(":controller:barcolor"))
+    implementation(project(":data:repositoryimpl:myinformation"))
+    implementation(project(":data:datasource:myinformation"))
+    implementation(project(":domain:myinformation"))
+    kapt(libs.hilt.android.compiler)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -95,8 +108,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }
