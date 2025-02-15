@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(project(":common:ui:custom"))
     implementation(project(":data:repositoryimpl:jobinformation"))
+    implementation(project(":data:model:remote"))
     implementation(project(":controller:mainnavgraph"))
     kapt(libs.hilt.android.compiler)
 

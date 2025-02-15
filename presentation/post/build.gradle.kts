@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":controller:barcolor"))
     implementation(project(":common:ui:custom"))
     implementation(project(":domain:myinformation"))
+    implementation(project(":data:model:remote"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)

@@ -21,6 +21,7 @@
             <option value="$PROJECT_DIR$/data/datasource/myinformation" />
             <option value="$PROJECT_DIR$/data/model" />
             <option value="$PROJECT_DIR$/data/model/local" />
+            <option value="$PROJECT_DIR$/data/model/remote" />
             <option value="$PROJECT_DIR$/data/repositoryimpl" />
             <option value="$PROJECT_DIR$/data/repositoryimpl/jobinformation" />
             <option value="$PROJECT_DIR$/data/repositoryimpl/myinformation" />
