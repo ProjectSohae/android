@@ -1,3 +1,6 @@
 [submodule "android/data/model/remote"]
 	path = android/data/model/remote
 	url = https://github.com/ProjectSohae/DTO.git
+[submodule "common/remote"]
+	path = common/remote
+	url = https://github.com/ProjectSohae/common.git

@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/common/remote" />
             <option value="$PROJECT_DIR$/common/ui" />
             <option value="$PROJECT_DIR$/common/ui/custom" />
             <option value="$PROJECT_DIR$/controller" />
@@ -21,7 +22,6 @@
             <option value="$PROJECT_DIR$/data/datasource/myinformation" />
             <option value="$PROJECT_DIR$/data/model" />
             <option value="$PROJECT_DIR$/data/model/local" />
-            <option value="$PROJECT_DIR$/data/model/remote" />
             <option value="$PROJECT_DIR$/data/repositoryimpl" />
             <option value="$PROJECT_DIR$/data/repositoryimpl/jobinformation" />
             <option value="$PROJECT_DIR$/data/repositoryimpl/myinformation" />
