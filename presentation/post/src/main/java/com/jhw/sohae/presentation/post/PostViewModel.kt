@@ -1,9 +1,8 @@
 package com.jhw.sohae.presentation.post
 
 import androidx.lifecycle.ViewModel
-import com.jhw.sohae.data.model.comment.CommentDetailsDTO
+import com.jhw.sohae.data.model.comment.request.CommentDetailsDTO
 import com.jhw.sohae.data.model.post.PostDetailsDTO
-import com.jhw.sohae.data.model.userinformation.UserInformationDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 

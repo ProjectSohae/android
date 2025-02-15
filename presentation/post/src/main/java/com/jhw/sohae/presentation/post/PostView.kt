@@ -62,7 +62,7 @@ import com.jhw.sohae.common.ui.custom.snackbar.SnackBarController
 import com.jhw.sohae.controller.barcolor.BarColorController
 import com.jhw.sohae.controller.mainnavgraph.MainNavController
 import com.jhw.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.jhw.sohae.data.model.comment.CommentDetailsDTO
+import com.jhw.sohae.data.model.comment.request.CommentDetailsDTO
 import com.jhw.sohae.data.model.post.PostDetailsDTO
 import com.jhw.sohae.presentation.postoption.PostOptionsView
 
