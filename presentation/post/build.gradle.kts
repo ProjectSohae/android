@@ -45,8 +45,6 @@ dependencies {
     implementation(project(":controller:mainnavgraph"))
     implementation(project(":controller:barcolor"))
     implementation(project(":common:ui:custom"))
-    implementation(project(":data:model:remote"))
-    implementation(project(":data:model:remote"))
     implementation(project(":domain:myinformation"))
     kapt(libs.hilt.android.compiler)
 

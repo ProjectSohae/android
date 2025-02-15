@@ -12,28 +12,42 @@ import com.jhw.sohae.domain.myinformation.entity.MyWorkInfoEntity
 import com.jhw.sohae.domain.myinformation.usecase.MyInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class ProfileViewModel: ViewModel() {
 
-    private val _myAccount = MutableStateFlow<MyAccountEntity?>(null)
-    val myAccount = _myAccount.asStateFlow()
+    val myAccount = MyInfoUseCase.getMyAccount().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = null
+    )
 
-    private val _myWorkInfo = MutableStateFlow<MyWorkInfoEntity?>(null)
-    val myWorkInfo = _myWorkInfo.asStateFlow()
+    val myWorkInfo = MyInfoUseCase.getMyWorkInfo().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = null
+    )
 
-    private val _myWelfare = MutableStateFlow<MyWelfareEntity?>(null)
-    val myWelfare = _myWelfare.asStateFlow()
+    val myWelfare = MyInfoUseCase.getMyWelfare().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = null
+    )
 
-    private val _myRank = MutableStateFlow<MyRankEntity?>(null)
-    val myRank = _myRank.asStateFlow()
+    val myRank = MyInfoUseCase.getMyRank().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = null
+    )
 
-    private val _myLeave = MutableStateFlow<MyLeaveEntity?>(null)
-    val myLeave = _myLeave.asStateFlow()
-
-    val finishLoadDB = false
-    val isReadyInfo = false
+    val myLeave = MyInfoUseCase.getMyLeave().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = null
+    )
 
     val startPayDayList = mutableListOf<String>()
     val leaveDayList = mutableListOf<String>()

@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,8 +50,25 @@ import com.jhw.utils.getDate
 fun ProfileView(
     profileViewModel: ProfileViewModel = viewModel()
 ) {
-    val finishLoadDB = profileViewModel.finishLoadDB
-    val isReadyInfo = profileViewModel.isReadyInfo
+    val myAccount = profileViewModel.myAccount.collectAsState().value
+    val myWorkInfo = profileViewModel.myWorkInfo.collectAsState().value
+    val myWelfare = profileViewModel.myWelfare.collectAsState().value
+    val myRank = profileViewModel.myRank.collectAsState().value
+    val myLeave = profileViewModel.myLeave.collectAsState().value
+    val finishLoadDB = false
+    var isReadyInfo by remember {
+        mutableStateOf(false)
+    }
+
+    if (
+        myAccount != null
+        && myWorkInfo != null
+        && myWelfare != null
+        && myRank != null
+        && myLeave != null
+    ) {
+        isReadyInfo = true
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -179,7 +197,9 @@ private fun PreviewProfileDetails(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProfileImage(
-                modifier = Modifier.padding(end = 12.dp).size(64.dp),
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(64.dp),
                 innerPadding = PaddingValues(top = 4.dp)
             )
 
