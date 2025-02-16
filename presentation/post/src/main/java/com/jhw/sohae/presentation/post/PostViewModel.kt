@@ -1,80 +1,49 @@
 package com.jhw.sohae.presentation.post
 
 import androidx.lifecycle.ViewModel
-import com.jhw.sohae.data.model.comment.request.CommentDetailsDTO
-import com.jhw.sohae.data.model.post.PostDetailsDTO
+import com.sohae.common.models.comment.entity.CommentEntity
+import com.sohae.common.models.post.entity.PostEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.datetime.Clock
+import java.util.UUID
 
 class PostViewModel: ViewModel() {
 
-    private var _postDetails = MutableStateFlow<PostDetailsDTO?>(null)
+    private var _postDetails = MutableStateFlow<PostEntity?>(null)
     val postDetails = _postDetails.asStateFlow()
 
-    private var _commentsList = MutableStateFlow<List<CommentDetailsDTO>>(emptyList())
+    private var _commentsList = MutableStateFlow<List<CommentEntity>>(emptyList())
     val commentsList = _commentsList.asStateFlow()
 
     fun getPostDetails(postId: Int) {
-        _postDetails.value = PostDetailsDTO(
-            0,
-            "닉네임",
-            0,
-            0,
-            0,
-            "제목",
-            "내용\n" +
-                    "내용\n" +
-                    "내용\n" +
-                    "내용\n" +
-                    "내용\n" +
-                    "내용\n" +
-                    "내용\n" +
-                    "내용\n" +
-                    "내용\n" +
-                    "내용\n" +
-                    "내용\n" +
-                    "내용",
-            listOf(
-//                PostImage("", 0),
-//                PostImage("", 1),
-//                PostImage("", 2),
-//                PostImage("", 3),
-//                PostImage("", 4),
-            ),
-            0,
-            0,
-            0,
-            0
+        _postDetails.value = PostEntity(
+            id = 0L,
+            userId = UUID.randomUUID(),
+            title = "test",
+            content = "test",
+            images = emptyList(),
+            commentCount = 0,
+            viewsCount = 0,
+            likesCount = 0,
+            bookmarksCount = 0,
+            createdAt = Clock.System.now()
         )
     }
 
     fun getCommentsList(postId: Int, offset: Int, count: Int) {
-        val tmp = mutableListOf<CommentDetailsDTO>()
+        val tmp = mutableListOf<CommentEntity>()
 
         for (idx: Int in 0..10) {
             tmp.add(
-                CommentDetailsDTO(
-                    0,
-                    0,
-                    "댓글러",
-                    "타겟",
-                    0,
-                    0,
-                    "내용\n내용내용\n내용내용내용\n내용내용내용내용내용내용내용내용내용내용내용내용",
-                    listOf(
-                        CommentDetailsDTO(
-                            0,
-                            0,
-                            "대댓글러",
-                            "타겟",
-                            0,
-                            0,
-                            "내용 내용\n내용 내용 내용\n내용내용내용내용내용내용내용내용내용내용내용내용",
-                            emptyList(),
-                            false
-                        )
-                    ),
-                    false
+                CommentEntity(
+                    id = 0L,
+                    postId = 0L,
+                    userId = UUID.randomUUID(),
+                    userName = "test",
+                    parentCommentId = 0L,
+                    content = "test",
+                    createdAt = Clock.System.now()
                 )
             )
         }

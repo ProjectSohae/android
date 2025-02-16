@@ -8,14 +8,15 @@ hazeMaterials = "1.3.1"
 hiltAndroid = "2.55"
 hiltAndroidCompiler = "2.55"
 jakartaInjectApi = "2.0.1"
-jetbrainsKotlinxCoroutinesCore = "1.9.0"
+jetbrainsKotlinxCoroutinesCore = "1.10.1"
 jsoup = "1.18.3"
-kotlin = "1.9.0"
+kotlin = "2.1.10"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxCoroutinesAndroid = "1.10.1"
+kotlinxDatetimeVersion = "0.6.2"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.0"
 composeBom = "2025.02.00"
@@ -26,16 +27,16 @@ navigationCompose = "2.8.7"
 okhttp = "4.12.0"
 retrofit = "2.11.0"
 roomRuntime = "2.6.1"
-uiGraphics = "1.7.7"
+uiGraphics = "1.7.8"
 v2User = "2.20.6"
 appcompat = "1.7.0"
 materialVersion = "1.12.0"
 jetbrainsKotlinJvm = "2.1.0"
-runtimeAndroid = "1.7.7"
+runtimeAndroid = "1.7.8"
 material3Android = "1.3.1"
 uiUnitAndroid = "1.7.7"
-foundationAndroid = "1.7.7"
-animationAndroid = "1.7.7"
+foundationAndroid = "1.7.8"
+animationAndroid = "1.7.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -53,6 +54,7 @@ haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 jakarta-inject-api = { module = "jakarta.inject:jakarta.inject-api", version.ref = "jakartaInjectApi" }
+jetbrains-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetimeVersion" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -85,6 +87,7 @@ ui-graphics = { module = "androidx.compose.ui:ui-graphics", version.ref = "uiGra
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 

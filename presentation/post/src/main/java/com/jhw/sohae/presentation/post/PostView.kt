@@ -46,25 +46,23 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.unit.sp
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarController
 import com.jhw.sohae.controller.barcolor.BarColorController
 import com.jhw.sohae.controller.mainnavgraph.MainNavController
 import com.jhw.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.jhw.sohae.data.model.comment.request.CommentDetailsDTO
-import com.jhw.sohae.data.model.post.PostDetailsDTO
 import com.jhw.sohae.presentation.postoption.PostOptionsView
+import com.sohae.common.models.comment.entity.CommentEntity
+import com.sohae.common.models.post.entity.PostEntity
+import com.sohae.common.models.user.entity.UserId
 
 @Composable
 fun PostView(
@@ -116,7 +114,7 @@ fun PostView(
                 if (postDetails == null) {
 
                 } else {
-                    PostViewHeader(postId, postDetails.userNickname)
+                    PostViewHeader(postId, postDetails.userId)
 
                     LazyColumn(
                         modifier = Modifier.weight(1f)
@@ -127,10 +125,10 @@ fun PostView(
 
                         itemsIndexed(
                             items = commentsList,
-                            key = { idx: Int, commentDetails: CommentDetailsDTO -> idx }
-                        ) { idx: Int, commentDetails: CommentDetailsDTO ->
+                            key = { idx: Int, commentDetails: CommentEntity -> idx }
+                        ) { idx: Int, commentDetails: CommentEntity ->
                             CommentView(
-                                postDetails.userNickname,
+                                postDetails.userId,
                                 commentDetails,
                                 idx != 0
                             )
@@ -151,14 +149,14 @@ fun PostView(
 @Composable
 private fun PostViewHeader(
     postId: Int,
-    posterNickname: String
+    posterUUID: UserId
 ) {
     var showOptionsDialog by remember { mutableStateOf(false) }
 
     if (showOptionsDialog) {
         PostOptionsView(
             postId = postId,
-            posterNickname = posterNickname,
+            posterNickname = "닉네임",
             onDismissRequest = { showOptionsDialog = false },
             onConfirm = { showOptionsDialog = false }
         )
@@ -198,7 +196,7 @@ private fun PostViewHeader(
 
 @Composable
 private fun PostDetailsView(
-    postDetails: PostDetailsDTO?
+    postDetails: PostEntity?
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
@@ -227,14 +225,14 @@ private fun PostDetailsView(
         )
 
         // 글 사진목록
-        if (postDetails.imagesList.isNotEmpty()) {
+        if (postDetails.images.isNotEmpty()) {
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 24.dp, bottom = 12.dp)
             ) {
                 item {
-                    postDetails.imagesList.forEach {
+                    postDetails.images.forEach {
                         Image(
                             painter = painterResource(id = R.drawable.yoon),
                             contentScale = ContentScale.Crop,
@@ -267,7 +265,7 @@ private fun PostDetailsView(
                 .padding(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 24.dp)
         ) {
             Text(
-                text = "${postDetails.userNickname} • ${postDetails.createdDate}",
+                text = "${postDetails.userId} • ${postDetails.createdAt}",
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -299,7 +297,7 @@ private fun PostDetailsView(
                 )
 
                 Text(
-                    text = " 추천 ${postDetails.likeCount}",
+                    text = " 추천 ${postDetails.likesCount}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (likeThisPost) { primary } else { tertiary },
@@ -355,7 +353,7 @@ private fun PostDetailsView(
                 )
 
                 Text(
-                    text = " 스크랩 ${postDetails.bookmarkCount}",
+                    text = " 스크랩 ${postDetails.bookmarksCount}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (bookmarkThisPost) { primary } else { tertiary },
@@ -380,8 +378,8 @@ private fun PostDetailsView(
 
 @Composable
 private fun CommentView(
-    posterNickname: String,
-    commentDetails: CommentDetailsDTO,
+    posterUUID: UserId,
+    commentDetails: CommentEntity,
     drawDivider: Boolean
 ) {
     val tertiary = MaterialTheme.colorScheme.tertiary
@@ -411,7 +409,7 @@ private fun CommentView(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (posterNickname == commentDetails.userNickname) {
+                if (true) {
                     Text(
                         text = "작성자",
                         fontSize = 12.sp,
@@ -423,7 +421,7 @@ private fun CommentView(
                 }
 
                 Text(
-                    text = "${commentDetails.userNickname} • ${commentDetails.createdDate}",
+                    text = "${commentDetails.userName} • ${commentDetails.createdAt}",
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.primary,
                     style = TextStyle(
@@ -458,9 +456,9 @@ private fun CommentView(
         Column(
             modifier = Modifier.padding(horizontal = 24.dp)
         ) {
-            commentDetails.replyList.forEach { getReplyDetails ->
-                ReplyView(posterNickname, getReplyDetails)
-            }
+//            commentDetails.replyList.forEach { getReplyDetails ->
+//                ReplyView(posterNickname, getReplyDetails)
+//            }
         }
     }
 }
@@ -468,23 +466,8 @@ private fun CommentView(
 @Composable
 private fun ReplyView(
     posterNickname: String,
-    replyDetails: CommentDetailsDTO
+    replyDetails: CommentEntity
 ) {
-    val replyContent = buildAnnotatedString {
-        withStyle(
-            SpanStyle(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        ) {
-            append("${replyDetails.targetUserNickname} ")
-        }
-
-        withStyle(SpanStyle(fontSize = 16.sp)) {
-            append(replyDetails.content)
-        }
-    }
-
     Row(
         modifier = Modifier.padding(top = 12.dp)
     ) {
@@ -519,7 +502,7 @@ private fun ReplyView(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (posterNickname == replyDetails.userNickname) {
+                    if (posterNickname == replyDetails.userName) {
                         Text(
                             text = "작성자",
                             fontSize = 12.sp,
@@ -534,7 +517,7 @@ private fun ReplyView(
                     }
 
                     Text(
-                        text = "${replyDetails.userNickname} • ${replyDetails.createdDate}",
+                        text = "${replyDetails.userName} • ${replyDetails.createdAt}",
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.primary,
                         style = TextStyle(
@@ -560,7 +543,7 @@ private fun ReplyView(
             }
 
             Text(
-                text = replyContent,
+                text = replyDetails.content,
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = 24.dp)

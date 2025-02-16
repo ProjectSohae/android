@@ -1,8 +1,9 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("kotlin-kapt")
+    alias(libs.plugins.compose.compiler)
     id("com.google.dagger.hilt.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -41,11 +42,14 @@ android {
 
 dependencies {
 
+    implementation(libs.jetbrains.kotlinx.datetime)
+
     implementation(libs.hilt.android)
     implementation(project(":controller:mainnavgraph"))
     implementation(project(":controller:barcolor"))
     implementation(project(":common:ui:custom"))
     implementation(project(":domain:myinformation"))
+    implementation(project(":common:remote"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)

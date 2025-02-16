@@ -195,77 +195,7 @@ class JobApplyHistoryViewModel: ViewModel() {
 
                     if (errorMessage.isBlank()) {
                         jobApplyHistoryList.forEach {
-                            val firstRoundMaxStack = getMaxStack(
-                                it.jm1stinwon_talrak0,
-                                it.jm1stinwon_talrak1,
-                                it.jm1stinwon_talrak2,
-                                it.jm1stinwon_talrak3,
-                            )
-                            val firstRoundMaxStackCount = getMaxStackCount(
-                                firstRoundMaxStack,
-                                it.jm1stinwon_talrak0,
-                                it.jm1stinwon_talrak1,
-                                it.jm1stinwon_talrak2,
-                                it.jm1stinwon_talrak3
-                            )
-                            val secondRoundMaxStack = getMaxStack(
-                                it.jm2stinwon_talrak0,
-                                it.jm2stinwon_talrak1,
-                                it.jm2stinwon_talrak2,
-                                it.jm2stinwon_talrak3,
-                            )
-                            val secondRoundMaxStackCount = getMaxStackCount(
-                                secondRoundMaxStack,
-                                it.jm2stinwon_talrak0,
-                                it.jm2stinwon_talrak1,
-                                it.jm2stinwon_talrak2,
-                                it.jm2stinwon_talrak3,
-                            )
 
-                            tmp.add(
-                                listOf(
-                                    it.shbmsojip_dt,
-                                    it.ssggdbunryu_nm,
-                                    it.bokmu_ggm,
-                                    it.gsbaejeong_pcnt,
-                                    maxStackToString(firstRoundMaxStack),
-                                    getMaxStackCompetitionRate(
-                                        firstRoundMaxStackCount,
-                                        it.gsbaejeong_pcnt.toInt()
-                                    ),
-                                    getAllCompetitionRate(
-                                        it.jm1stinwon_talrak0,
-                                        it.jm1stinwon_talrak1,
-                                        it.jm1stinwon_talrak2,
-                                        it.jm1stinwon_talrak3,
-                                        it.gsbaejeong_pcnt
-                                    ),
-                                    it.jm1stinwon_jeongong,
-                                    it.jm1stinwon_talrak3,
-                                    it.jm1stinwon_talrak2,
-                                    it.jm1stinwon_talrak1,
-                                    it.jm1stinwon_talrak0,
-                                    maxStackToString(secondRoundMaxStack),
-                                    getMaxStackCompetitionRate(
-                                        secondRoundMaxStackCount,
-                                        it.gsbaejeong_pcnt.toInt()
-                                    ),
-                                    getAllCompetitionRate(
-                                        it.jm2stinwon_talrak0,
-                                        it.jm2stinwon_talrak1,
-                                        it.jm2stinwon_talrak2,
-                                        it.jm2stinwon_talrak3,
-                                        it.gsbaejeong_pcnt,
-                                    ),
-                                    it.jm2stinwon_jeongong,
-                                    it.jm2stinwon_talrak3,
-                                    it.jm2stinwon_talrak2,
-                                    it.jm2stinwon_talrak1,
-                                    it.jm2stinwon_talrak0,
-                                    it.shbjsiseol_sbjs,
-                                    it.budae_cdm.ifBlank { "선복무" }
-                                )
-                            )
                         }
                         updateJobApplyHistoryList(tmp)
                     } else {

@@ -1,8 +1,9 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("kotlin-kapt")
+    alias(libs.plugins.compose.compiler)
     id("com.google.dagger.hilt.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -43,6 +44,7 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(project(":common:ui:custom"))
+    implementation(project(":common:remote"))
     implementation(project(":data:repositoryimpl:jobinformation"))
     implementation(project(":controller:mainnavgraph"))
     kapt(libs.hilt.android.compiler)
