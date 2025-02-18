@@ -45,13 +45,14 @@ import com.jhw.sohae.common.ui.custom.snackbar.SnackBarController
 import com.jhw.sohae.common.ui.custom.snackbar.SnackbarView
 import com.jhw.sohae.controller.mainnavgraph.MainScreenController
 import com.jhw.sohae.domain.myinformation.entity.MyUsedLeaveEntity
-import com.jhw.sohae.domain.myinformation.usecase.MyInfoUseCase
 import com.jhw.utils.getDate
 import com.jhw.utils.getLeavePeriod
+import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.hazeEffect
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -66,21 +67,21 @@ fun MyUsedLeaveListView(
     var loadMyUsedLeaveList by remember { mutableStateOf(true) }
     var myUsedLeaveList: List<MyUsedLeaveEntity> by remember { mutableStateOf(emptyList()) }
     var selectedLeaveItem: MyUsedLeaveEntity? by remember { mutableStateOf(null) }
-    var deleteLeaveItemUid by remember { mutableIntStateOf(-1) }
+    var deleteLeaveItemId by remember { mutableIntStateOf(-1) }
 
     LaunchedEffect(loadMyUsedLeaveList) {
 
         if (loadMyUsedLeaveList) {
-            myUsedLeaveList = MyInfoUseCase.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
+            myUsedLeaveList = homeViewModel.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
             loadMyUsedLeaveList = false
         }
     }
 
-    LaunchedEffect(deleteLeaveItemUid) {
+    LaunchedEffect(deleteLeaveItemId) {
 
-        if (deleteLeaveItemUid >= 0) {
-            MyInfoUseCase.deleteMyUsedLeave(deleteLeaveItemUid)
-            deleteLeaveItemUid = -1
+        if (deleteLeaveItemId >= 0) {
+            homeViewModel.deleteMyUsedLeave(deleteLeaveItemId)
+            deleteLeaveItemId = -1
             loadMyUsedLeaveList = true
         }
     }
@@ -150,22 +151,21 @@ fun MyUsedLeaveListView(
                         .height(540.dp)
                         .shadow(12.dp, RoundedCornerShape(10))
                         .clip(RoundedCornerShape(10))
-                        .hazeChild(
-                            state = MainScreenController.hazeState,
+                        .hazeEffect(state = MainScreenController.hazeState,
                             style = HazeStyle(
                                 backgroundColor = MaterialTheme.colorScheme.onPrimary,
                                 tint = HazeTint(
                                     color = MaterialTheme.colorScheme.onPrimary
                                 ),
                                 blurRadius = 25.dp
-                            )
-                        ) {
-                            progressive = HazeProgressive.LinearGradient(
-                                startIntensity = 0.9f,
-                                endIntensity = 0.9f,
-                                preferPerformance = true
-                            )
-                        }
+                            ),
+                            block = fun HazeEffectScope.() {
+                                progressive = HazeProgressive.LinearGradient(
+                                    startIntensity = 0.9f,
+                                    endIntensity = 0.9f,
+                                    preferPerformance = true
+                                )
+                            })
                         .clickable(
                             indication = null,
                             interactionSource = null
@@ -210,7 +210,7 @@ fun MyUsedLeaveListView(
 
                                     when (pressedButtonIdx) {
                                         0 -> { selectedLeaveItem = item }
-                                        1 -> { deleteLeaveItemUid = item.id }
+                                        1 -> { deleteLeaveItemId = item.id }
                                     }
                                 }
                             )

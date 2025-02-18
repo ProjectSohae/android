@@ -10,5 +10,5 @@ java {
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.jakarta.inject.api)
+    implementation(libs.javax.inject)
 }

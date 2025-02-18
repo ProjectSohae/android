@@ -35,10 +35,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jhw.sohae.controller.mainnavgraph.MainScreenController
 import com.jhw.sohae.presentation.myprofile.R
+import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.hazeEffect
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
@@ -61,7 +63,7 @@ fun SignInView(
                     shape = RoundedCornerShape(10)
                 )
                 .clip(RoundedCornerShape(10))
-                .hazeChild(
+                .hazeEffect(
                     state = MainScreenController.hazeState,
                     style = HazeStyle(
                         backgroundColor = MaterialTheme.colorScheme.onPrimary,
@@ -69,14 +71,14 @@ fun SignInView(
                             color = MaterialTheme.colorScheme.onPrimary
                         ),
                         blurRadius = 25.dp
-                    )
-                ) {
-                    progressive = HazeProgressive.LinearGradient(
-                        startIntensity = intensity,
-                        endIntensity = intensity,
-                        preferPerformance = true
-                    )
-                }
+                    ),
+                    block = fun HazeEffectScope.() {
+                        progressive = HazeProgressive.LinearGradient(
+                            startIntensity = intensity,
+                            endIntensity = intensity,
+                            preferPerformance = true
+                        )
+                    })
                 .padding(vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

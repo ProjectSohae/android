@@ -20,10 +20,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.jhw.sohae.controller.mainnavgraph.MainScreenController
 import com.jhw.sohae.domain.myinformation.usecase.MyInfoUseCase
+import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.hazeEffect
 
 @Composable
 fun PostOptionsView(
@@ -51,7 +53,7 @@ fun PostOptionsView(
             modifier = Modifier
                 .width(240.dp)
                 .clip(RoundedCornerShape(25))
-                .hazeChild(
+                .hazeEffect(
                     state = MainScreenController.hazeState,
                     style = HazeStyle(
                         backgroundColor = MaterialTheme.colorScheme.onPrimary,
@@ -59,14 +61,14 @@ fun PostOptionsView(
                             color = MaterialTheme.colorScheme.onPrimary
                         ),
                         blurRadius = 25.dp
-                    )
-                ) {
-                    progressive = HazeProgressive.LinearGradient(
-                        startIntensity = 0.85f,
-                        endIntensity = 0.85f,
-                        preferPerformance = true
-                    )
-                }
+                    ),
+                    block = fun HazeEffectScope.() {
+                        progressive = HazeProgressive.LinearGradient(
+                            startIntensity = 0.85f,
+                            endIntensity = 0.85f,
+                            preferPerformance = true
+                        )
+                    })
                 .padding(horizontal = 24.dp)
         ) {
 

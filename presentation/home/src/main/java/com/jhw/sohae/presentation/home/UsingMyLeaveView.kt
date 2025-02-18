@@ -68,10 +68,12 @@ import com.jhw.sohae.controller.mainnavgraph.MainScreenController
 import com.jhw.sohae.domain.myinformation.entity.MyUsedLeaveEntity
 import com.jhw.utils.getDate
 import com.jhw.utils.getLeavePeriod
+import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.hazeEffect
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -214,20 +216,19 @@ fun UsingMyLeaveView(
                         .wrapContentSize()
                         .shadow(20.dp, RoundedCornerShape(15))
                         .clip(RoundedCornerShape(15))
-                        .hazeChild(
-                            state = MainScreenController.hazeState,
+                        .hazeEffect(state = MainScreenController.hazeState,
                             style = HazeStyle(
                                 backgroundColor = onPrimary,
                                 tint = HazeTint(color = onPrimary),
                                 blurRadius = 25.dp
-                            )
-                        ) {
-                            progressive = HazeProgressive.LinearGradient(
-                                startIntensity = 0.95f,
-                                endIntensity = 0.95f,
-                                preferPerformance = true
-                            )
-                        }
+                            ),
+                            block = fun HazeEffectScope.() {
+                                progressive = HazeProgressive.LinearGradient(
+                                    startIntensity = 0.95f,
+                                    endIntensity = 0.95f,
+                                    preferPerformance = true
+                                )
+                            })
                         .clickable(
                             indication = null,
                             interactionSource = null

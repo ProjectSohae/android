@@ -2,9 +2,6 @@ package com.jhw.sohae.presentation.jobapplyhistory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jhw.sohae.data.repositoryimpl.jobinformation.DistrictRepository
-import com.jhw.sohae.data.repositoryimpl.jobinformation.JobApplyHistoryRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -97,7 +94,7 @@ class JobApplyHistoryViewModel: ViewModel() {
         bjdsggjuso_cd = emptyMap()
 
         viewModelScope.launch {
-            DistrictRepository.getDistrictList(
+            com.jhw.sohae.data.jobinformation.DistrictRepository.getDistrictList(
                 ghjbc_cd,
                 codegubun,
                 callback = { response, errorMessage ->
@@ -186,7 +183,7 @@ class JobApplyHistoryViewModel: ViewModel() {
                 }
             }
 
-            JobApplyHistoryRepository.getJobApplyHistoryList(
+            com.jhw.sohae.data.jobinformation.JobApplyHistoryRepository.getJobApplyHistoryList(
                 jeopsu_yy = jeopsu_yy,
                 jeopsu_tms = jeopsu_tms,
                 ghjbc_cd = ghjbc_cd,

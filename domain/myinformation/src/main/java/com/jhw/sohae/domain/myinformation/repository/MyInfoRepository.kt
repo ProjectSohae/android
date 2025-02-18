@@ -10,28 +10,28 @@ import kotlinx.coroutines.flow.Flow
 
 interface MyInfoRepository {
 
-    fun initMyAccount(): Flow<MyAccountEntity>
+    fun getMyAccount(): Flow<MyAccountEntity>?
     fun updateMyAccount(inputMyAccount: MyAccountEntity)
 
-    fun initMyWorkInformation(): Flow<MyWorkInfoEntity>
+    fun getMyWorkInformation(): Flow<MyWorkInfoEntity>?
     fun updateMyWorkInformation(
         inputMyWorkInformation: MyWorkInfoEntity,
         updateRelatedInfo: Boolean
     )
 
-    fun initMyRank(): Flow<MyRankEntity>
+    fun getMyRank(): Flow<MyRankEntity>?
     fun updateMyRank(inputMyRank: MyRankEntity)
 
-    fun initMyWelfare(): Flow<MyWelfareEntity>
+    fun getMyWelfare(): Flow<MyWelfareEntity>?
     fun updateMyWelfare(inputMyWelfare: MyWelfareEntity)
 
-    fun initMyLeave(): Flow<MyLeaveEntity>
+    fun getMyLeave(): Flow<MyLeaveEntity>?
     fun updateMyLeave(inputMyLeave: MyLeaveEntity)
 
-    fun initMyUsedLeaveList(): Flow<List<MyUsedLeaveEntity>>
+    fun getMyUsedLeaveList(): Flow<List<MyUsedLeaveEntity>>?
     fun updateMyUsedLeave(inputMyUsedLeave: MyUsedLeaveEntity)
     fun deleteMyUsedLeave(id: Int)
 
-    fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): Flow<List<MyUsedLeaveEntity>>
-    fun getMyUsedLeaveListByDate(startDate: Long, endDate: Long): Flow<List<MyUsedLeaveEntity>>
+    fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): Flow<List<MyUsedLeaveEntity>>?
+    fun getMyUsedLeaveListByDate(startDate: Long, endDate: Long): Flow<List<MyUsedLeaveEntity>>?
 }

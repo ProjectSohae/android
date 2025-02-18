@@ -1,6 +1,7 @@
 package com.jhw.sohae.navigation.mainnavgraph
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -34,6 +35,7 @@ import com.jhw.sohae.presentation.settingoptions.SettingOptionsView
 import com.jhw.sohae.presentation.writejobreview.WriteJobReviewView
 import com.jhw.sohae.presentation.writepost.WritePostView
 import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeSource
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
@@ -76,7 +78,7 @@ fun MainNavGraphView(
         contentAlignment = Alignment.Center
     ) {
         NavHost(
-            modifier = Modifier.haze(hazeState),
+            modifier = Modifier.hazeSource(hazeState),
             navController = mainNavController,
             startDestination = MainNavGraphRoutes.HOMENAV.name,
             enterTransition = { EnterTransition.None },

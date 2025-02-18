@@ -4,46 +4,47 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jhw.sohae.domain.myinformation.entity.MyAccountEntity
 import com.jhw.sohae.domain.myinformation.entity.MyLeaveEntity
 import com.jhw.sohae.domain.myinformation.entity.MyRankEntity
 import com.jhw.sohae.domain.myinformation.entity.MyWelfareEntity
 import com.jhw.sohae.domain.myinformation.entity.MyWorkInfoEntity
 import com.jhw.sohae.domain.myinformation.usecase.MyInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class ProfileViewModel: ViewModel() {
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
+    private val myInfoUseCase: MyInfoUseCase
+): ViewModel() {
 
-    val myAccount = MyInfoUseCase.getMyAccount().stateIn(
+    val myAccount = myInfoUseCase.getMyAccount().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
     )
 
-    val myWorkInfo = MyInfoUseCase.getMyWorkInfo().stateIn(
+    val myWorkInfo = myInfoUseCase.getMyWorkInfo().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
     )
 
-    val myWelfare = MyInfoUseCase.getMyWelfare().stateIn(
+    val myWelfare = myInfoUseCase.getMyWelfare().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
     )
 
-    val myRank = MyInfoUseCase.getMyRank().stateIn(
+    val myRank = myInfoUseCase.getMyRank().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
     )
 
-    val myLeave = MyInfoUseCase.getMyLeave().stateIn(
+    val myLeave = myInfoUseCase.getMyLeave().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
@@ -73,7 +74,7 @@ class ProfileViewModel: ViewModel() {
         tmpMyWorkInfo[idx] = value.toString().toLong()
 
         viewModelScope.launch {
-            MyInfoUseCase.updateMyWorkInfo(
+            myInfoUseCase.updateMyWorkInfo(
                 input = MyWorkInfoEntity(
                     id = 0,
                     workPlace = tmpMyWorkInfo[0].toString(),
@@ -95,7 +96,7 @@ class ProfileViewModel: ViewModel() {
         tmpMyRank[idx] = value
 
         viewModelScope.launch {
-            MyInfoUseCase.updateMyRank(
+            myInfoUseCase.updateMyRank(
                 MyRankEntity(
                     id = 0,
                     firstPromotionDay = tmpMyRank[0],
@@ -116,7 +117,7 @@ class ProfileViewModel: ViewModel() {
         tmpMyWelfare[idx] = value
 
         viewModelScope.launch {
-            MyInfoUseCase.updateMyWelfare(
+            myInfoUseCase.updateMyWelfare(
                 MyWelfareEntity(
                     id = 0,
                     lunchSupport = tmpMyWelfare[0],
@@ -137,7 +138,7 @@ class ProfileViewModel: ViewModel() {
         tmpMyLeave[idx] = days
 
         viewModelScope.launch {
-            MyInfoUseCase.updateMyLeave(
+            myInfoUseCase.updateMyLeave(
                 MyLeaveEntity(
                     id = 0,
                     firstAnnualLeave = tmpMyLeave[0],

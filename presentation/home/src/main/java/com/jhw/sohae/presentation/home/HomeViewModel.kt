@@ -4,12 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jhw.sohae.domain.myinformation.entity.MyAccountEntity
-import com.jhw.sohae.domain.myinformation.entity.MyLeaveEntity
-import com.jhw.sohae.domain.myinformation.entity.MyRankEntity
 import com.jhw.sohae.domain.myinformation.entity.MyUsedLeaveEntity
-import com.jhw.sohae.domain.myinformation.entity.MyWelfareEntity
-import com.jhw.sohae.domain.myinformation.entity.MyWorkInfoEntity
 import com.jhw.sohae.domain.myinformation.usecase.MyInfoUseCase
 import com.jhw.sohae.home.entity.SalaryDetailsEntity
 import com.jhw.utils.getLeavePeriod
@@ -18,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -28,35 +22,39 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
-class HomeViewModel: ViewModel() {
+class HomeViewModel @Inject constructor(
+    private val myInfoUseCase: MyInfoUseCase
+): ViewModel() {
 
-    val myAccount = MyInfoUseCase.getMyAccount().stateIn(
+    val myAccount = myInfoUseCase.getMyAccount().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
     )
 
-    val myWorkInfo = MyInfoUseCase.getMyWorkInfo().stateIn(
+    val myWorkInfo = myInfoUseCase.getMyWorkInfo().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
     )
 
-    val myWelfare = MyInfoUseCase.getMyWelfare().stateIn(
+    val myWelfare = myInfoUseCase.getMyWelfare().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
     )
 
-    val myRank = MyInfoUseCase.getMyRank().stateIn(
+    val myRank = myInfoUseCase.getMyRank().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
     )
 
-    val myLeave = MyInfoUseCase.getMyLeave().stateIn(
+    val myLeave = myInfoUseCase.getMyLeave().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = null
@@ -131,7 +129,7 @@ class HomeViewModel: ViewModel() {
         var totalUsedLeaveTime: Long = 0
 
         runBlocking {
-            val usedLeaveList = MyInfoUseCase.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
+            val usedLeaveList = myInfoUseCase.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
 
             usedLeaveList.forEach { totalUsedLeaveTime += it.usedLeaveTime }
         }
@@ -218,7 +216,7 @@ class HomeViewModel: ViewModel() {
         lateinit var slackOffList: List<MyUsedLeaveEntity>
 
         runBlocking {
-            slackOffList = MyInfoUseCase.getMyUsedLeaveListByDate(
+            slackOffList = myInfoUseCase.getMyUsedLeaveListByDate(
                 startDate = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
                 endDate = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
             ).filter { it.leaveKindIdx == 4 && it.leaveTypeIdx == 3 }
@@ -236,7 +234,7 @@ class HomeViewModel: ViewModel() {
         var leaveList: List<MyUsedLeaveEntity> = emptyList()
 
         runBlocking {
-            leaveList = MyInfoUseCase.getMyUsedLeaveListByDate(
+            leaveList = myInfoUseCase.getMyUsedLeaveListByDate(
                 startDate = currentDateValue,
                 endDate = endDateValue
             ).filter { !it.receiveLunchSupport }
@@ -280,7 +278,7 @@ class HomeViewModel: ViewModel() {
         var leaveList: List<MyUsedLeaveEntity> = emptyList()
 
         runBlocking {
-            leaveList = MyInfoUseCase.getMyUsedLeaveListByDate(
+            leaveList = myInfoUseCase.getMyUsedLeaveListByDate(
                 startDate = currentDateValue,
                 endDate = endDateValue
             ).filter { !it.receiveTransportationSupport }
@@ -499,7 +497,25 @@ class HomeViewModel: ViewModel() {
 
     fun takeMyLeave(inputMyUsedLeave: MyUsedLeaveEntity) {
         viewModelScope.launch {
-            MyInfoUseCase.updateMyUsedLeave(inputMyUsedLeave)
+            myInfoUseCase.updateMyUsedLeave(inputMyUsedLeave)
+        }
+    }
+
+    fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeaveEntity> {
+        return runBlocking {
+             return@runBlocking myInfoUseCase.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
+        }
+    }
+
+    fun getMyUsedLeaveListByDate(startDateValue: Long, endDateValue: Long): List<MyUsedLeaveEntity> {
+        return runBlocking {
+            return@runBlocking myInfoUseCase.getMyUsedLeaveListByDate(startDateValue, endDateValue)
+        }
+    }
+
+    fun deleteMyUsedLeave(deleteLeaveItemId: Int) {
+        runBlocking {
+            myInfoUseCase.deleteMyUsedLeave(deleteLeaveItemId)
         }
     }
 }

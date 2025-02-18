@@ -1,6 +1,7 @@
 package com.jhw.sohae.navigation.homenavgraph
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -31,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,9 +40,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jhw.sohae.presentation.community.CommunityView
 import com.jhw.sohae.presentation.home.HomeView
+import com.jhw.sohae.presentation.home.HomeViewModel
 import com.jhw.sohae.presentation.houseaccount.HouseAccountView
 import com.jhw.sohae.presentation.jobnavgraph.JobInfoNavGraphView
 import com.jhw.sohae.presentation.profile.ProfileView
+import com.jhw.sohae.presentation.profile.ProfileViewModel
 import kotlinx.coroutines.runBlocking
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -85,7 +89,7 @@ fun HomeNavGraphView(
             exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
         ) {
             composable(HomeNavGraphBarItems.HOME.name) {
-                HomeView()
+                HomeView(hiltViewModel<HomeViewModel>())
             }
             composable(HomeNavGraphBarItems.COMMUNITY.name) {
                 CommunityView()
@@ -97,7 +101,7 @@ fun HomeNavGraphView(
                 HouseAccountView()
             }
             composable(HomeNavGraphBarItems.PROFILE.name) {
-                ProfileView()
+                ProfileView(hiltViewModel<ProfileViewModel>())
             }
         }
     }
@@ -113,7 +117,9 @@ private fun HomeBottomNavBar(
         // 광고
         if (false) {
             Surface(
-                modifier = Modifier.fillMaxWidth().height(80.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp),
                 color = MaterialTheme.colorScheme.secondary
             ) {}
         }

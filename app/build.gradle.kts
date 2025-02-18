@@ -66,14 +66,15 @@ android {
 dependencies {
 
     // 멀티 모듈
+    implementation(project(":common:di"))
+    implementation(project(":common:ui:custom"))
+    implementation(project(":controller:barcolor"))
+    implementation(project(":domain:myinformation"))
+    implementation(project(":data:myinformation"))
     implementation(project(":navigation:mainnavgraph"))
 
     implementation(libs.hilt.android)
-    implementation(project(":common:ui:custom"))
-    implementation(project(":controller:barcolor"))
-    implementation(project(":data:repositoryimpl:myinformation"))
-    implementation(project(":data:datasource:myinformation"))
-    implementation(project(":domain:myinformation"))
+    implementation(libs.androidx.hilt.navigation.compose)
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)

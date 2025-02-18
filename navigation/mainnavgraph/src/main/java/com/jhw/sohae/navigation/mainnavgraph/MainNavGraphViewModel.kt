@@ -4,5 +4,4 @@ import androidx.lifecycle.ViewModel
 import dev.chrisbanes.haze.HazeState
 
 class MainNavGraphViewModel: ViewModel() {
-    val hazeState = HazeState()
 }

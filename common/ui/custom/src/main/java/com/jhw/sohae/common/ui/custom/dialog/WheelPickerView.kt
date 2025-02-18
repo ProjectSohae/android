@@ -40,11 +40,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.core.graphics.ColorUtils
+import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.hazeEffect
 import kotlin.math.abs
 
 @Composable
@@ -344,21 +346,21 @@ private fun WheelPickerItem(
                 spotColor = MaterialTheme.colorScheme.primary
             )
             .clip(shape = RoundedCornerShape(20))
-            .hazeChild(
+            .hazeEffect(
                 state = hazeState,
                 style = HazeStyle(
                     backgroundColor = currentColor,
                     tint = HazeTint(color = onPrimary),
                     blurRadius = 25.dp,
-                )
-            ) {
-                progressive =
-                    HazeProgressive.LinearGradient(
-                        startIntensity = intensity * currentAlpha,
-                        endIntensity = intensity * currentAlpha,
-                        preferPerformance = true
-                    )
-            }
+                ),
+                block = fun HazeEffectScope.() {
+                    progressive =
+                        HazeProgressive.LinearGradient(
+                            startIntensity = intensity * currentAlpha,
+                            endIntensity = intensity * currentAlpha,
+                            preferPerformance = true
+                        )
+                })
             .clickable {
                 if (currentIdx == 3) {
                     onConfirmation(optionValue)

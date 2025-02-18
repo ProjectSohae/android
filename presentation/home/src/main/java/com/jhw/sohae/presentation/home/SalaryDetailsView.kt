@@ -36,10 +36,12 @@ import com.jhw.sohae.domain.myinformation.usecase.MyInfoUseCase
 import com.jhw.sohae.home.entity.SalaryDetailsEntity
 import com.jhw.utils.displayAsAmount
 import com.jhw.utils.getWeekendCount
+import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.hazeEffect
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -47,6 +49,7 @@ import java.time.ZoneId
 @Composable
 fun SalaryDetailsView(
     salaryDetails: SalaryDetailsEntity,
+    homeViewModel: HomeViewModel,
     onDismissRequest: () -> Unit
 ) {
     val tertiary = MaterialTheme.colorScheme.tertiary
@@ -57,7 +60,7 @@ fun SalaryDetailsView(
     var leaveList: List<MyUsedLeaveEntity> by remember { mutableStateOf(listOf()) }
 
     LaunchedEffect(Unit) {
-        leaveList = MyInfoUseCase.getMyUsedLeaveListByDate(startDateValue, endDateValue)
+        leaveList = homeViewModel.getMyUsedLeaveListByDate(startDateValue, endDateValue)
     }
 
     Dialog(
@@ -69,22 +72,21 @@ fun SalaryDetailsView(
                 .height(640.dp)
                 .shadow(12.dp, RoundedCornerShape(10))
                 .clip(RoundedCornerShape(10))
-                .hazeChild(
-                    state = MainScreenController.hazeState,
+                .hazeEffect(state = MainScreenController.hazeState,
                     style = HazeStyle(
                         backgroundColor = MaterialTheme.colorScheme.onPrimary,
                         tint = HazeTint(
                             color = MaterialTheme.colorScheme.onPrimary
                         ),
                         blurRadius = 25.dp
-                    )
-                ) {
-                    progressive = HazeProgressive.LinearGradient(
-                        startIntensity = 0.9f,
-                        endIntensity = 0.9f,
-                        preferPerformance = true
-                    )
-                }
+                    ),
+                    block = fun HazeEffectScope.() {
+                        progressive = HazeProgressive.LinearGradient(
+                            startIntensity = 0.9f,
+                            endIntensity = 0.9f,
+                            preferPerformance = true
+                        )
+                    })
                 .padding(vertical = 12.dp)
         ){
             Text(

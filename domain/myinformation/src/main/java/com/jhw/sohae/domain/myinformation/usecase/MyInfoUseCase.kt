@@ -13,14 +13,29 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
-object MyInfoUseCase {
-
-    lateinit var myInfoRepository: MyInfoRepository
+class MyInfoUseCase @Inject constructor(
+    private val myInfoRepository: MyInfoRepository
+) {
 
     fun getMyAccount(): Flow<MyAccountEntity> = flow {
-        myInfoRepository.initMyAccount().collect {
-            emit(it)
+        val response: Flow<MyAccountEntity>? = myInfoRepository.getMyAccount()
+
+        if (response == null) {
+            val myAccountEntity = MyAccountEntity(
+                id = 0,
+                realName = "",
+                nickname = "",
+                emailAddress = ""
+            )
+
+            updateMyAccount(myAccountEntity)
+            emit(myAccountEntity)
+        } else {
+            response.collect {
+                emit(it)
+            }
         }
     }
 
@@ -31,8 +46,22 @@ object MyInfoUseCase {
     }
 
     fun getMyWorkInfo(): Flow<MyWorkInfoEntity> = flow {
-        myInfoRepository.initMyWorkInformation().collect {
-            emit(it)
+        val resposne =  myInfoRepository.getMyWorkInformation()
+
+        if (resposne == null) {
+            val myWorkInfoEntity = MyWorkInfoEntity(
+                id = 0,
+                workPlace = "",
+                startWorkDay = -1,
+                finishWorkDay = -1
+            )
+
+            updateMyWorkInfo(myWorkInfoEntity, false)
+            emit(myWorkInfoEntity)
+        } else {
+            resposne.collect {
+                emit(it)
+            }
         }
     }
 
@@ -46,7 +75,7 @@ object MyInfoUseCase {
     }
 
     fun getMyRank(): Flow<MyRankEntity> = flow {
-        myInfoRepository.initMyRank().collect {
+        myInfoRepository.getMyRank()?.collect {
             emit(it)
         }
     }
@@ -58,7 +87,7 @@ object MyInfoUseCase {
     }
 
     fun getMyWelfare(): Flow<MyWelfareEntity> = flow {
-        myInfoRepository.initMyWelfare().collect {
+        myInfoRepository.getMyWelfare()?.collect {
             emit(it)
         }
     }
@@ -70,7 +99,7 @@ object MyInfoUseCase {
     }
 
     fun getMyLeave(): Flow<MyLeaveEntity> = flow {
-        myInfoRepository.initMyLeave().collect {
+        myInfoRepository.getMyLeave()?.collect {
             emit(it)
         }
     }
@@ -82,7 +111,7 @@ object MyInfoUseCase {
     }
 
     fun getMyUsedLeaveList(): Flow<List<MyUsedLeaveEntity>> = flow {
-        myInfoRepository.initMyUsedLeaveList().collect {
+        myInfoRepository.getMyUsedLeaveList()?.collect {
             emit(it)
         }
     }
@@ -103,7 +132,7 @@ object MyInfoUseCase {
         lateinit var result: List<MyUsedLeaveEntity>
 
         runBlocking {
-            myInfoRepository.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx).collect {
+            myInfoRepository.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)?.collect {
                 result = it
             }
         }
@@ -115,7 +144,7 @@ object MyInfoUseCase {
         lateinit var result: List<MyUsedLeaveEntity>
 
         runBlocking {
-            myInfoRepository.getMyUsedLeaveListByDate(startDate, endDate).collect {
+            myInfoRepository.getMyUsedLeaveListByDate(startDate, endDate)?.collect {
                 result = it
             }
         }

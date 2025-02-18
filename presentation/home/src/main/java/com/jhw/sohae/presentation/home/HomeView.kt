@@ -68,7 +68,7 @@ import java.time.temporal.ChronoUnit
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeView(
-    homeViewModel: HomeViewModel = viewModel()
+    homeViewModel: HomeViewModel
 ){
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
@@ -462,6 +462,7 @@ private fun MySalary(
         } else {
             SalaryDetailsView(
                 salaryDetails = salaryDetails,
+                homeViewModel = homeViewModel,
                 onDismissRequest = { showSalaryDetails = false }
             )
         }

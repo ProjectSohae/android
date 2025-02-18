@@ -48,7 +48,7 @@ import com.jhw.utils.getDate
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileView(
-    profileViewModel: ProfileViewModel = viewModel()
+    profileViewModel: ProfileViewModel
 ) {
     val myAccount = profileViewModel.myAccount.collectAsState().value
     val myWorkInfo = profileViewModel.myWorkInfo.collectAsState().value

@@ -32,10 +32,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.ColorUtils
 import com.jhw.sohae.controller.mainnavgraph.MainScreenController
+import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.hazeEffect
 
 @Composable
 fun SelectDistrictView(
@@ -65,7 +67,7 @@ fun SelectDistrictView(
                     shape = RoundedCornerShape(10)
                 )
                 .clip(RoundedCornerShape(10))
-                .hazeChild(
+                .hazeEffect(
                     state = MainScreenController.hazeState,
                     style = HazeStyle(
                         backgroundColor = MaterialTheme.colorScheme.onPrimary,
@@ -73,14 +75,14 @@ fun SelectDistrictView(
                             color = MaterialTheme.colorScheme.onPrimary
                         ),
                         blurRadius = 25.dp
-                    )
-                ) {
-                    progressive = HazeProgressive.LinearGradient(
-                        startIntensity = 0.85f,
-                        endIntensity = 0.85f,
-                        preferPerformance = true
-                    )
-                }
+                    ),
+                    block = fun HazeEffectScope.() {
+                        progressive = HazeProgressive.LinearGradient(
+                            startIntensity = 0.85f,
+                            endIntensity = 0.85f,
+                            preferPerformance = true
+                        )
+                    })
                 .padding(top = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

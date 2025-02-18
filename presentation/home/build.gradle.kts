@@ -43,12 +43,14 @@ android {
 dependencies {
 
     implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+
     implementation(project(":controller:barcolor"))
     implementation(project(":controller:mainnavgraph"))
     implementation(project(":domain:myinformation"))
     implementation(project(":common:ui:custom"))
     implementation(project(":domain:home"))
-    kapt(libs.hilt.android.compiler)
+    implementation(project(":domain:utils"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -63,9 +65,6 @@ dependencies {
 
     implementation(libs.haze)
     implementation(libs.haze.materials)
-
-    implementation(project(":domain:utils"))
-    implementation(project(":data:model:local"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

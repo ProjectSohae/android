@@ -43,11 +43,13 @@ android {
 dependencies {
 
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
+    kapt(libs.hilt.android.compiler)
+
     implementation(project(":common:ui:custom"))
     implementation(project(":common:remote"))
-    implementation(project(":data:repositoryimpl:jobinformation"))
     implementation(project(":controller:mainnavgraph"))
-    kapt(libs.hilt.android.compiler)
+    implementation(project(":data:jobinformation"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

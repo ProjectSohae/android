@@ -42,11 +42,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.hazeEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,7 +124,7 @@ fun TypingTextDialog(
                         shape = RoundedCornerShape(10)
                     )
                     .clip(RoundedCornerShape(10))
-                    .hazeChild(
+                    .hazeEffect(
                         state = hazeState,
                         style = HazeStyle(
                             backgroundColor = MaterialTheme.colorScheme.onPrimary,
@@ -130,14 +132,14 @@ fun TypingTextDialog(
                                 color = MaterialTheme.colorScheme.onPrimary
                             ),
                             blurRadius = 25.dp
-                        )
-                    ) {
-                        progressive = HazeProgressive.LinearGradient(
-                            startIntensity = intensity,
-                            endIntensity = intensity,
-                            preferPerformance = true
-                        )
-                    },
+                        ),
+                        block = fun HazeEffectScope.() {
+                            progressive = HazeProgressive.LinearGradient(
+                                startIntensity = intensity,
+                                endIntensity = intensity,
+                                preferPerformance = true
+                            )
+                        }),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // dialog title 및 content
