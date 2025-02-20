@@ -5,8 +5,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
-    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
     id("kotlin-kapt")
 }
 
@@ -29,9 +29,21 @@ android {
             useSupportLibrary = true
         }
 
-        buildConfigField("String", "KAKAO_NATIVE_KEY", properties.getProperty("kakao.native.app.key"))
-        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", properties.getProperty("google.web.client.id"))
-        buildConfigField("String", "GOOGLE_ANDROID_CLIENT_ID", properties.getProperty("google.android.client.id"))
+        buildConfigField(
+            "String",
+            "KAKAO_NATIVE_KEY",
+            properties.getProperty("kakao.native.app.key")
+        )
+        buildConfigField(
+            "String",
+            "GOOGLE_WEB_CLIENT_ID",
+            properties.getProperty("google.web.client.id")
+        )
+        buildConfigField(
+            "String",
+            "GOOGLE_ANDROID_CLIENT_ID",
+            properties.getProperty("google.android.client.id")
+        )
     }
     buildFeatures {
         buildConfig = true

@@ -36,6 +36,8 @@
             <option value="$PROJECT_DIR$/presentation/jobinformation" />
             <option value="$PROJECT_DIR$/presentation/jobnavgraph" />
             <option value="$PROJECT_DIR$/presentation/jobreview" />
+            <option value="$PROJECT_DIR$/presentation/mycommentlist" />
+            <option value="$PROJECT_DIR$/presentation/mypostlist" />
             <option value="$PROJECT_DIR$/presentation/myprofile" />
             <option value="$PROJECT_DIR$/presentation/post" />
             <option value="$PROJECT_DIR$/presentation/profile" />

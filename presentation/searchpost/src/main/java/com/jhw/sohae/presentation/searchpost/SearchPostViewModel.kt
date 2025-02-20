@@ -1,11 +1,31 @@
 package com.jhw.sohae.presentation.searchpost
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.jhw.sohae.domain.myinformation.entity.MySearchHistoryEntity
+import com.jhw.sohae.domain.myinformation.usecase.MyInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.time.Instant
+import javax.inject.Inject
 
-class SearchPostViewModel: ViewModel() {
+@HiltViewModel
+class SearchPostViewModel @Inject constructor(
+    private val myInfoUseCase: MyInfoUseCase
+): ViewModel() {
+
+    val recentMySearchHistoryList = myInfoUseCase.getAllMySearchHistoryList()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
 
     private var _showRecentSearchList = MutableStateFlow(true)
     val showRecentSearchList = _showRecentSearchList.asStateFlow()
@@ -14,6 +34,10 @@ class SearchPostViewModel: ViewModel() {
     val searchPostTitle = _searchPostTitle.asStateFlow()
 
     private var requestSearchPostTitle = ""
+
+    fun initSearchPostTitle() {
+        _searchPostTitle.value = requestSearchPostTitle
+    }
 
     fun getRequestSearchPostTitle(): String = requestSearchPostTitle
 
@@ -25,7 +49,7 @@ class SearchPostViewModel: ViewModel() {
         _searchPostTitle.value = input
     }
 
-    fun request(
+    fun searchPostRequest(
         inputSearchPostTitle: String = "",
         onFailure: (String) -> Unit
     ) {
@@ -38,6 +62,24 @@ class SearchPostViewModel: ViewModel() {
 
             requestSearchPostTitle = searchPostTitle.value
             _showRecentSearchList.value = false
+
+            viewModelScope.launch {
+                myInfoUseCase.updateMySearchHistory(
+                    MySearchHistoryEntity(
+                        id = 0,
+                        keyword = requestSearchPostTitle
+                    )
+                )
+            }
+        }
+    }
+
+    fun deleteMySearchHistory(id: Int = -1) {
+
+        if (id < 0) {
+            myInfoUseCase.deleteAllMySearchHistory()
+        } else {
+            myInfoUseCase.deleteMySearchHistoryById(id)
         }
     }
 }

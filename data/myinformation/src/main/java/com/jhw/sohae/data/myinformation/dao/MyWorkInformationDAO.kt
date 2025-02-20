@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface MyWorkInformationDAO {
 
     @Query("select * from my_work_information")
-    fun selectAll(): Flow<MyWorkInformationDTO>?
+    fun selectAll(): Flow<MyWorkInformationDTO?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(inputMyWorkInformationDTO: MyWorkInformationDTO)

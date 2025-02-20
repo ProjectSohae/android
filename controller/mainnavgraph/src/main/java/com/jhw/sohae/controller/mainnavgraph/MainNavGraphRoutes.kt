@@ -14,5 +14,7 @@ enum class MainNavGraphRoutes {
     SEARCHJOB,
 
     MYPROFILE,
-    SETTINGOPTIONS
+    SETTINGOPTIONS,
+    MYPOSTLIST,
+    MYCOMMENTLIST,
 }

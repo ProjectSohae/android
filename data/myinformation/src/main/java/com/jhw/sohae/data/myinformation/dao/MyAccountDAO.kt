@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface MyAccountDAO {
 
     @Query("select * from my_account where id = 0")
-    fun selectAll(): Flow<MyAccountDTO>?
+    fun selectAll(): Flow<MyAccountDTO?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(inputMyAccountDTO: MyAccountDTO)

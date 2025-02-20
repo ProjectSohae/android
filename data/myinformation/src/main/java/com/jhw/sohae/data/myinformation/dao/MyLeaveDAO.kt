@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface MyLeaveDAO {
 
     @Query("select * from my_leave where id = 0")
-    fun selectAll(): Flow<MyLeaveDTO>?
+    fun selectAll(): Flow<MyLeaveDTO?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(inputMyLeaveDTO: MyLeaveDTO)

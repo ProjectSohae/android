@@ -3,6 +3,7 @@ package com.jhw.sohae.domain.myinformation.usecase
 import com.jhw.sohae.domain.myinformation.entity.MyAccountEntity
 import com.jhw.sohae.domain.myinformation.entity.MyLeaveEntity
 import com.jhw.sohae.domain.myinformation.entity.MyRankEntity
+import com.jhw.sohae.domain.myinformation.entity.MySearchHistoryEntity
 import com.jhw.sohae.domain.myinformation.entity.MyUsedLeaveEntity
 import com.jhw.sohae.domain.myinformation.entity.MyWelfareEntity
 import com.jhw.sohae.domain.myinformation.entity.MyWorkInfoEntity
@@ -10,7 +11,12 @@ import com.jhw.sohae.domain.myinformation.repository.MyInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -20,23 +26,18 @@ class MyInfoUseCase @Inject constructor(
 ) {
 
     fun getMyAccount(): Flow<MyAccountEntity> = flow {
-        val response: Flow<MyAccountEntity>? = myInfoRepository.getMyAccount()
-
-        if (response == null) {
-            val myAccountEntity = MyAccountEntity(
-                id = 0,
-                realName = "",
-                nickname = "",
-                emailAddress = ""
-            )
-
-            updateMyAccount(myAccountEntity)
-            emit(myAccountEntity)
-        } else {
-            response.collect {
+        myInfoRepository.getMyAccount()
+            .mapNotNull {
+                it ?: MyAccountEntity(
+                    id = 0,
+                    realName = "",
+                    nickname = "",
+                    emailAddress = ""
+                )
+            }
+            .collect {
                 emit(it)
             }
-        }
     }
 
     fun updateMyAccount(input: MyAccountEntity) {
@@ -46,23 +47,18 @@ class MyInfoUseCase @Inject constructor(
     }
 
     fun getMyWorkInfo(): Flow<MyWorkInfoEntity> = flow {
-        val resposne =  myInfoRepository.getMyWorkInformation()
-
-        if (resposne == null) {
-            val myWorkInfoEntity = MyWorkInfoEntity(
-                id = 0,
-                workPlace = "",
-                startWorkDay = -1,
-                finishWorkDay = -1
-            )
-
-            updateMyWorkInfo(myWorkInfoEntity, false)
-            emit(myWorkInfoEntity)
-        } else {
-            resposne.collect {
+        myInfoRepository.getMyWorkInformation()
+            .mapNotNull {
+                it ?: MyWorkInfoEntity(
+                    id = 0,
+                    workPlace = "",
+                    startWorkDay = -1,
+                    finishWorkDay = -1
+                )
+            }
+            .collect {
                 emit(it)
             }
-        }
     }
 
     fun updateMyWorkInfo(
@@ -75,9 +71,18 @@ class MyInfoUseCase @Inject constructor(
     }
 
     fun getMyRank(): Flow<MyRankEntity> = flow {
-        myInfoRepository.getMyRank()?.collect {
-            emit(it)
-        }
+        myInfoRepository.getMyRank()
+            .mapNotNull {
+                it ?: MyRankEntity(
+                    id = 0,
+                    firstPromotionDay = -1,
+                    secondPromotionDay = -1,
+                    thirdPromotionDay = -1
+                )
+            }
+            .collect {
+                emit(it)
+            }
     }
 
     fun updateMyRank(input: MyRankEntity) {
@@ -87,9 +92,18 @@ class MyInfoUseCase @Inject constructor(
     }
 
     fun getMyWelfare(): Flow<MyWelfareEntity> = flow {
-        myInfoRepository.getMyWelfare()?.collect {
-            emit(it)
-        }
+        myInfoRepository.getMyWelfare()
+            .mapNotNull {
+                it ?: MyWelfareEntity(
+                    id = 0,
+                    lunchSupport = 0,
+                    transportationSupport = 0,
+                    payday = -1
+                )
+            }
+            .collect {
+                emit(it)
+            }
     }
 
     fun updateMyWelfare(input: MyWelfareEntity) {
@@ -99,9 +113,18 @@ class MyInfoUseCase @Inject constructor(
     }
 
     fun getMyLeave(): Flow<MyLeaveEntity> = flow {
-        myInfoRepository.getMyLeave()?.collect {
-            emit(it)
-        }
+        myInfoRepository.getMyLeave()
+            .mapNotNull {
+                it ?: MyLeaveEntity(
+                    id = 0,
+                    firstAnnualLeave = -1,
+                    secondAnnualLeave = -1,
+                    sickLeave = -1
+                )
+            }
+            .collect {
+                emit(it)
+            }
     }
 
     fun updateMyLeave(input: MyLeaveEntity) {
@@ -110,10 +133,14 @@ class MyInfoUseCase @Inject constructor(
         }
     }
 
-    fun getMyUsedLeaveList(): Flow<List<MyUsedLeaveEntity>> = flow {
-        myInfoRepository.getMyUsedLeaveList()?.collect {
-            emit(it)
-        }
+    fun getAllMyUsedLeaveList(): Flow<List<MyUsedLeaveEntity>> = flow {
+        myInfoRepository.getAllMyUsedLeaveList()
+            .mapNotNull {
+                it ?: emptyList()
+            }
+            .collect {
+                emit(it)
+            }
     }
 
     fun updateMyUsedLeave(inputMyUsedLeave: MyUsedLeaveEntity) {
@@ -128,27 +155,39 @@ class MyInfoUseCase @Inject constructor(
         }
     }
 
-    suspend fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeaveEntity> {
-        lateinit var result: List<MyUsedLeaveEntity>
-
-        runBlocking {
-            myInfoRepository.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)?.collect {
-                result = it
-            }
-        }
-
-        return result
+    fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeaveEntity> {
+        return myInfoRepository.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx) ?: emptyList()
     }
 
-    suspend fun getMyUsedLeaveListByDate(startDate: Long, endDate: Long): List<MyUsedLeaveEntity> {
-        lateinit var result: List<MyUsedLeaveEntity>
+    fun getMyUsedLeaveListByDate(startDate: Long, endDate: Long): List<MyUsedLeaveEntity> {
+        return myInfoRepository.getMyUsedLeaveListByDate(startDate, endDate) ?: emptyList()
+    }
 
-        runBlocking {
-            myInfoRepository.getMyUsedLeaveListByDate(startDate, endDate)?.collect {
-                result = it
+    fun getAllMySearchHistoryList(): Flow<List<MySearchHistoryEntity>> = flow {
+        myInfoRepository.getAllMySearchHistory()
+            .mapNotNull {
+                it ?: emptyList()
             }
-        }
+            .collect {
+                emit(it)
+            }
+    }
 
-        return result
+    fun updateMySearchHistory(input: MySearchHistoryEntity) {
+        CoroutineScope(Dispatchers.IO).launch {
+            myInfoRepository.updateMySearchHistory(input)
+        }
+    }
+
+    fun deleteAllMySearchHistory() {
+        CoroutineScope(Dispatchers.IO).launch {
+            myInfoRepository.deleteAllMySearchHistory()
+        }
+    }
+
+    fun deleteMySearchHistoryById(id: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            myInfoRepository.deleteMySearchHistoryById(id)
+        }
     }
 }

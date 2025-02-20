@@ -1,5 +1,7 @@
 package com.jhw.sohae.presentation.searchpost
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,10 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,18 +31,19 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarController
 import com.jhw.sohae.common.ui.custom.textfield.CustomTextFieldView
 import com.jhw.sohae.controller.mainnavgraph.MainNavController
+import com.jhw.sohae.domain.myinformation.entity.MySearchHistoryEntity
 
 @Composable
 fun SearchPostView(
-    searchPostViewModel: SearchPostViewModel = viewModel()
+    searchPostViewModel: SearchPostViewModel
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -54,6 +57,7 @@ fun SearchPostView(
 
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.onPrimary)
         ) {
@@ -128,7 +132,7 @@ private fun SearchPostViewHeader(
                     interactionSource = null
                 ) {
                     if (searchPostTitle.isNotBlank()) {
-                        searchPostViewModel.request(
+                        searchPostViewModel.searchPostRequest(
                             onFailure = { SnackBarController.show(it, SnackBarBehindTarget.VIEW) }
                         )
                     } else {
@@ -149,30 +153,23 @@ private fun SearchPostViewBody(
         // 검색 게시글 목록
         LazyColumn {
             item {
-                Surface(modifier = Modifier.fillMaxSize()) {
-
-                }
             }
         }
 
         // 최근 검색 목록
         if (showRecentSearchList) {
-            LazyColumn {
-                item {
-                    RecentSearchListView(searchPostViewModel)
-                }
-            }
+            RecentSearchHistoryListView(searchPostViewModel)
         }
     }
 }
 
 @Composable
-private fun RecentSearchListView(
+private fun RecentSearchHistoryListView(
     searchPostViewModel: SearchPostViewModel
 ) {
-    val recentSearchList = listOf(
-        "sex","sex","sex","sex","sex","sex","sex","sex",
-    )
+    val recentMySearchHistoryList = searchPostViewModel
+        .recentMySearchHistoryList.collectAsState()
+        .value.sortedBy { -it.id }
 
     Column(
         modifier = Modifier
@@ -195,73 +192,99 @@ private fun RecentSearchListView(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable {
                         searchPostViewModel.updateShowRecentSearchList(false)
+                        searchPostViewModel.initSearchPostTitle()
                     }
                 )
             }
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "최근 검색",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Text(
-                text = "모두 지우기",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable {
-
-                }
-            )
-        }
-
-        // 최근 검색 목록
-        recentSearchList.forEach {
+        if (recentMySearchHistoryList.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "최근 검색어가 없습니다.",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 24.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        } else {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-                    .clickable {
-                        searchPostViewModel.request(
-                            inputSearchPostTitle = it,
-                            onFailure = { errorMessage ->
-                                SnackBarController.show(errorMessage, SnackBarBehindTarget.VIEW)
-                            }
-                        )
-                    },
+                    .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row {
-                    Icon(
-                        painter = painterResource(id = R.drawable.outline_search_24),
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        contentDescription = null,
-                        modifier = Modifier.padding(end = 16.dp)
-                    )
-
-                    Text(
-                        text = it,
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-
-                Icon(
-                    painter = painterResource(id = R.drawable.outline_clear_24),
-                    tint = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.clickable {
-
-                    },
-                    contentDescription = null
+                Text(
+                    text = "최근 검색",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.primary
                 )
+
+                Text(
+                    text = "모두 지우기",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable {
+                        searchPostViewModel.deleteMySearchHistory()
+                    }
+                )
+            }
+
+            // 최근 검색 목록
+            LazyColumn {
+                itemsIndexed(
+                    items = recentMySearchHistoryList,
+                    key = { idx: Int, item: MySearchHistoryEntity -> idx }
+                ) { idx: Int, item: MySearchHistoryEntity ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                            .clickable {
+                                searchPostViewModel.searchPostRequest(
+                                    inputSearchPostTitle = item.keyword,
+                                    onFailure = { errorMessage ->
+                                        SnackBarController.show(errorMessage, SnackBarBehindTarget.VIEW)
+                                    }
+                                )
+                            },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.outline_search_24),
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 16.dp)
+                            )
+
+                            Text(
+                                text = item.keyword,
+                                fontSize = 16.sp,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.outline_clear_24),
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.clickable {
+                                searchPostViewModel.deleteMySearchHistory(item.id)
+                            },
+                            contentDescription = null
+                        )
+                    }
+                }
             }
         }
     }

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface MyWelfareDAO {
 
     @Query("select * from my_welfare")
-    fun selectAll(): Flow<MyWelfareDTO>?
+    fun selectAll(): Flow<MyWelfareDTO?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(inputMyWelfareDTO: MyWelfareDTO)

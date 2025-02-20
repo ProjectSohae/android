@@ -5,12 +5,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.jhw.sohae.data.myinformation.dto.MyUsedLeaveDTO
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MyUsedLeaveDAO {
 
-    @Query("select * from my_used_leave where id = :targetUid")
-    suspend fun selectById(targetUid: Int): MyUsedLeaveDTO?
+    @Query("select * from my_used_leave where id = :id")
+    fun selectById(id: Int): Flow<MyUsedLeaveDTO?>
 
     @Query("select * from my_used_leave where leave_kind_idx = :leaveKindIdx")
     suspend fun selectByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeaveDTO>?
@@ -26,7 +27,7 @@ interface MyUsedLeaveDAO {
     suspend fun selectByDate(startDate: Long, endDate: Long): List<MyUsedLeaveDTO>?
     
     @Query("select * from my_used_leave")
-    suspend fun selectAll(): List<MyUsedLeaveDTO>?
+    fun selectAll(): Flow<List<MyUsedLeaveDTO>?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(inputMyUsedLeaveDTO: MyUsedLeaveDTO)

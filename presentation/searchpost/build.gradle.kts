@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(project(":controller:mainnavgraph"))
     implementation(project(":common:ui:custom"))
+    implementation(project(":domain:myinformation"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)

@@ -3,112 +3,132 @@ package com.jhw.sohae.data.myinformation.mapper
 import com.jhw.sohae.data.myinformation.dto.MyAccountDTO
 import com.jhw.sohae.data.myinformation.dto.MyLeaveDTO
 import com.jhw.sohae.data.myinformation.dto.MyRankDTO
+import com.jhw.sohae.data.myinformation.dto.MySearchHistoryDTO
 import com.jhw.sohae.data.myinformation.dto.MyUsedLeaveDTO
 import com.jhw.sohae.data.myinformation.dto.MyWelfareDTO
 import com.jhw.sohae.data.myinformation.dto.MyWorkInformationDTO
 import com.jhw.sohae.domain.myinformation.entity.MyAccountEntity
 import com.jhw.sohae.domain.myinformation.entity.MyLeaveEntity
 import com.jhw.sohae.domain.myinformation.entity.MyRankEntity
+import com.jhw.sohae.domain.myinformation.entity.MySearchHistoryEntity
 import com.jhw.sohae.domain.myinformation.entity.MyUsedLeaveEntity
 import com.jhw.sohae.domain.myinformation.entity.MyWelfareEntity
 import com.jhw.sohae.domain.myinformation.entity.MyWorkInfoEntity
 
-fun MyAccountMapper(myInfoDTO: MyAccountDTO): MyAccountEntity =
+fun MyAccountMapper(input: MyAccountDTO): MyAccountEntity =
     MyAccountEntity(
-        myInfoDTO.id,
-        myInfoDTO.realName,
-        myInfoDTO.nickname,
-        myInfoDTO.emailAddress
+        input.id,
+        input.realName,
+        input.nickname,
+        input.emailAddress
     )
 
-fun MyAccountMapper(myAccountEntity: MyAccountEntity): MyAccountDTO = MyAccountDTO(
-    myAccountEntity.id,
-    myAccountEntity.realName,
-    myAccountEntity.nickname,
-    myAccountEntity.emailAddress
-)
+fun MyAccountMapper(input: MyAccountEntity): MyAccountDTO =
+    MyAccountDTO(
+        input.id,
+        input.realName,
+        input.nickname,
+        input.emailAddress
+    )
 
-fun MyLeaveMapper(myLeaveDTO: MyLeaveDTO): MyLeaveEntity =
+fun MyLeaveMapper(input: MyLeaveDTO): MyLeaveEntity =
     MyLeaveEntity(
-        myLeaveDTO.id,
-        myLeaveDTO.firstAnnualLeave,
-        myLeaveDTO.secondAnnualLeave,
-        myLeaveDTO.sickLeave
+        input.id,
+        input.firstAnnualLeave,
+        input.secondAnnualLeave,
+        input.sickLeave
     )
 
-fun MyLeaveMapper(myLeaveEntity: MyLeaveEntity): MyLeaveDTO = MyLeaveDTO(
-    myLeaveEntity.id,
-    myLeaveEntity.firstAnnualLeave,
-    myLeaveEntity.secondAnnualLeave,
-    myLeaveEntity.sickLeave
-)
+fun MyLeaveMapper(input: MyLeaveEntity): MyLeaveDTO =
+    MyLeaveDTO(
+        input.id,
+        input.firstAnnualLeave,
+        input.secondAnnualLeave,
+        input.sickLeave
+    )
 
-fun MyRankMapper(myRankDTO: MyRankDTO): MyRankEntity =
+fun MyRankMapper(input: MyRankDTO): MyRankEntity =
     MyRankEntity(
-        myRankDTO.id,
-        myRankDTO.firstPromotionDay,
-        myRankDTO.secondPromotionDay,
-        myRankDTO.thirdPromotionDay
+        input.id,
+        input.firstPromotionDay,
+        input.secondPromotionDay,
+        input.thirdPromotionDay
     )
 
-fun MyRankMapper(myRankEntity: MyRankEntity): MyRankDTO = MyRankDTO(
-    myRankEntity.id,
-    myRankEntity.firstPromotionDay,
-    myRankEntity.secondPromotionDay,
-    myRankEntity.thirdPromotionDay
-)
+fun MyRankMapper(input: MyRankEntity): MyRankDTO =
+    MyRankDTO(
+        input.id,
+        input.firstPromotionDay,
+        input.secondPromotionDay,
+        input.thirdPromotionDay
+    )
 
-fun MyUsedLeaveMapper(myUsedLeaveDTO: MyUsedLeaveDTO): MyUsedLeaveEntity =
+fun MyUsedLeaveMapper(input: MyUsedLeaveDTO): MyUsedLeaveEntity =
     MyUsedLeaveEntity(
-        myUsedLeaveDTO.id,
-        myUsedLeaveDTO.leaveKindIdx,
-        myUsedLeaveDTO.leaveTypeIdx,
-        myUsedLeaveDTO.reason,
-        myUsedLeaveDTO.usedLeaveTime,
-        myUsedLeaveDTO.leaveStartDate,
-        myUsedLeaveDTO.leaveEndDate,
-        myUsedLeaveDTO.receiveLunchSupport,
-        myUsedLeaveDTO.receiveTransportationSupport
+        input.id,
+        input.leaveKindIdx,
+        input.leaveTypeIdx,
+        input.reason,
+        input.usedLeaveTime,
+        input.leaveStartDate,
+        input.leaveEndDate,
+        input.receiveLunchSupport,
+        input.receiveTransportationSupport
     )
 
-fun MyUsedLeaveMapper(myUsedLeaveEntity: MyUsedLeaveEntity): MyUsedLeaveDTO = MyUsedLeaveDTO(
-    myUsedLeaveEntity.id,
-    myUsedLeaveEntity.leaveKindIdx,
-    myUsedLeaveEntity.leaveTypeIdx,
-    myUsedLeaveEntity.reason,
-    myUsedLeaveEntity.usedLeaveTime,
-    myUsedLeaveEntity.leaveStartDate,
-    myUsedLeaveEntity.leaveEndDate,
-    myUsedLeaveEntity.receiveLunchSupport,
-    myUsedLeaveEntity.receiveTransportationSupport
-)
+fun MyUsedLeaveMapper(input: MyUsedLeaveEntity): MyUsedLeaveDTO =
+    MyUsedLeaveDTO(
+        input.id,
+        input.leaveKindIdx,
+        input.leaveTypeIdx,
+        input.reason,
+        input.usedLeaveTime,
+        input.leaveStartDate,
+        input.leaveEndDate,
+        input.receiveLunchSupport,
+        input.receiveTransportationSupport
+    )
 
-fun MyWelfareMapper(myWelfareDTO: MyWelfareDTO): MyWelfareEntity =
+fun MyWelfareMapper(input: MyWelfareDTO): MyWelfareEntity =
     MyWelfareEntity(
-        myWelfareDTO.id,
-        myWelfareDTO.lunchSupport,
-        myWelfareDTO.transportationSupport,
-        myWelfareDTO.payday
+        input.id,
+        input.lunchSupport,
+        input.transportationSupport,
+        input.payday
     )
 
-fun MyWelfareMapper(myWelfareEntity: MyWelfareEntity): MyWelfareDTO = MyWelfareDTO(
-    myWelfareEntity.id,
-    myWelfareEntity.lunchSupport,
-    myWelfareEntity.transportationSupport,
-    myWelfareEntity.payday
-)
+fun MyWelfareMapper(input: MyWelfareEntity): MyWelfareDTO =
+    MyWelfareDTO(
+        input.id,
+        input.lunchSupport,
+        input.transportationSupport,
+        input.payday
+    )
 
-fun MyWorkInfoMapper(myWorkInformationDTO: MyWorkInformationDTO): MyWorkInfoEntity =
+fun MyWorkInfoMapper(input: MyWorkInformationDTO): MyWorkInfoEntity =
     MyWorkInfoEntity(
-        myWorkInformationDTO.id,
-        myWorkInformationDTO.workPlace,
-        myWorkInformationDTO.startWorkDay,
-        myWorkInformationDTO.finishWorkDay
+        input.id,
+        input.workPlace,
+        input.startWorkDay,
+        input.finishWorkDay
     )
 
-fun MyWorkInfoMapper(myWorkInfoEntity: MyWorkInfoEntity): MyWorkInformationDTO = MyWorkInformationDTO(
-    myWorkInfoEntity.id,
-    myWorkInfoEntity.workPlace,
-    myWorkInfoEntity.startWorkDay,
-    myWorkInfoEntity.finishWorkDay
-)
+fun MyWorkInfoMapper(input: MyWorkInfoEntity): MyWorkInformationDTO =
+    MyWorkInformationDTO(
+        input.id,
+        input.workPlace,
+        input.startWorkDay,
+        input.finishWorkDay
+    )
+
+fun MySearchHistoryMapper(input: MySearchHistoryDTO): MySearchHistoryEntity =
+    MySearchHistoryEntity(
+        input.id,
+        input.keyword
+    )
+
+fun MySearchHistoryMapper(input: MySearchHistoryEntity): MySearchHistoryDTO =
+    MySearchHistoryDTO(
+        input.id,
+        input.keyword
+    )

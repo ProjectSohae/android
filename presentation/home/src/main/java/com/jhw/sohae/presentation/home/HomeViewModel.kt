@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -129,9 +130,10 @@ class HomeViewModel @Inject constructor(
         var totalUsedLeaveTime: Long = 0
 
         runBlocking {
-            val usedLeaveList = myInfoUseCase.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
-
-            usedLeaveList.forEach { totalUsedLeaveTime += it.usedLeaveTime }
+            myInfoUseCase.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
+                .forEach {
+                    totalUsedLeaveTime += it.usedLeaveTime
+                }
         }
 
         return totalUsedLeaveTime
@@ -213,16 +215,16 @@ class HomeViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getSlackOffDays(startDate: LocalDate, endDate: LocalDate): Int {
-        lateinit var slackOffList: List<MyUsedLeaveEntity>
+        var slackOffListSize: Int
 
         runBlocking {
-            slackOffList = myInfoUseCase.getMyUsedLeaveListByDate(
+            slackOffListSize = myInfoUseCase.getMyUsedLeaveListByDate(
                 startDate = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
                 endDate = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-            ).filter { it.leaveKindIdx == 4 && it.leaveTypeIdx == 3 }
+            ).filter { it.leaveKindIdx == 4 && it.leaveTypeIdx == 3 }.size
         }
 
-        return slackOffList.size
+        return slackOffListSize
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -231,7 +233,7 @@ class HomeViewModel @Inject constructor(
         var isExistLeave = false
         var currentDateValue = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val endDateValue = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        var leaveList: List<MyUsedLeaveEntity> = emptyList()
+        lateinit var leaveList: List<MyUsedLeaveEntity>
 
         runBlocking {
             leaveList = myInfoUseCase.getMyUsedLeaveListByDate(

@@ -5,24 +5,27 @@ import androidx.room.RoomDatabase
 import com.jhw.sohae.data.myinformation.dao.MyAccountDAO
 import com.jhw.sohae.data.myinformation.dao.MyLeaveDAO
 import com.jhw.sohae.data.myinformation.dao.MyRankDAO
+import com.jhw.sohae.data.myinformation.dao.MySearchHistoryDAO
 import com.jhw.sohae.data.myinformation.dao.MyUsedLeaveDAO
 import com.jhw.sohae.data.myinformation.dao.MyWelfareDAO
 import com.jhw.sohae.data.myinformation.dao.MyWorkInformationDAO
 import com.jhw.sohae.data.myinformation.dto.MyAccountDTO
 import com.jhw.sohae.data.myinformation.dto.MyLeaveDTO
 import com.jhw.sohae.data.myinformation.dto.MyRankDTO
+import com.jhw.sohae.data.myinformation.dto.MySearchHistoryDTO
 import com.jhw.sohae.data.myinformation.dto.MyUsedLeaveDTO
 import com.jhw.sohae.data.myinformation.dto.MyWelfareDTO
 import com.jhw.sohae.data.myinformation.dto.MyWorkInformationDTO
 
 @Database(
     entities = [
-        com.jhw.sohae.data.myinformation.dto.MyAccountDTO::class,
-        com.jhw.sohae.data.myinformation.dto.MyWorkInformationDTO::class,
-        com.jhw.sohae.data.myinformation.dto.MyRankDTO::class,
-        com.jhw.sohae.data.myinformation.dto.MyWelfareDTO::class,
-        com.jhw.sohae.data.myinformation.dto.MyLeaveDTO::class,
-        com.jhw.sohae.data.myinformation.dto.MyUsedLeaveDTO::class ],
+        MyAccountDTO::class,
+        MyWorkInformationDTO::class,
+        MyRankDTO::class,
+        MyWelfareDTO::class,
+        MyLeaveDTO::class,
+        MyUsedLeaveDTO::class,
+        MySearchHistoryDTO::class ],
     version = 1,
     exportSchema = false
 )
@@ -38,4 +41,6 @@ abstract class MyInformationDB: RoomDatabase() {
     abstract fun myLeaveDAO(): MyLeaveDAO
 
     abstract fun myUsedLeaveDAO(): MyUsedLeaveDAO
+
+    abstract fun mySearchHistoryDAO(): MySearchHistoryDAO
 }

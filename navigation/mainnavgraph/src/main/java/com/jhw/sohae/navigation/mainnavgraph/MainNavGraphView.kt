@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -26,11 +27,14 @@ import com.jhw.sohae.controller.mainnavgraph.MainScreenController
 import com.jhw.sohae.navigation.homenavgraph.HomeNavGraphView
 import com.jhw.sohae.presentation.jobinformation.JobInformationView
 import com.jhw.sohae.presentation.jobreview.JobReviewView
+import com.jhw.sohae.presentation.mycommentlist.MyCommentListView
+import com.jhw.sohae.presentation.mypostlist.MyPostListView
 import com.jhw.sohae.presentation.myprofile.MyProfileView
 import com.jhw.sohae.presentation.post.PostImageView
 import com.jhw.sohae.presentation.post.PostView
 import com.jhw.sohae.presentation.searchjob.SearchJobView
 import com.jhw.sohae.presentation.searchpost.SearchPostView
+import com.jhw.sohae.presentation.searchpost.SearchPostViewModel
 import com.jhw.sohae.presentation.settingoptions.SettingOptionsView
 import com.jhw.sohae.presentation.writejobreview.WriteJobReviewView
 import com.jhw.sohae.presentation.writepost.WritePostView
@@ -102,7 +106,7 @@ fun MainNavGraphView(
                 PostImageView("")
             }
             composable(MainNavGraphRoutes.SEARCHPOST.name) {
-                SearchPostView()
+                SearchPostView(hiltViewModel<SearchPostViewModel>())
             }
             // in job information view
             composable(MainNavGraphRoutes.WRITEJOBREVIEW.name) {
@@ -127,6 +131,12 @@ fun MainNavGraphView(
             }
             composable(MainNavGraphRoutes.SETTINGOPTIONS.name) {
                 SettingOptionsView()
+            }
+            composable(MainNavGraphRoutes.MYPOSTLIST.name) {
+                MyPostListView()
+            }
+            composable(MainNavGraphRoutes.MYCOMMENTLIST.name) {
+                MyCommentListView()
             }
         }
     }

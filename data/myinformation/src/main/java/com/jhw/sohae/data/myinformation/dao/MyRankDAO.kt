@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface MyRankDAO {
 
     @Query("select * from my_rank where id = 0")
-    fun selectAll(): Flow<MyRankDTO>?
+    fun selectAll(): Flow<MyRankDTO?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(inputMyRankDTO: MyRankDTO)

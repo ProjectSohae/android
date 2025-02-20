@@ -261,7 +261,7 @@ private fun MyActivities(
                 .padding(bottom = 12.dp)
                 .fillMaxWidth()
                 .clickable {
-
+                    MainNavController.navigate(MainNavGraphRoutes.MYPOSTLIST.name)
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -282,7 +282,7 @@ private fun MyActivities(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-
+                    MainNavController.navigate(MainNavGraphRoutes.MYCOMMENTLIST.name)
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
