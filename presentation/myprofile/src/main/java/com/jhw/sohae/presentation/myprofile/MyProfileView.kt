@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.common.ui.custom.composable.ProfileImage
 import com.jhw.sohae.common.ui.custom.dialog.TypingTextDialog
 import com.jhw.sohae.controller.mainnavgraph.MainNavController

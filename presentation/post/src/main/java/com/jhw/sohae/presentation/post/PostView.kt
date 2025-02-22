@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarController
 import com.jhw.sohae.controller.barcolor.BarColorController

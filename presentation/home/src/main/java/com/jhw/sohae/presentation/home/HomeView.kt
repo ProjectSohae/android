@@ -1,7 +1,6 @@
 package com.jhw.sohae.presentation.home
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -51,12 +50,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.common.ui.custom.composable.ProfileImage
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarController
 import com.jhw.sohae.controller.barcolor.BarColorController
-import com.jhw.sohae.domain.myinformation.usecase.MyInfoUseCase
 import com.jhw.utils.displayAsAmount
 import com.jhw.utils.getLeavePeriod
 import java.time.Instant

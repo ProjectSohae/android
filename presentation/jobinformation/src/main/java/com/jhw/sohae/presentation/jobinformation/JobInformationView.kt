@@ -46,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -57,6 +58,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.controller.mainnavgraph.MainNavController
 import com.jhw.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.jhw.sohae.domain.jobreview.entity.JobReviewScoreNamesList
@@ -90,7 +92,7 @@ fun JobInformationView() {
 private fun JobInformationViewHeader() {
     val tertiary = MaterialTheme.colorScheme.tertiary
 
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .drawBehind {
@@ -101,15 +103,27 @@ private fun JobInformationViewHeader() {
                     end = Offset(this.size.width, this.size.height)
                 )
             }
-            .padding(horizontal = 24.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        contentAlignment = Alignment.CenterStart
     ) {
         Text(
             text = "복무지 정보",
+            textAlign = TextAlign.Center,
             fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Icon(
+            painter = painterResource(id = R.drawable.baseline_arrow_back_ios_new_24),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .size(20.dp)
+                .clickable {
+                    MainNavController.popBack()
+                }
         )
     }
 }
@@ -435,7 +449,10 @@ private fun JobProfileView(
         // 광고
         item {
             Surface(
-                modifier = Modifier.fillParentMaxWidth().height(120.dp).padding(bottom = 24.dp),
+                modifier = Modifier
+                    .fillParentMaxWidth()
+                    .height(120.dp)
+                    .padding(bottom = 24.dp),
                 color = MaterialTheme.colorScheme.primary
             ) {}
         }
@@ -443,7 +460,9 @@ private fun JobProfileView(
         // 복무지 재학생입영원 이력
         item {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
             ) {
                 Text(
                     text = "재학생입영원 이력",
@@ -453,7 +472,9 @@ private fun JobProfileView(
                 )
 
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 24.dp)
                 ) {
                     Row(
                         modifier = Modifier
@@ -487,7 +508,9 @@ private fun JobProfileView(
         // 복무지 본인선택 이력
         item {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
             ) {
                 Text(
                     text = "본인선택 이력",
@@ -497,7 +520,9 @@ private fun JobProfileView(
                 )
 
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 24.dp)
                 ) {
                     Row(
                         modifier = Modifier

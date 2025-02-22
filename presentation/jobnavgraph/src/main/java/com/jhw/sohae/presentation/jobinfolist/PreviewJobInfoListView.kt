@@ -47,13 +47,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.common.ui.custom.dialog.WheelPickerDialog
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarController
 import com.jhw.sohae.controller.mainnavgraph.MainNavController
 import com.jhw.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.jhw.sohae.controller.mainnavgraph.MainScreenController
-import com.jhw.sohae.presentation.jobnavgraph.R
 import com.jhw.sohae.presentation.selectdistrict.SelectDistrictView
 
 // 복무지 목록

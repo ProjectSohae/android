@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":controller:barcolor"))
     implementation(project(":controller:mainnavgraph"))
     implementation(project(":domain:myinformation"))
+    implementation(project(":common:resource"))
     implementation(project(":common:ui:custom"))
     implementation(project(":domain:home"))
     implementation(project(":domain:utils"))

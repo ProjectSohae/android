@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.common.ui.custom.dialog.WheelPickerDialog
 import com.jhw.sohae.controller.mainnavgraph.MainNavController
 import com.jhw.sohae.controller.mainnavgraph.MainScreenController

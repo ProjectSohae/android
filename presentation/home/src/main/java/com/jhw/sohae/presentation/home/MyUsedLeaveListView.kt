@@ -17,10 +17,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarController
 import com.jhw.sohae.common.ui.custom.snackbar.SnackbarView
@@ -51,7 +52,6 @@ import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.hazeEffect
 
 @RequiresApi(Build.VERSION_CODES.O)

@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     kapt(libs.hilt.android.compiler)
 
+    implementation(project(":common:resource"))
     implementation(project(":common:ui:custom"))
     implementation(project(":common:remote"))
     implementation(project(":controller:mainnavgraph"))

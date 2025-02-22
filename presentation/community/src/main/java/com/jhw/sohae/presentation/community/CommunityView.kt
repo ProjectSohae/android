@@ -62,6 +62,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.controller.barcolor.BarColorController
 import com.jhw.sohae.controller.mainnavgraph.MainNavController
 import com.jhw.sohae.controller.mainnavgraph.MainNavGraphRoutes

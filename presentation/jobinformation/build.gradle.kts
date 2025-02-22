@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(project(":common:resource"))
     implementation(project(":controller:mainnavgraph"))
     implementation(project(":domain:jobreview"))
     kapt(libs.hilt.android.compiler)

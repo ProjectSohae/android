@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.datetime)
 
     implementation(libs.hilt.android)
+    implementation(project(":common:resource"))
     implementation(project(":controller:mainnavgraph"))
     implementation(project(":controller:barcolor"))
     implementation(project(":common:ui:custom"))

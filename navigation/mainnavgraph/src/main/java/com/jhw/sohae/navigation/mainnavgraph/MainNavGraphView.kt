@@ -66,6 +66,7 @@ fun MainNavGraphView(
 
         if (getParam.first.isNotBlank()) {
             mainNavController.currentBackStackEntry?.savedStateHandle?.set(getParam.first, getParam.second)
+            MainNavController.setParam("", -1);
         }
     }
 

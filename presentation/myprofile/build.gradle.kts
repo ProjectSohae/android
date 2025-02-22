@@ -54,6 +54,7 @@ android {
 dependencies {
 
     implementation(libs.hilt.android)
+    implementation(project(":common:resource"))
     implementation(project(":controller:mainnavgraph"))
     implementation(project(":common:ui:custom"))
     kapt(libs.hilt.android.compiler)

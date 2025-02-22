@@ -59,6 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.common.ui.custom.dialog.DatePickerDialog
 import com.jhw.sohae.common.ui.custom.dialog.DateRangePickerDialog
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
@@ -72,7 +73,6 @@ import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.hazeEffect
 import java.time.Instant
 import java.time.LocalDateTime

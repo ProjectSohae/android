@@ -18,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.controller.mainnavgraph.MainNavController
 
 @Composable

@@ -1,7 +1,5 @@
 package com.jhw.sohae.presentation.searchpost
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.jhw.sohae.common.ui.custom.snackbar.SnackBarController
 import com.jhw.sohae.common.ui.custom.textfield.CustomTextFieldView

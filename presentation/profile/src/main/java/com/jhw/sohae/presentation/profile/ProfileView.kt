@@ -34,7 +34,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.common.ui.custom.composable.ProfileImage
 import com.jhw.sohae.common.ui.custom.dialog.DatePickerDialog
 import com.jhw.sohae.common.ui.custom.dialog.TypingTextDialog

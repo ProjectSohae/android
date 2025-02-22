@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.domain.myinformation.entity.MyUsedLeaveEntity
 import com.jhw.sohae.domain.myinformation.usecase.MyInfoUseCase
 import com.jhw.sohae.home.entity.SalaryDetailsEntity
@@ -13,7 +14,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

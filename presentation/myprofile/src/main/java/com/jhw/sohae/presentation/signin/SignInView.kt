@@ -33,13 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jhw.sohae.common.resource.R
 import com.jhw.sohae.controller.mainnavgraph.MainScreenController
-import com.jhw.sohae.presentation.myprofile.R
 import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.hazeEffect
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
