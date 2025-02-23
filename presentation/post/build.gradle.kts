@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.presentation.post"
+    namespace = "com.sohae.presentation.post"
     compileSdk = 34
 
     defaultConfig {
@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":common:ui:custom"))
     implementation(project(":domain:myinformation"))
     implementation(project(":common:remote"))
+    implementation(project(":domain:utils"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)

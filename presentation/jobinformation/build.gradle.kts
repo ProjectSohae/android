@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.presentation.jobinformation"
+    namespace = "com.sohae.presentation.jobinformation"
     compileSdk = 34
 
     defaultConfig {

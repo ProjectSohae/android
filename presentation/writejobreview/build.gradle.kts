@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.presentation.writejobreview"
+    namespace = "com.sohae.presentation.writejobreview"
     compileSdk = 34
 
     defaultConfig {

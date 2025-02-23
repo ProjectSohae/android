@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.presentation.profile"
+    namespace = "com.sohae.presentation.profile"
     compileSdk = 34
 
     defaultConfig {

@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.presentation.mycommentlist"
+    namespace = "com.sohae.presentation.mycommentlist"
     compileSdk = 34
 
     defaultConfig {

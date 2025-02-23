@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.navigation.mainnavgraph"
+    namespace = "com.sohae.navigation.mainnavgraph"
     compileSdk = 34
 
     defaultConfig {

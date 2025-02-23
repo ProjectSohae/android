@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.presentation.jobnavgraph"
+    namespace = "com.sohae.presentation.jobnavgraph"
     compileSdk = 34
 
     defaultConfig {

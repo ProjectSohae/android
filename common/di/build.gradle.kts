@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.common.di"
+    namespace = "com.sohae.common.di"
     compileSdk = 34
 
     defaultConfig {

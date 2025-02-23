@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.controller.barcolor"
+    namespace = "com.sohae.controller.barcolor"
     compileSdk = 34
 
     defaultConfig {

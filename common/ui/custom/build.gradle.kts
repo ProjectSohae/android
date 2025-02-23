@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.common.ui.custom"
+    namespace = "com.sohae.common.ui.custom"
     compileSdk = 34
 
     defaultConfig {

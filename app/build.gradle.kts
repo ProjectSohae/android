@@ -14,11 +14,11 @@ val properties = Properties()
 properties.load(FileInputStream("local.properties"))
 
 android {
-    namespace = "com.jhw.sohae"
+    namespace = "com.sohae"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.jhw.sohae"
+        applicationId = "com.sohae"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

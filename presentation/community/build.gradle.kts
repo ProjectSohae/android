@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.presentation.community"
+    namespace = "com.sohae.presentation.community"
     compileSdk = 34
 
     defaultConfig {
@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":common:resource"))
     implementation(project(":controller:barcolor"))
     implementation(project(":controller:mainnavgraph"))
+    implementation(project(":domain:utils"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)

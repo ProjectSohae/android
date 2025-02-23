@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jhw.sohae.presentation.mypostlist"
+    namespace = "com.sohae.presentation.mypostlist"
     compileSdk = 34
 
     defaultConfig {

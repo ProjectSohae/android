@@ -13,7 +13,7 @@ val properties = Properties()
 properties.load(FileInputStream("local.properties"))
 
 android {
-    namespace = "com.jhw.sohae.presentation.myprofile"
+    namespace = "com.sohae.presentation.myprofile"
     compileSdk = 34
 
     defaultConfig {
