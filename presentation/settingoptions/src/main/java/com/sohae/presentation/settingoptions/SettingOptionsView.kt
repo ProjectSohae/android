@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import com.sohae.common.resource.R
 import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 
 @Composable
 fun SettingOptionsView(
@@ -244,7 +245,12 @@ private fun SettingOptionsBodyView(
             ) {
                 // 이메일
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                        .clickable {
+                            MainNavController.navigate(MainNavGraphRoutes.INQUIRYEMAIL.name)
+                        },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {

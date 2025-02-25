@@ -24,6 +24,7 @@ import com.sohae.controller.mainnavgraph.MainNavController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainScreenController
 import com.sohae.navigation.homenavgraph.HomeNavGraphView
+import com.sohae.presentation.inquiryemail.InquiryEmailView
 import com.sohae.presentation.jobinformation.JobInformationView
 import com.sohae.presentation.jobreview.JobReviewView
 import com.sohae.presentation.mycommentlist.MyCommentListView
@@ -139,6 +140,9 @@ fun MainNavGraphView(
             }
             composable(MainNavGraphRoutes.MYJOBREVIEWLIST.name) {
 
+            }
+            composable(MainNavGraphRoutes.INQUIRYEMAIL.name) {
+                InquiryEmailView()
             }
         }
     }

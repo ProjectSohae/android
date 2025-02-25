@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -57,6 +58,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.NaverMapSdk
+import com.naver.maps.map.compose.CameraPositionState
+import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.Marker
+import com.naver.maps.map.compose.MarkerComposable
+import com.naver.maps.map.compose.MarkerState
+import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberCameraPositionState
 import com.sohae.common.resource.R
 import com.sohae.controller.mainnavgraph.MainNavController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
@@ -65,6 +76,9 @@ import kotlinx.coroutines.runBlocking
 
 @Composable
 fun JobInformationView() {
+    NaverMapSdk.getInstance(LocalContext.current).client =
+        NaverMapSdk.NaverCloudPlatformClient(BuildConfig.NAVER_MAP_CLIENT)
+
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -178,7 +192,7 @@ private fun JobInformationBody(
             exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
         ) {
             composable(JobInformationCategory.PROFILE.name) {
-                JobProfileView()
+                JobDetailsView()
             }
             composable(JobInformationCategory.REVIEW.name) {
                 JobReviewItemsList()
@@ -326,8 +340,9 @@ private fun JobInformationCategory(
     }
 }
 
+@OptIn(ExperimentalNaverMapApi::class)
 @Composable
-private fun JobProfileView(
+private fun JobDetailsView(
     jobInformationViewModel: JobInformationViewModel = viewModel()
 ) {
     val jobInformationDetailsCount = jobInfotmationDetails.size
@@ -418,6 +433,8 @@ private fun JobProfileView(
 
         // 복무지 위치
         item {
+            val coordinate = LatLng(37.5666103, 126.9783882)
+
             Column(
                 modifier = Modifier.padding(horizontal = 24.dp)
             ) {
@@ -428,19 +445,22 @@ private fun JobProfileView(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                Box(
+                NaverMap(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(top = 8.dp, bottom = 24.dp)
+                        .fillMaxWidth()
+                        .height(240.dp)
+                        .clip(RoundedCornerShape(5)),
+                    cameraPositionState = CameraPositionState(
+                        position = CameraPosition(
+                            coordinate, 16.0
+                        )
+                    )
                 ) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(240.dp),
-                        shape = RoundedCornerShape(5)
-                    ) {
-
-                    }
+                    Marker(
+                        state = MarkerState(coordinate),
+                        captionText = "복무지"
+                    )
                 }
             }
         }
@@ -464,7 +484,7 @@ private fun JobProfileView(
                     .padding(horizontal = 24.dp)
             ) {
                 Text(
-                    text = "재학생입영원 이력",
+                    text = "전년도 재학생입영원 이력",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.primary
@@ -512,7 +532,7 @@ private fun JobProfileView(
                     .padding(horizontal = 24.dp)
             ) {
                 Text(
-                    text = "본인선택 이력",
+                    text = "전년도 본인선택 이력",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.primary

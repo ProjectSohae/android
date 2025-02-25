@@ -2,7 +2,7 @@ package com.sohae.presentation.jobinfolist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sohae.data.jobinformation.DistrictRepository
+import com.sohae.data.jobinformation.repositoryimpl.DistrictRepositoryImpl
 import kotlinx.coroutines.launch
 
 class PreviewJobInfoListViewModel: ViewModel() {
@@ -66,7 +66,7 @@ class PreviewJobInfoListViewModel: ViewModel() {
         bjdsggjuso_cd = emptyMap()
 
         viewModelScope.launch {
-            DistrictRepository.getDistrictList(
+            DistrictRepositoryImpl.getDistrictList(
                 ghjbc_cd,
                 codegubun,
                 callback = { response, errorMessage ->

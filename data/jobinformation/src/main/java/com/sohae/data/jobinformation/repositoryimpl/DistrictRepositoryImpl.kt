@@ -1,39 +1,23 @@
-package com.sohae.data.jobinformation
+package com.sohae.data.jobinformation.repositoryimpl
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.sohae.data.jobinformation.request.DistrictRequest
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.FieldMap
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.Headers
-import retrofit2.http.POST
-import retrofit2.http.Query
 
-interface DistrictRequests {
-
-    // ResponseBody <- raw 파일
-    @Headers("Content-Type: application/x-www-form-urlencoded")
-    @FormUrlEncoded
-    @POST("selectSHBMGHJBCSiGunGu.json")
-    fun getDistrictList(
-        @Query("hwamyeon_id") hwamyeonId: String = "SHBMBISTCJJeopSuHHAN_M",
-        @FieldMap fieldMap: Map<String, String>
-    ) : Call<ResponseBody>
-}
-
-object DistrictRepository {
+object DistrictRepositoryImpl {
 
     private const val DISTRICT_URL = "https://mwpt.mma.go.kr/caisBMHS/dmem/dmem/mwgr/shbm/"
 
-    private val client: DistrictRequests = Retrofit.Builder()
+    private val client = Retrofit.Builder()
         .baseUrl(DISTRICT_URL)
         .addConverterFactory(GsonConverterFactory.create())
-        .build().create(DistrictRequests::class.java)
+        .build().create(DistrictRequest::class.java)
 
     fun getDistrictList(
         ghjbc_cd: String,

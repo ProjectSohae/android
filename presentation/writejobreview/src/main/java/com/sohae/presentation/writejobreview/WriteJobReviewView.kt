@@ -269,6 +269,7 @@ private fun WriteWorkDetails(
                     color = MaterialTheme.colorScheme.tertiary,
                 )
             },
+            maxLines = 10,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                 unfocusedIndicatorColor = MaterialTheme.colorScheme.tertiary,
@@ -334,6 +335,7 @@ private fun WriteJobAdvantages(
                     color = MaterialTheme.colorScheme.tertiary,
                 )
             },
+            maxLines = 10,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                 unfocusedIndicatorColor = MaterialTheme.colorScheme.tertiary,
@@ -399,6 +401,7 @@ private fun WriteJobDisadvantages(
                     color = MaterialTheme.colorScheme.tertiary,
                 )
             },
+            maxLines = 10,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                 unfocusedIndicatorColor = MaterialTheme.colorScheme.tertiary,

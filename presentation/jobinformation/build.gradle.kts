@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -5,6 +8,9 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
 }
+
+val properties = Properties()
+properties.load(FileInputStream("local.properties"))
 
 android {
     namespace = "com.sohae.presentation.jobinformation"
@@ -15,8 +21,15 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField(
+            "String",
+            "NAVER_MAP_CLIENT",
+            properties.getProperty("naver.map.client.id")
+        )
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     buildTypes {
@@ -62,6 +75,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(libs.map.sdk)
+    implementation(libs.naver.map.compose)
 }
 
 kapt {

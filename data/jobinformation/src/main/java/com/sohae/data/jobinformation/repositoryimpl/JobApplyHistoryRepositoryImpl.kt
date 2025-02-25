@@ -1,39 +1,24 @@
-package com.sohae.data.jobinformation
+package com.sohae.data.jobinformation.repositoryimpl
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.sohae.common.models.workplace.entity.ApplyHistoryEntity
+import com.sohae.data.jobinformation.request.JobApplyHistoryRequest
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.FieldMap
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.Headers
-import retrofit2.http.POST
-import retrofit2.http.Query
 
-interface JobApplyHistoryRequests {
-
-    @Headers("Content-Type: application/x-www-form-urlencoded")
-    @FormUrlEncoded
-    @POST("selectSHBMBISTBMGGCJJeopSuHH.json")
-    fun getJobApplyHistoryList(
-        @Query("hwamyeon_id") hwamyeon_id: String = "SHBMBISTCJJeopSuHHAN_M",
-        @FieldMap fieldMap: Map<String, String>
-    ): Call<ResponseBody>
-}
-
-object JobApplyHistoryRepository {
+object JobApplyHistoryRepositoryImpl {
 
     private const val url = "https://mwpt.mma.go.kr/caisBMHS/dmem/dmem/mwgr/shbm/"
 
     private val client = Retrofit.Builder()
         .baseUrl(url)
         .addConverterFactory(GsonConverterFactory.create())
-        .build().create(JobApplyHistoryRequests::class.java)
+        .build().create(JobApplyHistoryRequest::class.java)
 
     fun getJobApplyHistoryList(
         jeopsu_yy: String,

@@ -18,4 +18,6 @@ enum class MainNavGraphRoutes {
     MYPOSTLIST,
     MYCOMMENTLIST,
     MYJOBREVIEWLIST,
+
+    INQUIRYEMAIL,
 }

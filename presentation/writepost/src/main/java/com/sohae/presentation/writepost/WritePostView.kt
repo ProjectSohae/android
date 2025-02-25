@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -261,7 +262,7 @@ private fun WritePostTitle(
     }
 
     Column(
-        modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
+        modifier = Modifier.padding(start = 24.dp, end = 24.dp)
     ) {
         Text(
             text = "제목",
@@ -299,15 +300,19 @@ private fun WritePostTitle(
                 .wrapContentHeight()
         )
 
-        if (title.isNotEmpty()) {
-            Text(
-                text = "${title.length}/50",
-                fontSize = 16.sp,
-                textAlign = TextAlign.End,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        Text(
+            text = "${title.length}/50",
+            fontSize = 16.sp,
+            textAlign = TextAlign.End,
+            color = title.isNotEmpty().let {
+                if (it) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onPrimary
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -475,7 +480,7 @@ private fun WritePostContent(
             shape = RoundedCornerShape(5),
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
+                .height(280.dp)
         )
 
         if (content.isNotEmpty()) {
