@@ -187,9 +187,13 @@ private fun HomeViewBody(
     var isReadyInfo by remember { mutableStateOf(false) }
     val finishLoadDB = false
 
-    if (!isReadyInfo) {
-        Text(text = "test")
-
+    LaunchedEffect(
+        myAccount,
+        myWorkInfo,
+        myWelfare,
+        myRank,
+        myLeave
+    ) {
         if (
             myAccount != null
             && myWorkInfo != null
@@ -199,6 +203,14 @@ private fun HomeViewBody(
         ) {
             isReadyInfo = true
         }
+    }
+
+    if (!isReadyInfo) {
+        Text(
+            text = "test",
+            fontSize = 24.sp,
+            color = MaterialTheme.colorScheme.primary
+        )
 
         if (finishLoadDB) {
             Text(text = "리로드")

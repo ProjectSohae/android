@@ -1,10 +1,13 @@
 package com.sohae.presentation.post
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -54,6 +55,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sohae.common.models.comment.entity.CommentEntity
+import com.sohae.common.models.post.entity.PostEntity
+import com.sohae.common.models.user.entity.UserId
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
@@ -61,9 +65,6 @@ import com.sohae.controller.barcolor.BarColorController
 import com.sohae.controller.mainnavgraph.MainNavController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.presentation.postoption.PostOptionsView
-import com.sohae.common.models.comment.entity.CommentEntity
-import com.sohae.common.models.post.entity.PostEntity
-import com.sohae.common.models.user.entity.UserId
 import com.sohae.utils.getDiffTimeFromNow
 
 @Composable
@@ -72,10 +73,6 @@ fun PostView(
     postViewModel: PostViewModel = viewModel()
 ) {
     val postDetails = postViewModel.postDetails.collectAsState().value
-    val commentsList = postViewModel.commentsList.collectAsState().value
-    var reloadComments by rememberSaveable { mutableStateOf(true) }
-    var offset by rememberSaveable { mutableIntStateOf(0) }
-    val count = 5
 
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
@@ -87,15 +84,6 @@ fun PostView(
         // 게시글 로딩
         LaunchedEffect(Unit) {
             postViewModel.getPostDetails(postId)
-        }
-
-        // 댓글 목록 로딩
-        LaunchedEffect(reloadComments) {
-
-            if (reloadComments) {
-                reloadComments = false
-                postViewModel.getCommentsList(postId, offset, count)
-            }
         }
 
         Scaffold {
@@ -122,26 +110,18 @@ fun PostView(
                         modifier = Modifier.weight(1f)
                     ) {
                         item {
-                            PostDetailsView(postDetails)
+                            PostDetailsView(postViewModel, postDetails)
                         }
 
-                        itemsIndexed(
-                            items = commentsList,
-                            key = { idx: Int, commentDetails: CommentEntity -> idx }
-                        ) { idx: Int, commentDetails: CommentEntity ->
-                            CommentView(
-                                postDetails.userId,
-                                commentDetails,
-                                idx != 0
+                        item {
+                            CommentListView(
+                                postViewModel,
+                                postDetails.userId
                             )
                         }
                     }
 
-                    PostViewFooter(
-                        uploadComment = { getCommentContent ->
-                            reloadComments = true
-                        }
-                    )
+                    PostViewFooter(postViewModel)
                 }
             }
         }
@@ -198,6 +178,7 @@ private fun PostViewHeader(
 
 @Composable
 private fun PostDetailsView(
+    postViewModel: PostViewModel,
     postDetails: PostEntity?
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -379,16 +360,69 @@ private fun PostDetailsView(
 }
 
 @Composable
+private fun CommentListView(
+    postViewModel: PostViewModel,
+    posterUUID: UserId
+) {
+    val commentsList = postViewModel.commentsList.collectAsState().value
+
+    LaunchedEffect(Unit) {
+        postViewModel.getCommentsList(
+            0,
+            0,
+            20
+        )
+    }
+
+    Column {
+
+        commentsList.forEachIndexed { idx: Int, commentEntity ->
+
+            if (commentEntity.id == commentEntity.parentCommentId) {
+                CommentView(
+                    posterUUID = posterUUID,
+                    commentDetails = commentEntity,
+                    drawDivider = idx != 0,
+                    postViewModel = postViewModel
+                )
+            } else {
+                ReplyView(
+                    posterNickname = "test",
+                    replyDetails = commentEntity
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun CommentView(
     posterUUID: UserId,
     commentDetails: CommentEntity,
-    drawDivider: Boolean
+    drawDivider: Boolean,
+    postViewModel: PostViewModel
 ) {
+    var isPressed by remember { mutableStateOf(false) }
     val tertiary = MaterialTheme.colorScheme.tertiary
+
+    LaunchedEffect(isPressed) {
+
+        if (isPressed) {
+            postViewModel.textFieldInteraction.emit(FocusInteraction.Focus())
+            isPressed = false
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(
+                top = if (drawDivider) {
+                    16.dp
+                } else {
+                    0.dp
+                }
+            )
             .drawBehind {
                 if (drawDivider) {
                     drawLine(
@@ -399,7 +433,8 @@ private fun CommentView(
                     )
                 }
             }
-            .padding(vertical = 16.dp)
+            .padding(top = 16.dp)
+            .clickable { isPressed = true }
     ) {
         Row(
             modifier = Modifier
@@ -454,13 +489,10 @@ private fun CommentView(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
-        
+
         Column(
             modifier = Modifier.padding(horizontal = 24.dp)
         ) {
-//            commentDetails.replyList.forEach { getReplyDetails ->
-//                ReplyView(posterNickname, getReplyDetails)
-//            }
         }
     }
 }
@@ -471,7 +503,7 @@ private fun ReplyView(
     replyDetails: CommentEntity
 ) {
     Row(
-        modifier = Modifier.padding(top = 12.dp)
+        modifier = Modifier.padding(top = 12.dp, start = 24.dp, end = 24.dp)
     ) {
         Icon(
             painter = painterResource(id = R.drawable.outline_subdirectory_arrow_right_24),
@@ -519,7 +551,7 @@ private fun ReplyView(
                     }
 
                     Text(
-                        text = "${replyDetails.userName} • ${replyDetails.createdAt}",
+                        text = "${replyDetails.userName} • ${getDiffTimeFromNow(replyDetails.createdAt)}",
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.primary,
                         style = TextStyle(
@@ -557,7 +589,7 @@ private fun ReplyView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PostViewFooter(
-    uploadComment: (String) -> Unit
+    postViewModel: PostViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val brightTertiary = Color(
@@ -567,7 +599,7 @@ private fun PostViewFooter(
             0.75f
         )
     )
-    val interactionSource = remember { MutableInteractionSource() }
+    val interactionSource = postViewModel.textFieldInteraction
     var commentContent by rememberSaveable { mutableStateOf("") }
     val textFieldColors = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
@@ -579,12 +611,15 @@ private fun PostViewFooter(
         disabledContainerColor = Color.Transparent
     )
 
-    Row(
+    val test = interactionSource.collectIsFocusedAsState().value
+
+    Log.d("checkD", "$test")
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.onPrimary)
-            .padding(horizontal = 8.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.Center
+            .padding(start = 8.dp, end = 8.dp, top = 20.dp, bottom = 12.dp),
     ) {
         BasicTextField(
             modifier = Modifier.fillMaxWidth(),
@@ -636,11 +671,11 @@ private fun PostViewFooter(
                             modifier = Modifier
                                 .size(36.dp)
                                 .clickable(
-                                    indication = null,
-                                    interactionSource = null
+                                    interactionSource = interactionSource,
+                                    indication = null
                                 ) {
                                     if (commentContent.isNotBlank()) {
-                                        uploadComment(commentContent)
+                                        postViewModel.uploadComment(commentContent)
                                         commentContent = ""
                                     }
                                 }

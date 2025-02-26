@@ -45,7 +45,6 @@ import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.hazeEffect
 import kotlin.math.abs
 
@@ -69,7 +68,7 @@ fun WheelPickerDialog(
     val initialAlpha = listOf( 0.4f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.4f)
     val initialScaleXY = listOf( 0.5f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.5f )
     val initialRotateX = listOf( 150f, 75f, 30f, 0f, -30f, -75f, -150f )
-    val initialOffsetY = listOf( -20, -72, -24, 70, 164, 212, 160)
+    val initialOffsetY = listOf( -90, -142, -94, 0, 94, 142, 90 )
     val currentZIndex = mutableListOf( 0, 100, 200, 300, 200, 100, 0 )
     val currentScaleXY = mutableListOf( 0.5f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.5f )
     val currentRotateX = mutableListOf( 150f, 75f, 30f, 0f, -30f, -75f, -150f )
@@ -103,7 +102,7 @@ fun WheelPickerDialog(
         Box(
             modifier = Modifier
                 .width(240.dp)
-                .height(280.dp)
+                .height(300.dp)
                 .scrollable(
                     orientation = Orientation.Vertical,
                     // + <- 아래로 스크롤, - <- 위로 스크롤
@@ -136,7 +135,7 @@ fun WheelPickerDialog(
                     },
                     interactionSource = scrollInteraction
                 ),
-            contentAlignment = Alignment.TopCenter
+            contentAlignment = Alignment.Center
         ) {
             val isDragged = scrollInteraction.collectIsDraggedAsState().value
 

@@ -1,5 +1,6 @@
 package com.sohae.presentation.post
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.lifecycle.ViewModel
 import com.sohae.common.models.comment.entity.CommentEntity
 import com.sohae.common.models.post.entity.PostEntity
@@ -16,8 +17,11 @@ class PostViewModel: ViewModel() {
     private var _commentsList = MutableStateFlow<List<CommentEntity>>(emptyList())
     val commentsList = _commentsList.asStateFlow()
 
-    fun getPostDetails(postId: Int) {
-        _postDetails.value = PostEntity(
+    val textFieldInteraction = MutableInteractionSource()
+
+    private fun generatePostDetails(): PostEntity {
+
+        return PostEntity(
             id = 0L,
             userId = UUID.randomUUID(),
             title = "test",
@@ -31,23 +35,38 @@ class PostViewModel: ViewModel() {
         )
     }
 
-    fun getCommentsList(postId: Int, offset: Int, count: Int) {
+    fun getPostDetails(postId: Int) {
+        _postDetails.value = generatePostDetails()
+    }
+
+    private fun generateComments(count: Int): List<CommentEntity> {
         val tmp = mutableListOf<CommentEntity>()
 
-        for (idx: Int in 0..10) {
+        for (idx: Int in 0..<count) {
             tmp.add(
                 CommentEntity(
-                    id = 0L,
+                    id = idx.toLong(),
                     postId = 0L,
                     userId = UUID.randomUUID(),
                     userName = "test",
-                    parentCommentId = 0L,
+                    parentCommentId = idx.toLong() % (count / 4),
                     content = "test",
                     createdAt = Clock.System.now()
                 )
             )
         }
 
-        _commentsList.value = tmp.toList()
+        return tmp
+    }
+
+    fun getCommentsList(postId: Int, offset: Int, count: Int) {
+
+        _commentsList.value = (generateComments(count) + _commentsList.value).sortedWith(
+            compareBy({ it.parentCommentId }, { it.id })
+        )
+    }
+
+    fun uploadComment(content: String) {
+
     }
 }

@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,7 +66,6 @@ import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.Marker
-import com.naver.maps.map.compose.MarkerComposable
 import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
@@ -345,7 +346,9 @@ private fun JobInformationCategory(
 private fun JobDetailsView(
     jobInformationViewModel: JobInformationViewModel = viewModel()
 ) {
+    var pressedMap by remember { mutableStateOf(false) }
     val jobInformationDetailsCount = jobInfotmationDetails.size
+    val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     LaunchedEffect(Unit) {
@@ -353,7 +356,8 @@ private fun JobDetailsView(
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        userScrollEnabled = !pressedMap
     ) {
         // 복무지 소개
         item {
@@ -434,16 +438,46 @@ private fun JobDetailsView(
         // 복무지 위치
         item {
             val coordinate = LatLng(37.5666103, 126.9783882)
+            val cameraPosition = CameraPosition(coordinate, 16.0)
+            val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+                position = cameraPosition
+            }
+
+            pressedMap = cameraPositionState.isMoving
 
             Column(
                 modifier = Modifier.padding(horizontal = 24.dp)
             ) {
-                Text(
-                    text = "지도",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Text(
+                        text = "지도",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Text(
+                        text = "원위치 이동",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .drawBehind {
+                                drawLine(
+                                    color = primary,
+                                    start = Offset(0f, this.size.height * 0.9f),
+                                    end = Offset(this.size.width, this.size.height * 0.9f),
+                                    strokeWidth = 1.dp.toPx()
+                                )
+                            }
+                            .clickable {
+                                cameraPositionState.position = cameraPosition
+                            }
+                    )
+                }
 
                 NaverMap(
                     modifier = Modifier
@@ -451,15 +485,11 @@ private fun JobDetailsView(
                         .fillMaxWidth()
                         .height(240.dp)
                         .clip(RoundedCornerShape(5)),
-                    cameraPositionState = CameraPositionState(
-                        position = CameraPosition(
-                            coordinate, 16.0
-                        )
-                    )
+                    cameraPositionState = cameraPositionState
                 ) {
                     Marker(
                         state = MarkerState(coordinate),
-                        captionText = "복무지"
+                        captionText = "서울교통공사"
                     )
                 }
             }
@@ -625,6 +655,11 @@ private fun JobReviewItemsList() {
 @Composable
 private fun JobReviewItemView() {
     var isFolded by rememberSaveable { mutableStateOf(true) }
+    val scoreInfoScale by animateFloatAsState(
+        targetValue = isFolded.let {
+            if (it) { 0f } else { 1f }
+        }
+    )
 
     Column(
         modifier = Modifier
@@ -717,74 +752,76 @@ private fun JobReviewItemView() {
             modifier = Modifier.padding(vertical = 12.dp)
         )
 
-        if (!isFolded) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height((128 * scoreInfoScale).dp)
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.weight(1f)
             ) {
-                Row(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_star_24),
-                        tint = Color(0xFFFDCC0D),
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_star_24),
+                    tint = Color(0xFFFDCC0D),
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
 
-                    Text(
-                        text = "4.0",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                        style = TextStyle(
-                            platformStyle = PlatformTextStyle(
-                                includeFontPadding = false
-                            )
+                Text(
+                    text = "4.0",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
                         )
                     )
-                }
+                )
+            }
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    JobReviewScoreNamesList.forEach { scoreName ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = scoreName,
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                JobReviewScoreNamesList.forEach { scoreName ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = scoreName,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
 
-                            Row {
-                                for (idx: Int in 1..5) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.baseline_star_24),
-                                        tint = if (idx < 4) {
-                                            Color(0xFFFDCC0D)
-                                        } else { Color.Gray },
-                                        modifier = Modifier.size(16.dp),
-                                        contentDescription = null
-                                    )
-                                }
+                        Row {
+                            for (idx: Int in 1..5) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_star_24),
+                                    tint = if (idx < 4) {
+                                        Color(0xFFFDCC0D)
+                                    } else { Color.Gray },
+                                    modifier = Modifier.size(16.dp),
+                                    contentDescription = null
+                                )
                             }
                         }
                     }
                 }
             }
-            Spacer(modifier = Modifier.size(8.dp))
         }
 
         // 제목
         Text(
-            text = "“도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐”",
+            text = "“도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐”",
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.size(12.dp))
@@ -797,8 +834,10 @@ private fun JobReviewItemView() {
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "주요 업무",
+            text = "주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무",
             fontSize = 16.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.size(12.dp))
@@ -811,8 +850,10 @@ private fun JobReviewItemView() {
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "장점",
+            text = "장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점",
             fontSize = 16.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.size(12.dp))
@@ -825,37 +866,36 @@ private fun JobReviewItemView() {
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "단점",
+            text = "단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점",
             fontSize = 16.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.size(12.dp))
 
         // 추천
-        Box(
+        Row(
             modifier = Modifier
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.tertiary,
                     shape = RoundedCornerShape(20)
                 )
+                .padding(horizontal = 16.dp, vertical = 4.dp)
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_thumb_up_off_alt_24),
-                    tint = MaterialTheme.colorScheme.primary,
-                    contentDescription = null
-                )
-                Spacer(modifier = Modifier.size(4.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_thumb_up_off_alt_24),
+                tint = MaterialTheme.colorScheme.primary,
+                contentDescription = null
+            )
 
-                Text(
-                    text = "도움이 돼요 (0)",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+            Text(
+                text = "도움이 돼요 (0)",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 4.dp)
+            )
         }
     }
 }

@@ -14,8 +14,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -110,6 +116,23 @@ private fun SettingOptionsHeaderView(
 private fun SettingOptionsBodyView(
 
 ) {
+    var getNoticeAlarm by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var getCommentAlarm by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var getReplyAlarm by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val switchColors = SwitchDefaults.colors(
+        checkedBorderColor = MaterialTheme.colorScheme.primary,
+        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+        checkedTrackColor = MaterialTheme.colorScheme.primary,
+        uncheckedBorderColor = MaterialTheme.colorScheme.tertiary,
+        uncheckedThumbColor = MaterialTheme.colorScheme.primary,
+        uncheckedTrackColor = MaterialTheme.colorScheme.tertiary
+    )
     val tertiary = MaterialTheme.colorScheme.tertiary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
     val itemModifier = Modifier
@@ -133,7 +156,9 @@ private fun SettingOptionsBodyView(
                 modifier = itemModifier.padding(16.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -143,10 +168,20 @@ private fun SettingOptionsBodyView(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.primary
                     )
+
+                    Switch(
+                        checked = getNoticeAlarm,
+                        onCheckedChange = {
+                            getNoticeAlarm = !getNoticeAlarm
+                        },
+                        colors = switchColors
+                    )
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -155,6 +190,14 @@ private fun SettingOptionsBodyView(
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Switch(
+                        checked = getCommentAlarm,
+                        onCheckedChange = {
+                            getCommentAlarm = !getCommentAlarm
+                        },
+                        colors = switchColors
                     )
                 }
 
@@ -169,6 +212,14 @@ private fun SettingOptionsBodyView(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.primary
                     )
+
+                    Switch(
+                        checked = getReplyAlarm,
+                        onCheckedChange = {
+                            getReplyAlarm = !getReplyAlarm
+                        },
+                        colors = switchColors
+                    )
                 }
             }
         }
@@ -178,7 +229,9 @@ private fun SettingOptionsBodyView(
                 modifier = itemModifier.padding(16.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -198,7 +251,9 @@ private fun SettingOptionsBodyView(
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
