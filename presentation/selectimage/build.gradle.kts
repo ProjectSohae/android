@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.sohae.presentation.writepost"
+    namespace = "com.sohae.presentation.selectimage"
     compileSdk = 34
 
     defaultConfig {
@@ -48,7 +48,8 @@ dependencies {
     implementation(project(":common:ui:custom"))
     kapt(libs.hilt.android.compiler)
 
-    implementation(libs.coil.compose)
+    implementation(libs.haze)
+    implementation(libs.haze.materials)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -59,11 +60,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    implementation(libs.haze)
-    implementation(libs.haze.materials)
 }

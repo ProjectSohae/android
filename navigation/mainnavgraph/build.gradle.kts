@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(project(":presentation:mypostlist"))
     implementation(project(":presentation:mycommentlist"))
+    implementation(project(":presentation:selectimage"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.haze)

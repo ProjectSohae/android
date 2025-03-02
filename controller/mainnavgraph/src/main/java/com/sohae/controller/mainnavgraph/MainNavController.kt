@@ -4,8 +4,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 object MainNavController {
-    private var _route = MutableStateFlow("")
-    val route = _route.asStateFlow()
+    private var _targetRoute = MutableStateFlow("")
+    val targetRoute = _targetRoute.asStateFlow()
+
+    private var _fromRoute = MutableStateFlow("")
+    val fromRoute = _fromRoute.asStateFlow()
 
     private var _param = MutableStateFlow(Pair("", -1))
     val param = _param.asStateFlow()
@@ -14,7 +17,7 @@ object MainNavController {
     val backPressed = _backPressed.asStateFlow()
 
     fun navigate(inputRoute : String) {
-        _route.value = inputRoute
+        _targetRoute.value = inputRoute
     }
 
     fun setParam(key: String, value: Int) {

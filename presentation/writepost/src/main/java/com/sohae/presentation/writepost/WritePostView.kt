@@ -58,6 +58,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
 import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainScreenController
 
 @Composable
@@ -346,7 +347,10 @@ private fun UploadPostImage(
                         shape = RoundedCornerShape(15),
                         color = MaterialTheme.colorScheme.tertiary
                     )
-                    .padding(top = 4.dp),
+                    .padding(top = 4.dp)
+                    .clickable {
+                        MainNavController.navigate(MainNavGraphRoutes.SELECTIMAGE.name)
+                    },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {

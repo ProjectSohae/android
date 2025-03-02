@@ -1,6 +1,7 @@
 package com.sohae.navigation.mainnavgraph
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -35,6 +36,7 @@ import com.sohae.presentation.post.PostView
 import com.sohae.presentation.searchjob.SearchJobView
 import com.sohae.presentation.searchpost.SearchPostView
 import com.sohae.presentation.searchpost.SearchPostViewModel
+import com.sohae.presentation.selectimage.SelectImageView
 import com.sohae.presentation.settingoptions.SettingOptionsView
 import com.sohae.presentation.writejobreview.WriteJobReviewView
 import com.sohae.presentation.writepost.WritePostView
@@ -46,7 +48,8 @@ fun MainNavGraphView(
     mainNavGraphViewModel: MainNavGraphViewModel = viewModel(),
     mainNavController : NavHostController = rememberNavController()
 ) {
-    val currentRoute = MainNavController.route.collectAsState().value
+    val currentRoute = mainNavController.currentBackStackEntry?.id
+    val targetRoute = MainNavController.targetRoute.collectAsState().value
     val isBackPressed = MainNavController.backPressed.collectAsState().value
     val isDeactive = MainScreenController.isDeactive.collectAsState().value
     val getParam = MainNavController.param.collectAsState().value
@@ -55,8 +58,11 @@ fun MainNavGraphView(
 
     LaunchedEffect(isBackPressed) {
 
+        Log.d("checkD", "start ${mainNavController.currentBackStackEntry?.id}")
+
         if (isBackPressed) {
             mainNavController.popBackStack()
+            Log.d("checkD", "finish ${mainNavController.currentBackStackEntry?.id}")
             MainNavController.finishPopBack()
         }
     }
@@ -69,10 +75,10 @@ fun MainNavGraphView(
         }
     }
 
-    LaunchedEffect(currentRoute) {
+    LaunchedEffect(targetRoute) {
 
-        if (currentRoute.isNotBlank()) {
-            mainNavController.navigate(currentRoute)
+        if (targetRoute.isNotBlank()) {
+            mainNavController.navigate(targetRoute)
             MainNavController.navigate("")
         }
     }
@@ -90,6 +96,9 @@ fun MainNavGraphView(
         ) {
             composable(MainNavGraphRoutes.HOMENAV.name) {
                 HomeNavGraphView()
+            }
+            composable(MainNavGraphRoutes.SELECTIMAGE.name) {
+                SelectImageView()
             }
             // in community view
             composable(MainNavGraphRoutes.WRITEPOST.name) {

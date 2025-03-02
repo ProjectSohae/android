@@ -20,9 +20,11 @@
             <option value="$PROJECT_DIR$/controller/barcolor" />
             <option value="$PROJECT_DIR$/controller/mainnavgraph" />
             <option value="$PROJECT_DIR$/data" />
+            <option value="$PROJECT_DIR$/data/community" />
             <option value="$PROJECT_DIR$/data/jobinformation" />
             <option value="$PROJECT_DIR$/data/myinformation" />
             <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/domain/community" />
             <option value="$PROJECT_DIR$/domain/home" />
             <option value="$PROJECT_DIR$/domain/jobreview" />
             <option value="$PROJECT_DIR$/domain/myinformation" />
@@ -44,6 +46,7 @@
             <option value="$PROJECT_DIR$/presentation/profile" />
             <option value="$PROJECT_DIR$/presentation/searchjob" />
             <option value="$PROJECT_DIR$/presentation/searchpost" />
+            <option value="$PROJECT_DIR$/presentation/selectimage" />
             <option value="$PROJECT_DIR$/presentation/settingoptions" />
             <option value="$PROJECT_DIR$/presentation/writejobreview" />
             <option value="$PROJECT_DIR$/presentation/writepost" />

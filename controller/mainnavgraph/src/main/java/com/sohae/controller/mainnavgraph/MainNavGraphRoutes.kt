@@ -3,6 +3,8 @@ package com.sohae.controller.mainnavgraph
 enum class MainNavGraphRoutes {
     HOMENAV,
 
+    SELECTIMAGE,
+
     WRITEPOST,
     POST,
     POSTIMAGE,
