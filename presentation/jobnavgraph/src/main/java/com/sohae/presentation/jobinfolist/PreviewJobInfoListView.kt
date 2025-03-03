@@ -51,7 +51,7 @@ import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainScreenController
 import com.sohae.presentation.selectdistrict.SelectDistrictView
@@ -62,6 +62,7 @@ import com.sohae.presentation.selectdistrict.SelectDistrictView
 fun PreviewJobInfoListView(
     previewJobInfoListViewModel: PreviewJobInfoListViewModel = viewModel()
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
     val previewJobList = listOf(1, 2, 3, 4, 5,)
     var ghjbc_cd by rememberSaveable { mutableStateOf("") }
@@ -291,7 +292,7 @@ fun PreviewJobInfoListView(
                 .offset(x = (-12).dp, y = (-12).dp)
                 .clip(RoundedCornerShape(100))
                 .clickable {
-                    MainNavController.navigate(MainNavGraphRoutes.WRITEJOBREVIEW.name)
+                    mainNavController.navigate(MainNavGraphRoutes.WRITEJOBREVIEW.name)
                 }
         ) {
             Icon(
@@ -349,7 +350,7 @@ private fun JobSearchFilterItem(
 
 @Composable
 private fun PreviewJobItem() {
-    val onPrimary = MaterialTheme.colorScheme.onPrimary
+    val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     Column(
@@ -371,7 +372,7 @@ private fun PreviewJobItem() {
                 )
             }
             .clickable {
-                MainNavController.navigate(MainNavGraphRoutes.JOBINFORMATION.name)
+                mainNavController.navigate(MainNavGraphRoutes.JOBINFORMATION.name)
             }
             .padding(16.dp)
     ) {

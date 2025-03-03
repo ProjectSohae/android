@@ -1,15 +1,13 @@
 package com.sohae.navigation.mainnavgraph
 
+import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,12 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.sohae.controller.mainnavgraph.MainNavController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainScreenController
 import com.sohae.navigation.homenavgraph.HomeNavGraphView
 import com.sohae.presentation.inquiryemail.InquiryEmailView
@@ -37,51 +34,22 @@ import com.sohae.presentation.searchjob.SearchJobView
 import com.sohae.presentation.searchpost.SearchPostView
 import com.sohae.presentation.searchpost.SearchPostViewModel
 import com.sohae.presentation.selectimage.SelectImageView
+import com.sohae.presentation.selectimage.SelectImageViewModel
 import com.sohae.presentation.settingoptions.SettingOptionsView
 import com.sohae.presentation.writejobreview.WriteJobReviewView
 import com.sohae.presentation.writepost.WritePostView
+import com.sohae.presentation.writepost.WritePostViewModel
 import dev.chrisbanes.haze.hazeSource
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun MainNavGraphView(
-    mainNavGraphViewModel: MainNavGraphViewModel = viewModel(),
-    mainNavController : NavHostController = rememberNavController()
+    mainNavGraphViewModel: MainNavGraphViewModel = viewModel()
 ) {
-    val currentRoute = mainNavController.currentBackStackEntry?.id
-    val targetRoute = MainNavController.targetRoute.collectAsState().value
-    val isBackPressed = MainNavController.backPressed.collectAsState().value
-    val isDeactive = MainScreenController.isDeactive.collectAsState().value
-    val getParam = MainNavController.param.collectAsState().value
-    val transitionDir = 1
+    MainNavGraphViewController.mainNavController = rememberNavController()
+
+    val mainNavController = MainNavGraphViewController.mainNavController
     val hazeState by remember { mutableStateOf(MainScreenController.hazeState) }
-
-    LaunchedEffect(isBackPressed) {
-
-        Log.d("checkD", "start ${mainNavController.currentBackStackEntry?.id}")
-
-        if (isBackPressed) {
-            mainNavController.popBackStack()
-            Log.d("checkD", "finish ${mainNavController.currentBackStackEntry?.id}")
-            MainNavController.finishPopBack()
-        }
-    }
-
-    LaunchedEffect(getParam) {
-
-        if (getParam.first.isNotBlank()) {
-            mainNavController.currentBackStackEntry?.savedStateHandle?.set(getParam.first, getParam.second)
-            MainNavController.setParam("", -1);
-        }
-    }
-
-    LaunchedEffect(targetRoute) {
-
-        if (targetRoute.isNotBlank()) {
-            mainNavController.navigate(targetRoute)
-            MainNavController.navigate("")
-        }
-    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -98,11 +66,32 @@ fun MainNavGraphView(
                 HomeNavGraphView()
             }
             composable(MainNavGraphRoutes.SELECTIMAGE.name) {
-                SelectImageView()
+                val selectImageViewModel: SelectImageViewModel = viewModel()
+
+                mainNavController.previousBackStackEntry?.savedStateHandle
+                    ?.get<List<Uri>>("selected_image_list")?.let {
+                        selectImageViewModel.initSelectedImageList(it)
+                    }
+
+                SelectImageView(
+                    selectImageViewModel
+                ) { selectedImageList ->
+                    mainNavController.previousBackStackEntry?.savedStateHandle?.set("selected_image_list", selectedImageList)
+                    mainNavController.popBackStack()
+                }
             }
             // in community view
             composable(MainNavGraphRoutes.WRITEPOST.name) {
-                WritePostView()
+                val writePostViewModel: WritePostViewModel = viewModel()
+
+                writePostViewModel.setSelectedImageList(
+                    mainNavController.currentBackStackEntry?.savedStateHandle
+                        ?.get<List<Uri>>("selected_image_list") ?: emptyList()
+                )
+
+                WritePostView(
+                    writePostViewModel = writePostViewModel
+                )
             }
             composable(MainNavGraphRoutes.POST.name) {
                 val pressedPostId by remember {

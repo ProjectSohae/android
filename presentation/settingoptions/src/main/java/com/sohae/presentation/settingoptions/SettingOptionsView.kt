@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 
 @Composable
@@ -77,6 +77,7 @@ fun SettingOptionsView(
 @Composable
 private fun SettingOptionsHeaderView(
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     Row(
@@ -99,7 +100,7 @@ private fun SettingOptionsHeaderView(
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .padding(end = 16.dp)
-                .clickable { MainNavController.popBack() },
+                .clickable { mainNavController.popBackStack() },
             contentDescription = null
         )
 
@@ -116,6 +117,7 @@ private fun SettingOptionsHeaderView(
 private fun SettingOptionsBodyView(
 
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     var getNoticeAlarm by rememberSaveable {
         mutableStateOf(false)
     }
@@ -133,7 +135,6 @@ private fun SettingOptionsBodyView(
         uncheckedThumbColor = MaterialTheme.colorScheme.primary,
         uncheckedTrackColor = MaterialTheme.colorScheme.tertiary
     )
-    val tertiary = MaterialTheme.colorScheme.tertiary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
     val itemModifier = Modifier
         .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
@@ -304,7 +305,7 @@ private fun SettingOptionsBodyView(
                         .fillMaxWidth()
                         .padding(bottom = 12.dp)
                         .clickable {
-                            MainNavController.navigate(MainNavGraphRoutes.INQUIRYEMAIL.name)
+                            mainNavController.navigate(MainNavGraphRoutes.INQUIRYEMAIL.name)
                         },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically

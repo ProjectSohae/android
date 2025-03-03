@@ -19,12 +19,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 
 @Composable
 fun PostImageView(
     imageUrl: String
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
+
     Scaffold {
         val innerPadding = PaddingValues(
             it.calculateLeftPadding(LayoutDirection.Rtl),
@@ -47,7 +49,7 @@ fun PostImageView(
                     .align(Alignment.TopEnd)
                     .padding(top = 12.dp, end = 12.dp)
                     .size(28.dp)
-                    .clickable { MainNavController.popBack() },
+                    .clickable { mainNavController.popBackStack() },
                 contentDescription = null
             )
 

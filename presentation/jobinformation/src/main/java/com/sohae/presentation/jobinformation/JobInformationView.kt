@@ -70,7 +70,7 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.domain.jobreview.entity.JobReviewScoreNamesList
 import kotlinx.coroutines.runBlocking
@@ -104,6 +104,7 @@ fun JobInformationView() {
 
 @Composable
 private fun JobInformationViewHeader() {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     Box(
@@ -136,7 +137,7 @@ private fun JobInformationViewHeader() {
             modifier = Modifier
                 .size(20.dp)
                 .clickable {
-                    MainNavController.popBack()
+                    mainNavController.popBackStack()
                 }
         )
     }
@@ -204,6 +205,8 @@ private fun JobInformationBody(
 
 @Composable
 private fun JobSimpleInformation() {
+    val mainNavController = MainNavGraphViewController.mainNavController
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -267,7 +270,7 @@ private fun JobSimpleInformation() {
                 .clip(RoundedCornerShape(25))
                 .background(color = MaterialTheme.colorScheme.primary)
                 .clickable {
-                    MainNavController.navigate(MainNavGraphRoutes.WRITEJOBREVIEW.name)
+                    mainNavController.navigate(MainNavGraphRoutes.WRITEJOBREVIEW.name)
                 }
                 .padding(horizontal = 24.dp, vertical = 4.dp)
         )
@@ -654,6 +657,7 @@ private fun JobReviewItemsList() {
 
 @Composable
 private fun JobReviewItemView() {
+    val mainNavController = MainNavGraphViewController.mainNavController
     var isFolded by rememberSaveable { mutableStateOf(true) }
     val scoreInfoScale by animateFloatAsState(
         targetValue = isFolded.let {
@@ -666,8 +670,8 @@ private fun JobReviewItemView() {
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.onPrimary)
             .clickable {
-                MainNavController.setParam("pressed_job_review_id", 0)
-                MainNavController.navigate(MainNavGraphRoutes.JOBREVIEW.name)
+                mainNavController.currentBackStackEntry?.savedStateHandle?.set("pressed_job_review_id", 0)
+                mainNavController.navigate(MainNavGraphRoutes.JOBREVIEW.name)
             }
             .padding(16.dp)
     ) {

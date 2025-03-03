@@ -64,16 +64,16 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sohae.common.resource.R
 import com.sohae.controller.barcolor.BarColorController
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.utils.getDiffTimeFromNow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 @Composable
 fun CommunityView(
     communityViewModel: CommunityViewModel = viewModel()
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
+
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
     Scaffold {
@@ -101,6 +101,8 @@ fun CommunityView(
 
 @Composable
 private fun CommunityViewHeader() {
+    val mainNavController = MainNavGraphViewController.mainNavController
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,7 +124,7 @@ private fun CommunityViewHeader() {
             modifier = Modifier
                 .size(28.dp)
                 .clickable {
-                    MainNavController.navigate(MainNavGraphRoutes.SEARCHPOST.name)
+                    mainNavController.navigate(MainNavGraphRoutes.SEARCHPOST.name)
                 },
             contentDescription = null
         )
@@ -135,6 +137,7 @@ private fun CommunityViewBody(
     communityNavController : NavHostController = rememberNavController(),
     communityViewModel: CommunityViewModel
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val currentSelectedCategory = communityNavController
         .currentBackStackEntryAsState()
         .value?.destination?.route?.let {
@@ -221,7 +224,7 @@ private fun CommunityViewBody(
                     .size(48.dp)
                     .offset(x = (-12).dp, y = (-12).dp)
                     .clickable {
-                        MainNavController.navigate(MainNavGraphRoutes.WRITEPOST.name)
+                        mainNavController.navigate(MainNavGraphRoutes.WRITEPOST.name)
                     },
                 shape = RoundedCornerShape(100)
             ) {
@@ -557,6 +560,7 @@ private fun CommunityPostsListItem(
     currentSelectedSubCategory: Int,
     previewPost: Pair<String, String>
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     Column(
@@ -574,8 +578,8 @@ private fun CommunityPostsListItem(
             }
             .padding(vertical = 12.dp)
             .clickable {
-                MainNavController.setParam("pressed_post_id", 0)
-                MainNavController.navigate(MainNavGraphRoutes.POST.name)
+                mainNavController.currentBackStackEntry?.savedStateHandle?.set("pressed_post_id", 0)
+                mainNavController.navigate(MainNavGraphRoutes.POST.name)
             }
     ) {
         if (currentSelectedCategory != CommunityCategories.NOTICE) {

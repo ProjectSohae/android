@@ -4,10 +4,19 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class SelectImageViewModel: ViewModel() {
+
+    private var initialSelectedImageList: List<Uri> = emptyList()
+
+    private val _selectedImagesList = MutableStateFlow<List<Uri>>(emptyList())
+    val selectedImagesList = _selectedImagesList.asStateFlow()
+
+    private val _isSelectedImageListChanged = MutableStateFlow(false)
+    val isSelectedImageListChanged = _isSelectedImageListChanged.asStateFlow()
 
     fun getAllImages(context: Context): List<Uri> {
         val imageList = mutableListOf<Uri>()
@@ -37,5 +46,30 @@ class SelectImageViewModel: ViewModel() {
         }
 
         return imageList
+    }
+
+    fun initSelectedImageList(input: List<Uri>) {
+        initialSelectedImageList = input
+        _selectedImagesList.value = input
+    }
+
+    fun selectImage(input: Uri): String {
+        val exceedSize = "사진은 10개 까지만 선택할 수 있습니다."
+
+        if (selectedImagesList.value.contains(input)) {
+            _selectedImagesList.value -= input
+        } else {
+
+            if (selectedImagesList.value.size < 10) {
+                _selectedImagesList.value += input
+            } else {
+                return exceedSize
+            }
+        }
+
+        _isSelectedImageListChanged.value =
+            (selectedImagesList.value != initialSelectedImageList)
+
+        return ""
     }
 }

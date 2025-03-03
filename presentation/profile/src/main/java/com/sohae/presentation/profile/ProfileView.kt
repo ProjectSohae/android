@@ -39,7 +39,7 @@ import com.sohae.common.ui.custom.composable.ProfileImage
 import com.sohae.common.ui.custom.dialog.DatePickerDialog
 import com.sohae.common.ui.custom.dialog.TypingTextDialog
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainScreenController
 import com.sohae.utils.displayAsAmount
@@ -138,6 +138,8 @@ fun ProfileView(
 private fun ProfileViewHeader(
 
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -160,7 +162,7 @@ private fun ProfileViewHeader(
                 modifier = Modifier
                     .size(28.dp)
                     .clickable {
-                        MainNavController.navigate(MainNavGraphRoutes.SETTINGOPTIONS.name)
+                        mainNavController.navigate(MainNavGraphRoutes.SETTINGOPTIONS.name)
                     },
                 contentDescription = null
             )
@@ -173,6 +175,7 @@ private fun ProfileViewHeader(
 private fun PreviewProfileDetails(
     profileViewModel: ProfileViewModel
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val myAccount = profileViewModel.myAccount.collectAsState().value!!
     val primary = MaterialTheme.colorScheme.primary
 
@@ -181,7 +184,7 @@ private fun PreviewProfileDetails(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable {
-                MainNavController.navigate(MainNavGraphRoutes.MYPROFILE.name)
+                mainNavController.navigate(MainNavGraphRoutes.MYPROFILE.name)
             }
             .drawBehind {
                 drawRoundRect(
@@ -235,6 +238,7 @@ private fun PreviewProfileDetails(
 private fun MyActivities(
     profileViewModel: ProfileViewModel
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val itemList = listOf(
         Pair("내가 작성한 글", MainNavGraphRoutes.MYPOSTLIST.name),
         Pair("내가 작성한 댓글", MainNavGraphRoutes.MYCOMMENTLIST.name),
@@ -267,7 +271,7 @@ private fun MyActivities(
                     .padding(top = 12.dp)
                     .fillMaxWidth()
                     .clickable {
-                        MainNavController.navigate(item.second)
+                        mainNavController.navigate(item.second)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically

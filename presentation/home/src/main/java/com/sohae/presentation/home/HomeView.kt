@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sohae.common.resource.R
+import com.sohae.common.ui.custom.composable.CircularLoadingBarView
 import com.sohae.common.ui.custom.composable.ProfileImage
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
@@ -185,7 +186,6 @@ private fun HomeViewBody(
     val myRank = homeViewModel.myRank.collectAsState().value
     val myLeave = homeViewModel.myLeave.collectAsState().value
     var isReadyInfo by remember { mutableStateOf(false) }
-    val finishLoadDB = false
 
     LaunchedEffect(
         myAccount,
@@ -206,15 +206,7 @@ private fun HomeViewBody(
     }
 
     if (!isReadyInfo) {
-        Text(
-            text = "test",
-            fontSize = 24.sp,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        if (finishLoadDB) {
-            Text(text = "리로드")
-        }
+        CircularLoadingBarView()
     }
     else {
         Column(

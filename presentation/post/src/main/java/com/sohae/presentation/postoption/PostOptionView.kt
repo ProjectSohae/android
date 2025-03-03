@@ -26,7 +26,7 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 
 @Composable
-fun PostOptionsView(
+fun PostOptionView(
     postId: Int,
     posterNickname: String,
     onDismissRequest: () -> Unit,

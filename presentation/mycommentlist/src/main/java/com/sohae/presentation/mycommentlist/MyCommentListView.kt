@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 
 @Composable
@@ -62,6 +62,7 @@ fun MyCommentListView(
 
 @Composable
 fun MyCommentListHeaderView() {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     Row(
@@ -84,7 +85,7 @@ fun MyCommentListHeaderView() {
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .padding(end = 16.dp)
-                .clickable { MainNavController.popBack() },
+                .clickable { mainNavController.popBackStack() },
             contentDescription = null
         )
 
@@ -118,6 +119,7 @@ fun MyCommentListBodyView(
 @Composable
 private fun MyCommentListItemView(
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     Column(
@@ -135,8 +137,8 @@ private fun MyCommentListItemView(
             }
             .padding(vertical = 12.dp)
             .clickable {
-                MainNavController.setParam("pressed_post_id", 0)
-                MainNavController.navigate(MainNavGraphRoutes.POST.name)
+                mainNavController.currentBackStackEntry?.savedStateHandle?.set("pressed_post_id", 0)
+                mainNavController.navigate(MainNavGraphRoutes.POST.name)
             }
     ) {
         // content

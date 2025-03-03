@@ -59,12 +59,14 @@ import com.sohae.common.models.comment.entity.CommentEntity
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.models.user.entity.UserId
 import com.sohae.common.resource.R
+import com.sohae.common.ui.custom.composable.CircularLoadingBarView
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.barcolor.BarColorController
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.presentation.postoption.PostOptionsView
+import com.sohae.presentation.commentoption.CommentOptionView
+import com.sohae.presentation.postoption.PostOptionView
 import com.sohae.utils.getDiffTimeFromNow
 
 @Composable
@@ -72,13 +74,14 @@ fun PostView(
     postId: Int?,
     postViewModel: PostViewModel = viewModel()
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val postDetails = postViewModel.postDetails.collectAsState().value
 
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
     if (postId == null) {
         SnackBarController.show("잘못된 게시글 접근입니다.", SnackBarBehindTarget.VIEW)
-        MainNavController.popBack()
+        mainNavController.popBackStack()
     } else {
 
         // 게시글 로딩
@@ -102,9 +105,9 @@ fun PostView(
             ) {
 
                 if (postDetails == null) {
-
+                    CircularLoadingBarView()
                 } else {
-                    PostViewHeader(postId, postDetails.userId)
+                    PostHeaderView(postId, postDetails.userId)
 
                     LazyColumn(
                         modifier = Modifier.weight(1f)
@@ -129,14 +132,15 @@ fun PostView(
 }
 
 @Composable
-private fun PostViewHeader(
+private fun PostHeaderView(
     postId: Int,
     posterUUID: UserId
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     var showOptionsDialog by remember { mutableStateOf(false) }
 
     if (showOptionsDialog) {
-        PostOptionsView(
+        PostOptionView(
             postId = postId,
             posterNickname = "닉네임",
             onDismissRequest = { showOptionsDialog = false },
@@ -154,7 +158,7 @@ private fun PostViewHeader(
         Icon(
             painter = painterResource(id = R.drawable.baseline_arrow_back_ios_new_24),
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.clickable { MainNavController.popBack() },
+            modifier = Modifier.clickable { mainNavController.popBackStack() },
             contentDescription = null
         )
 
@@ -181,6 +185,7 @@ private fun PostDetailsView(
     postViewModel: PostViewModel,
     postDetails: PostEntity?
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
     var likeThisPost by remember { mutableStateOf(false) }
@@ -224,7 +229,7 @@ private fun PostDetailsView(
                                 .size(120.dp)
                                 .clip(RoundedCornerShape(10))
                                 .clickable {
-                                    MainNavController.navigate(MainNavGraphRoutes.POSTIMAGE.name)
+                                    mainNavController.navigate(MainNavGraphRoutes.POSTIMAGE.name)
                                 },
                             contentDescription = null
                         )
@@ -364,7 +369,40 @@ private fun CommentListView(
     postViewModel: PostViewModel,
     posterUUID: UserId
 ) {
+    var showCommentOption by remember { mutableStateOf(false) }
+    var selectedCommentEntity by remember { mutableStateOf<CommentEntity?>(null) }
     val commentsList = postViewModel.commentsList.collectAsState().value
+
+    if (showCommentOption) {
+
+        if (selectedCommentEntity != null) {
+            CommentOptionView(
+                selectedCommentEntity!!.userName,
+                onDismissRequest = {
+                    showCommentOption = false
+                },
+                onConfirm = {
+                    when (it) {
+                        // 작성자 차단
+                        0 -> {
+
+                        }
+                        // 댓글 신고
+                        1 -> {
+
+                        }
+                        // 댓글 삭제
+                        2 -> {
+
+                        }
+                    }
+                    showCommentOption = false
+                }
+            )
+        } else {
+            showCommentOption = false
+        }
+    }
 
     LaunchedEffect(Unit) {
         postViewModel.getCommentsList(
@@ -383,12 +421,20 @@ private fun CommentListView(
                     posterUUID = posterUUID,
                     commentDetails = commentEntity,
                     drawDivider = idx != 0,
-                    postViewModel = postViewModel
+                    postViewModel = postViewModel,
+                    onClick = {
+                        selectedCommentEntity = commentEntity
+                        showCommentOption = true
+                    }
                 )
             } else {
                 ReplyView(
                     posterNickname = "test",
-                    replyDetails = commentEntity
+                    replyDetails = commentEntity,
+                    onClick = {
+                        selectedCommentEntity = commentEntity
+                        showCommentOption = true
+                    }
                 )
             }
         }
@@ -400,7 +446,8 @@ private fun CommentView(
     posterUUID: UserId,
     commentDetails: CommentEntity,
     drawDivider: Boolean,
-    postViewModel: PostViewModel
+    postViewModel: PostViewModel,
+    onClick: (CommentEntity) -> Unit
 ) {
     var isPressed by remember { mutableStateOf(false) }
     val tertiary = MaterialTheme.colorScheme.tertiary
@@ -478,7 +525,7 @@ private fun CommentView(
                     indication = null,
                     interactionSource = null
                 ) {
-
+                    onClick(commentDetails)
                 }
             )
         }
@@ -500,7 +547,8 @@ private fun CommentView(
 @Composable
 private fun ReplyView(
     posterNickname: String,
-    replyDetails: CommentEntity
+    replyDetails: CommentEntity,
+    onClick: (CommentEntity) -> Unit
 ) {
     Row(
         modifier = Modifier.padding(top = 12.dp, start = 24.dp, end = 24.dp)
@@ -571,7 +619,7 @@ private fun ReplyView(
                         indication = null,
                         interactionSource = null
                     ) {
-
+                        onClick(replyDetails)
                     }
                 )
             }

@@ -43,7 +43,7 @@ import androidx.core.graphics.ColorUtils
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.ProfileImage
 import com.sohae.common.ui.custom.dialog.TypingTextDialog
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainScreenController
 import com.sohae.presentation.signin.SignInView
 
@@ -86,6 +86,7 @@ fun MyProfileView(
 @Composable
 private fun MyProfileHeaderView(
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     Row(
@@ -108,7 +109,7 @@ private fun MyProfileHeaderView(
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .padding(end = 16.dp)
-                .clickable { MainNavController.popBack() },
+                .clickable { mainNavController.popBackStack() },
             contentDescription = null
         )
 

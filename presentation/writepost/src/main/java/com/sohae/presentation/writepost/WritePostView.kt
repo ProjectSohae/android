@@ -1,6 +1,6 @@
 package com.sohae.presentation.writepost
 
-import androidx.compose.foundation.Image
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -54,16 +54,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainScreenController
 
 @Composable
 fun WritePostView(
-    writePostViewModel: WritePostViewModel = viewModel()
+    writePostViewModel: WritePostViewModel
 ){
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -96,6 +96,8 @@ fun WritePostView(
 @Composable
 private fun WritePostViewHeader(
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -109,7 +111,7 @@ private fun WritePostViewHeader(
             Icon(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_ios_new_24),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { MainNavController.popBack() },
+                modifier = Modifier.clickable { mainNavController.popBackStack() },
                 contentDescription = null
             )
             Spacer(modifier = Modifier.size(16.dp))
@@ -131,11 +133,11 @@ private fun WritePostViewBody(
     Column {
         SelectCategory(writePostViewModel)
 
-        WritePostTitle(writePostViewModel)
+        WritePostTitleView(writePostViewModel)
 
-        UploadPostImage()
+        UploadPostImageListView(writePostViewModel)
 
-        WritePostContent(writePostViewModel)
+        WritePostContentView(writePostViewModel)
     }
 }
 
@@ -206,14 +208,18 @@ private fun SelectCategory(
                     color = selectedCategory.let {
                         if (it.isBlank()) {
                             MaterialTheme.colorScheme.tertiary
-                        } else { Color.Transparent }
+                        } else {
+                            Color.Transparent
+                        }
                     },
                 )
                 .background(
                     color = selectedCategory.let {
                         if (it.isBlank()) {
                             MaterialTheme.colorScheme.onPrimary
-                        } else { MaterialTheme.colorScheme.primary }
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
                     },
                     shape = RoundedCornerShape(20)
                 )
@@ -248,7 +254,7 @@ private fun SelectCategory(
 }
 
 @Composable
-private fun WritePostTitle(
+private fun WritePostTitleView(
     writePostViewModel: WritePostViewModel
 ) {
     var title by rememberSaveable { mutableStateOf("") }
@@ -318,10 +324,11 @@ private fun WritePostTitle(
 }
 
 @Composable
-private fun UploadPostImage(
-
+private fun UploadPostImageListView(
+    writePostViewModel: WritePostViewModel
 ) {
-    val tertiary = MaterialTheme.colorScheme.tertiary
+    val mainNavController = MainNavGraphViewController.mainNavController
+    val selectedImageList = writePostViewModel.selectedImageList.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -349,7 +356,9 @@ private fun UploadPostImage(
                     )
                     .padding(top = 4.dp)
                     .clickable {
-                        MainNavController.navigate(MainNavGraphRoutes.SELECTIMAGE.name)
+                        mainNavController.currentBackStackEntry?.savedStateHandle
+                            ?.set("selected_image_list", selectedImageList)
+                        mainNavController.navigate(MainNavGraphRoutes.SELECTIMAGE.name)
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -361,9 +370,18 @@ private fun UploadPostImage(
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "0",
+                        text = "${selectedImageList.size}",
+                        fontWeight = if (selectedImageList.isEmpty()) {
+                            FontWeight.Normal
+                        } else {
+                            FontWeight.SemiBold
+                        },
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = if (selectedImageList.isEmpty()) {
+                            MaterialTheme.colorScheme.tertiary
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
                     )
                     Text(
                         text = "/10",
@@ -378,52 +396,15 @@ private fun UploadPostImage(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 item {
-                    for (idx:Int in 0..9) {
-                        Box(
-                            modifier = Modifier.padding(end = 12.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                modifier = Modifier
-                                    .padding(start = 1.dp)
-                                    .size(64.dp)
-                                    .drawWithContent {
-                                        drawContent()
-                                        drawOutline(
-                                            outline = Outline.Rounded(
-                                                roundRect = RoundRect(
-                                                    0f,
-                                                    0f,
-                                                    this.size.width,
-                                                    this.size.height,
-                                                    CornerRadius(25f, 25f)
-                                                )
-                                            ),
-                                            color = tertiary,
-                                            style = Stroke(
-                                                width = (1.dp).toPx()
-                                            )
-                                        )
-                                    }
-                                    .clip(RoundedCornerShape(25f)),
-                                painter = painterResource(id = R.drawable.yoon),
-                                contentScale = ContentScale.Crop,
-                                contentDescription = null
-                            )
-                            Icon(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .offset(x = 30.dp, y = (-30).dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = RoundedCornerShape(100)
-                                    )
-                                    .rotate(45f),
-                                painter = painterResource(id = R.drawable.baseline_add_24),
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                contentDescription = null
-                            )
-                        }
+                    selectedImageList.forEachIndexed { idx: Int, uri ->
+                        UploadPostImageItemView(
+                            uri = uri,
+                            onRemove = {
+                                writePostViewModel.setSelectedImageList(
+                                    selectedImageList - uri
+                                )
+                            }
+                        )
                     }
                 }
             }
@@ -432,10 +413,66 @@ private fun UploadPostImage(
 }
 
 @Composable
-private fun WritePostContent(
+private fun UploadPostImageItemView(
+    uri: Uri,
+    onRemove: () -> Unit
+) {
+    val tertiary = MaterialTheme.colorScheme.tertiary
+
+    Box(
+        modifier = Modifier.padding(end = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = uri,
+            modifier = Modifier
+                .padding(start = 1.dp)
+                .size(64.dp)
+                .drawWithContent {
+                    drawContent()
+                    drawOutline(
+                        outline = Outline.Rounded(
+                            roundRect = RoundRect(
+                                0f,
+                                0f,
+                                this.size.width,
+                                this.size.height,
+                                CornerRadius(25f, 25f)
+                            )
+                        ),
+                        color = tertiary,
+                        style = Stroke(
+                            width = (1.dp).toPx()
+                        )
+                    )
+                }
+                .clip(RoundedCornerShape(25f)),
+            contentScale = ContentScale.Crop,
+            contentDescription = null
+        )
+
+        Icon(
+            modifier = Modifier
+                .size(20.dp)
+                .offset(x = 30.dp, y = (-30).dp)
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(100)
+                )
+                .rotate(45f)
+                .clickable { onRemove() },
+            painter = painterResource(id = R.drawable.baseline_add_24),
+            tint = MaterialTheme.colorScheme.onPrimary,
+            contentDescription = null
+        )
+    }
+}
+
+@Composable
+private fun WritePostContentView(
     writePostViewModel: WritePostViewModel
 ) {
-    var content by remember { mutableStateOf("") }
+    var content by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(content) {
 

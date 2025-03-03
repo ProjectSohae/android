@@ -44,7 +44,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.presentation.jobapplyhistory.JobApplyHistoryView
 import com.sohae.presentation.jobinfolist.PreviewJobInfoListView
@@ -77,6 +77,8 @@ fun JobInfoNavGraphView(
 
 @Composable
 private fun JobInfoNavGraphViewHeader() {
+    val mainNavController = MainNavGraphViewController.mainNavController
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,7 +101,7 @@ private fun JobInfoNavGraphViewHeader() {
                 modifier = Modifier
                     .size(28.dp)
                     .clickable {
-                        MainNavController.navigate(MainNavGraphRoutes.SEARCHJOB.name)
+                        mainNavController.navigate(MainNavGraphRoutes.SEARCHJOB.name)
                     },
                 contentDescription = null
             )

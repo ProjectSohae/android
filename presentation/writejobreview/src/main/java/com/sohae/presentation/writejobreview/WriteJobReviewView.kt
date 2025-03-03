@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainScreenController
 import kotlinx.coroutines.runBlocking
 
@@ -85,6 +85,8 @@ fun WriteJobReviewView(
 @Composable
 private fun WritePostViewHeader(
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -98,7 +100,7 @@ private fun WritePostViewHeader(
             Icon(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_ios_new_24),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { MainNavController.popBack() },
+                modifier = Modifier.clickable { mainNavController.popBackStack() },
                 contentDescription = null
             )
             Spacer(modifier = Modifier.size(16.dp))

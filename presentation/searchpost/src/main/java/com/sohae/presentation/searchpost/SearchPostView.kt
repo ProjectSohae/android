@@ -37,7 +37,7 @@ import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.common.ui.custom.textfield.CustomTextFieldView
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.domain.myinformation.entity.MySearchHistoryEntity
 
 @Composable
@@ -71,6 +71,7 @@ fun SearchPostView(
 private fun SearchPostViewHeader(
     searchPostViewModel: SearchPostViewModel
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
     val interactionSource = remember { MutableInteractionSource() }
@@ -104,7 +105,7 @@ private fun SearchPostViewHeader(
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .padding(end = 16.dp)
-                .clickable { MainNavController.popBack() },
+                .clickable { mainNavController.popBackStack() },
             contentDescription = null
         )
 

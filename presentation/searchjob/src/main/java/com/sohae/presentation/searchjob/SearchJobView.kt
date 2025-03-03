@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.textfield.CustomTextFieldView
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 
 @Composable
 fun SearchJobView(
@@ -63,6 +63,7 @@ fun SearchJobView(
 private fun SearchJobViewHeader(
     searchJobViewModel: SearchJobViewModel
 ) {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val searchJobName = searchJobViewModel.searchJobName.collectAsState().value
     val tertiary = MaterialTheme.colorScheme.tertiary
 
@@ -86,7 +87,7 @@ private fun SearchJobViewHeader(
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .padding(end = 16.dp)
-                .clickable { MainNavController.popBack() },
+                .clickable { mainNavController.popBackStack() },
             contentDescription = null
         )
 

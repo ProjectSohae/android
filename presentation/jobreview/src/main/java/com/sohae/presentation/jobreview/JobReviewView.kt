@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavController
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.domain.jobreview.entity.JobReviewScoreNamesList
 
 @Composable
@@ -68,6 +68,7 @@ fun JobReviewView(
 
 @Composable
 fun JobReviewHeaderView() {
+    val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
 
     Box(
@@ -100,7 +101,7 @@ fun JobReviewHeaderView() {
             modifier = Modifier
                 .size(20.dp)
                 .clickable {
-                    MainNavController.popBack()
+                    mainNavController.popBackStack()
                 }
         )
     }
