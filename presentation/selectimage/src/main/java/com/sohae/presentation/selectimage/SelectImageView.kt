@@ -7,10 +7,11 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,13 +19,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +39,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,25 +52,30 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
@@ -79,6 +87,7 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun SelectImageView(
@@ -117,7 +126,11 @@ fun SelectImageView(
     LaunchedEffect(isGranted) {
 
         if (isGranted) {
-            imageUris = selectImageViewModel.getAllImages(context)
+            Log.d("checkD", "isG")
+            selectImageViewModel.getAllImages(context) {
+                imageUris = it
+            }
+            isGranted = false
         }
     }
 
@@ -239,152 +252,185 @@ private fun SelectImageBodyView(
     imageUris: List<Uri>,
     selectImageViewModel: SelectImageViewModel
 ) {
-    var itemHeight by remember { mutableStateOf(0) }
-    val rowSize: Int = (imageUris.size) / 4 +
-            (imageUris.size % 4 > 0).let { if (it) { 1 } else { 0 } }
+    val context = LocalContext.current
+    val imageRequest: (Uri) -> ImageRequest = { uri ->
+        ImageRequest.Builder(context)
+            .data(uri)
+            .dispatcher(Dispatchers.IO)
+            .interceptorDispatcher(Dispatchers.IO)
+            .build()
+    }
+    val imageLoader = ImageLoader(context).newBuilder()
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .allowRgb565(true)
+        .allowHardware(true)
+        .build()
     val selectedImageList = selectImageViewModel.selectedImagesList.collectAsState().value
+    val bodyState = rememberLazyGridState()
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
+    LaunchedEffect(selectedImageList) {
+        Log.d("checkD", "${selectedImageList}")
+    }
+
+    LazyVerticalGrid(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(2.dp),
+        columns = GridCells.Fixed(3),
+        state = bodyState
     ) {
-        item {
-            for (rowIdx: Int in 0..<rowSize) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    for (columnIdx:Int in 0..3) {
-                        val itemIdx: Int = rowIdx * 4 + columnIdx
+        itemsIndexed(
+            items = imageUris,
+            key = { idx: Int, item -> idx}
+        ) { idx: Int, item ->
+            SelectImageItem(
+                imageRequest = imageRequest(item),
+                imageLoader = imageLoader,
+                isSelected = selectedImageList.contains(item),
+                selectedIdx = selectedImageList.indexOf(item) + 1,
+                onClick = {
+                    selectImageViewModel.selectImage(item).let callback@{
 
-                        if (itemIdx < imageUris.size) {
-                            SelectImageItem(
-                                imageUri = imageUris[itemIdx],
-                                isSelected = selectedImageList.contains(imageUris[itemIdx]),
-                                selectedIdx = selectedImageList.indexOf(imageUris[itemIdx]) + 1,
-                                modifier = Modifier
-                                    .fillParentMaxWidth(0.25f)
-                                    .onGloballyPositioned {
-                                        itemHeight = it.size.width
-                                    }
-                                    .height(
-                                        with(LocalDensity.current) {
-                                            itemHeight.toDp()
-                                        }
-                                    ),
-                                onClick = {
-                                    selectImageViewModel.selectImage(imageUris[itemIdx]).let {
-                                        if (it.isNotBlank()) {
-                                            SnackBarController.show(it, SnackBarBehindTarget.VIEW)
-                                        }
-                                    }
-                                }
-                            )
-                        } else {
-                            break
+                        if (it.isNotBlank()) {
+                            SnackBarController.show(it, SnackBarBehindTarget.VIEW)
+
+                            return@callback false
                         }
+
+                        return@callback true
                     }
                 }
-            }
+            )
         }
     }
 }
 
 @Composable
 private fun SelectImageItem(
-    imageUri: Uri,
+    imageRequest: ImageRequest,
+    imageLoader: ImageLoader,
     isSelected: Boolean,
     selectedIdx: Int,
-    modifier: Modifier,
-    onClick: () -> Unit
+    onClick: () -> Boolean
 ) {
-    var idxItemWidth by remember { mutableIntStateOf(0) }
-    val roundRect: (Float, Float) -> RoundRect = { width, height ->
-        RoundRect(
-            top = height * 0.15f,
-            bottom = height * 0.85f,
-            left = width * 0.15f,
-            right = width * 0.85f,
-            cornerRadius = CornerRadius(100f, 100f)
-        )
-    }
-    val imageAlpha = if (isSelected) { 0.4f } else { 0f }
-    val borderColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.onPrimary
-    }
     val primary = MaterialTheme.colorScheme.primary
+    var showSelectedDeco by remember { mutableStateOf(isSelected) }
+    val selectedFrame by animateFloatAsState(
+        targetValue = if (isSelected) { 1f } else { 0f }
+    ) {
+        if (!isSelected) {
+            showSelectedDeco = false
+        }
+    }
+    val getRatio: (Float, Float) -> Float = { value, paddingValue ->
+        (value - paddingValue) / value
+    }
 
     Box(
-        modifier = modifier
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f, true)
             .padding(2.dp)
-            .border(
-                width = 2.dp,
-                color = borderColor
-            )
             .clickable(
                 interactionSource = null,
                 indication = null
-            ) { onClick() }
+            ) {
+                onClick().let {
+
+                    if (showSelectedDeco != it) {
+                        showSelectedDeco = it
+                    }
+                }
+            }
     ) {
         AsyncImage(
-            model = imageUri,
+            model = imageRequest,
+            imageLoader = imageLoader,
             contentScale = ContentScale.Crop,
             contentDescription = null,
             modifier = Modifier.fillMaxSize()
         )
 
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(imageAlpha),
-            color = MaterialTheme.colorScheme.tertiary
-        ) {}
+        if (showSelectedDeco) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .drawWithContent {
+                        drawContent()
 
-        Text(
-            text = selectedIdx.let { if (it < 1) { "" } else { it } }.toString(),
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(4.dp)
-                .onGloballyPositioned { idxItemWidth = it.size.height }
-                .width(with(LocalDensity.current) { idxItemWidth.toDp() })
-                .drawWithContent {
+                        val paddingValue = 2.dp.toPx()
+                        val width = this.size.width
+                        val widthRatio = getRatio(width, paddingValue)
+                        val height = this.size.height
+                        val heightRatio = getRatio(height, paddingValue)
 
-                    if (isSelected) {
+                        drawOutline(
+                            outline = Outline.Rectangle(
+                                rect = Rect(
+                                    offset = Offset(
+                                        paddingValue * selectedFrame / 2f,
+                                        paddingValue * selectedFrame / 2f
+                                    ),
+                                    size = Size(
+                                        width - ((width * (1f - widthRatio)) * selectedFrame),
+                                        height - ((height * (1f - heightRatio)) * selectedFrame)
+                                    )
+                                )
+                            ),
+                            color = primary,
+                            style = Stroke(width = 4.dp.toPx() * selectedFrame),
+                            alpha = selectedFrame
+                        )
+                    }
+                    .graphicsLayer {
+                        scaleX = getRatio(this.size.width, 2.dp.toPx())
+                        scaleY = getRatio(this.size.height, 2.dp.toPx())
+
+                        alpha = 0.5f * selectedFrame
+                    },
+                color = MaterialTheme.colorScheme.secondary
+            ) {}
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 6.dp, end = 6.dp)
+                    .fillMaxSize(0.2f)
+                    .drawBehind {
+
                         drawRoundRect(
                             color = primary,
-                            topLeft = Offset(this.size.width * 0.05f, this.size.height * 0.05f),
-                            size = Size(this.size.width * 0.9f, this.size.height * 0.9f),
+                            topLeft = Offset(
+                                (this.size.width / 2f) * (1f - selectedFrame),
+                                (this.size.height / 2f) * (1f - selectedFrame)
+                            ),
+                            size = Size(
+                                this.size.width * selectedFrame,
+                                this.size.height * selectedFrame
+                            ),
                             cornerRadius = CornerRadius(100f, 100f)
                         )
                     }
-
-                    drawContent()
-
-                    if (!isSelected) {
-                        drawOutline(
-                            outline = Outline.Rounded(
-                                roundRect = roundRect(this.size.width, this.size.height)
-                            ),
-                            alpha = 0.2f,
-                            color = Color.Black,
-                            style = Stroke(width = 3.dp.toPx())
+                    .graphicsLayer {
+                        scaleX = selectedFrame
+                        scaleY = selectedFrame
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = selectedIdx.let { if (it < 1) { "" } else { it } }.toString(),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
                         )
-                        drawOutline(
-                            outline = Outline.Rounded(
-                                roundRect = roundRect(this.size.width, this.size.height)
-                            ),
-                            color = borderColor,
-                            style = Stroke(width = (1.5f).dp.toPx())
-                        )
-                    }
-                }
-        )
+                    )
+                )
+            }
+        }
     }
 }
 

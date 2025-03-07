@@ -4,11 +4,22 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import coil.ImageLoader
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class SelectImageViewModel: ViewModel() {
+
+    lateinit var imageLoader: ImageLoader
+
+    private var _isReadyViewModel = MutableStateFlow(false)
+    val isReadyViewModel = _isReadyViewModel.asStateFlow()
 
     private var initialSelectedImageList: List<Uri> = emptyList()
 
@@ -18,7 +29,11 @@ class SelectImageViewModel: ViewModel() {
     private val _isSelectedImageListChanged = MutableStateFlow(false)
     val isSelectedImageListChanged = _isSelectedImageListChanged.asStateFlow()
 
-    fun getAllImages(context: Context): List<Uri> {
+    fun getAllImages(
+        context: Context,
+        callBack: (List<Uri>) -> Unit
+    ) {
+        var cnt: Int = 0
         val imageList = mutableListOf<Uri>()
 
         val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -28,24 +43,28 @@ class SelectImageViewModel: ViewModel() {
         )
         val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
-        context.contentResolver.query(
-            collection,
-            projection,
-            null,
-            null,
-            sortOrder
-        )?.use { cursor ->
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+        viewModelScope.launch {
+            context.contentResolver.query(
+                collection,
+                projection,
+                null,
+                null,
+                sortOrder
+            )?.use { cursor ->
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
 
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idColumn)
-                val uri = ContentUris.withAppendedId(collection, id)
+                Log.d("checkD", "${cursor.count}")
 
-                imageList.add(uri)
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idColumn)
+                    val uri = ContentUris.withAppendedId(collection, id)
+
+                    imageList.add(uri)
+                }
+
+                callBack(imageList)
             }
         }
-
-        return imageList
     }
 
     fun initSelectedImageList(input: List<Uri>) {
