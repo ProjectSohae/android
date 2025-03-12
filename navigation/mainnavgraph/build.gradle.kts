@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.sohae.navigation.mainnavgraph"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -44,9 +44,7 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
-    implementation(project(":presentation:mypostlist"))
-    implementation(project(":presentation:mycommentlist"))
-    implementation(project(":presentation:selectimage"))
+    implementation(project(":feature"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.haze)
@@ -63,15 +61,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(project(":controller:mainnavgraph"))
     implementation(project(":navigation:homenavgraph"))
-    implementation(project(":presentation:writepost"))
-    implementation(project(":presentation:post"))
-    implementation(project(":presentation:searchpost"))
-    implementation(project(":presentation:writejobreview"))
-    implementation(project(":presentation:jobinformation"))
-    implementation(project(":presentation:jobreview"))
-    implementation(project(":presentation:searchjob"))
-    implementation(project(":presentation:myprofile"))
-    implementation(project(":presentation:settingoptions"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

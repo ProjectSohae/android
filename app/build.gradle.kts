@@ -81,12 +81,12 @@ dependencies {
     implementation(project(":common:di"))
     implementation(project(":common:ui:custom"))
     implementation(project(":controller:barcolor"))
-    implementation(project(":domain:myinformation"))
-    implementation(project(":data:myinformation"))
-    implementation(project(":navigation:mainnavgraph"))
+    implementation(project(":domain"))
+    implementation(project(":data"))
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(project(":navigation:mainnavgraph"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)

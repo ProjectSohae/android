@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.sohae.common.di"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -38,14 +38,21 @@ android {
 dependencies {
 
     implementation(libs.hilt.android)
+    implementation(project(":domain"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
-    implementation(project(":data:myinformation"))
-    implementation(project(":domain:myinformation"))
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.logging.interceptor)
+    implementation(libs.converter.gson)
+    implementation(libs.jsoup)
+
+    implementation(project(":domain"))
+    implementation(project(":data"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

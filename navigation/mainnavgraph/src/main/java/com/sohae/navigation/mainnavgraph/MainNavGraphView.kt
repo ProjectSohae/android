@@ -21,24 +21,24 @@ import androidx.navigation.compose.rememberNavController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.feature.jobinformation.JobInformationView
+import com.sohae.feature.jobreview.JobReviewView
+import com.sohae.feature.mycommentlist.MyCommentListView
+import com.sohae.feature.mypostlist.MyPostListView
+import com.sohae.feature.myprofile.main.MyProfileView
+import com.sohae.feature.post.post.PostImageView
+import com.sohae.feature.post.post.PostView
+import com.sohae.feature.searchjob.SearchJobView
+import com.sohae.feature.searchpost.SearchPostView
+import com.sohae.feature.searchpost.SearchPostViewModel
+import com.sohae.feature.selectimage.SelectImageView
+import com.sohae.feature.selectimage.SelectImageViewModel
+import com.sohae.feature.settingoptions.inquiryemail.InquiryEmailView
+import com.sohae.feature.settingoptions.main.SettingOptionsView
+import com.sohae.feature.writejobreview.WriteJobReviewView
+import com.sohae.feature.writepost.WritePostView
+import com.sohae.feature.writepost.WritePostViewModel
 import com.sohae.navigation.homenavgraph.HomeNavGraphView
-import com.sohae.presentation.inquiryemail.InquiryEmailView
-import com.sohae.presentation.jobinformation.JobInformationView
-import com.sohae.presentation.jobreview.JobReviewView
-import com.sohae.presentation.mycommentlist.MyCommentListView
-import com.sohae.presentation.mypostlist.MyPostListView
-import com.sohae.presentation.myprofile.MyProfileView
-import com.sohae.presentation.post.PostImageView
-import com.sohae.presentation.post.PostView
-import com.sohae.presentation.searchjob.SearchJobView
-import com.sohae.presentation.searchpost.SearchPostView
-import com.sohae.presentation.searchpost.SearchPostViewModel
-import com.sohae.presentation.selectimage.SelectImageView
-import com.sohae.presentation.selectimage.SelectImageViewModel
-import com.sohae.presentation.settingoptions.SettingOptionsView
-import com.sohae.presentation.writejobreview.WriteJobReviewView
-import com.sohae.presentation.writepost.WritePostView
-import com.sohae.presentation.writepost.WritePostViewModel
 import dev.chrisbanes.haze.hazeSource
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -66,7 +66,7 @@ fun MainNavGraphView(
                 HomeNavGraphView()
             }
             composable(MainNavGraphRoutes.SELECTIMAGE.name) {
-                val selectImageViewModel: SelectImageViewModel = viewModel()
+                val selectImageViewModel = viewModel<SelectImageViewModel>()
 
                 mainNavController.previousBackStackEntry?.savedStateHandle
                     ?.get<List<Uri>>("selected_image_list")?.let {
@@ -76,13 +76,16 @@ fun MainNavGraphView(
                 SelectImageView(
                     selectImageViewModel
                 ) { selectedImageList ->
-                    mainNavController.previousBackStackEntry?.savedStateHandle?.set("selected_image_list", selectedImageList)
+                    mainNavController.previousBackStackEntry?.savedStateHandle?.set(
+                        "selected_image_list",
+                        selectedImageList
+                    )
                     mainNavController.popBackStack()
                 }
             }
             // in community view
             composable(MainNavGraphRoutes.WRITEPOST.name) {
-                val writePostViewModel: WritePostViewModel = viewModel()
+                val writePostViewModel = hiltViewModel<WritePostViewModel>()
 
                 writePostViewModel.setSelectedImageList(
                     mainNavController.currentBackStackEntry?.savedStateHandle

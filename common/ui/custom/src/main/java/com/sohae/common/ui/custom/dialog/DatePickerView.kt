@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sohae.utils.getDate
+import com.sohae.domain.utils.getDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,7 +147,11 @@ fun DateRangePickerDialog(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = dateRangePickerState.selectedStartDateMillis?.let { getDate(it) } ?: "",
+                        text = dateRangePickerState.selectedStartDateMillis?.let {
+                            com.sohae.domain.utils.getDate(
+                                it
+                            )
+                        } ?: "",
                         fontSize = 28.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -155,7 +159,7 @@ fun DateRangePickerDialog(
                     dateRangePickerState.selectedEndDateMillis?.let {
                         if (it != dateRangePickerState.selectedStartDateMillis) {
                             Text(
-                                text = " - ${getDate(it)}",
+                                text = " - ${com.sohae.domain.utils.getDate(it)}",
                                 fontSize = 28.sp,
                                 color = MaterialTheme.colorScheme.primary
                             )

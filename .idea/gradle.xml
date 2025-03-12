@@ -20,36 +20,11 @@
             <option value="$PROJECT_DIR$/controller/barcolor" />
             <option value="$PROJECT_DIR$/controller/mainnavgraph" />
             <option value="$PROJECT_DIR$/data" />
-            <option value="$PROJECT_DIR$/data/community" />
-            <option value="$PROJECT_DIR$/data/jobinformation" />
-            <option value="$PROJECT_DIR$/data/myinformation" />
             <option value="$PROJECT_DIR$/domain" />
-            <option value="$PROJECT_DIR$/domain/community" />
-            <option value="$PROJECT_DIR$/domain/home" />
-            <option value="$PROJECT_DIR$/domain/jobreview" />
-            <option value="$PROJECT_DIR$/domain/myinformation" />
-            <option value="$PROJECT_DIR$/domain/utils" />
+            <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/navigation" />
             <option value="$PROJECT_DIR$/navigation/homenavgraph" />
             <option value="$PROJECT_DIR$/navigation/mainnavgraph" />
-            <option value="$PROJECT_DIR$/presentation" />
-            <option value="$PROJECT_DIR$/presentation/community" />
-            <option value="$PROJECT_DIR$/presentation/home" />
-            <option value="$PROJECT_DIR$/presentation/houseaccount" />
-            <option value="$PROJECT_DIR$/presentation/jobinformation" />
-            <option value="$PROJECT_DIR$/presentation/jobnavgraph" />
-            <option value="$PROJECT_DIR$/presentation/jobreview" />
-            <option value="$PROJECT_DIR$/presentation/mycommentlist" />
-            <option value="$PROJECT_DIR$/presentation/mypostlist" />
-            <option value="$PROJECT_DIR$/presentation/myprofile" />
-            <option value="$PROJECT_DIR$/presentation/post" />
-            <option value="$PROJECT_DIR$/presentation/profile" />
-            <option value="$PROJECT_DIR$/presentation/searchjob" />
-            <option value="$PROJECT_DIR$/presentation/searchpost" />
-            <option value="$PROJECT_DIR$/presentation/selectimage" />
-            <option value="$PROJECT_DIR$/presentation/settingoptions" />
-            <option value="$PROJECT_DIR$/presentation/writejobreview" />
-            <option value="$PROJECT_DIR$/presentation/writepost" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

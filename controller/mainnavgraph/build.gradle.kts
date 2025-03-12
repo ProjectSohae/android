@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.sohae.controller.mainnavgraph"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24

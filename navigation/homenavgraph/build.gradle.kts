@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.sohae.navigation.homenavgraph"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -56,11 +56,7 @@ dependencies {
     implementation(libs.androidx.material)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
-    implementation(project(":presentation:community"))
-    implementation(project(":presentation:home"))
-    implementation(project(":presentation:houseaccount"))
-    implementation(project(":presentation:profile"))
-    implementation(project(":presentation:jobnavgraph"))
+    implementation(project(":feature"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

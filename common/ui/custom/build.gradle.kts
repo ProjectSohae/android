@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.sohae.common.ui.custom"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -46,7 +46,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.material3.android)
-    implementation(project(":domain:utils"))
+    implementation(project(":domain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

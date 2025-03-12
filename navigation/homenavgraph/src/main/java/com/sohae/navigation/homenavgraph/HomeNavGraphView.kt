@@ -37,13 +37,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.sohae.presentation.community.CommunityView
-import com.sohae.presentation.home.HomeView
-import com.sohae.presentation.home.HomeViewModel
-import com.sohae.presentation.houseaccount.HouseAccountView
-import com.sohae.presentation.jobnavgraph.JobInfoNavGraphView
-import com.sohae.presentation.profile.ProfileView
-import com.sohae.presentation.profile.ProfileViewModel
+import com.sohae.feature.community.CommunityView
+import com.sohae.feature.community.CommunityViewModel
+import com.sohae.feature.home.HomeView
+import com.sohae.feature.home.HomeViewModel
+import com.sohae.feature.houseaccount.HouseAccountView
+import com.sohae.feature.jobnavgraph.main.JobInfoNavGraphView
+import com.sohae.feature.profile.ProfileView
+import com.sohae.feature.profile.ProfileViewModel
 import kotlinx.coroutines.runBlocking
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -91,7 +92,7 @@ fun HomeNavGraphView(
                 HomeView(hiltViewModel<HomeViewModel>())
             }
             composable(HomeNavGraphBarItems.COMMUNITY.name) {
-                CommunityView()
+                CommunityView(hiltViewModel<CommunityViewModel>())
             }
             composable(HomeNavGraphBarItems.JOBSEARCH.name) {
                 JobInfoNavGraphView()
