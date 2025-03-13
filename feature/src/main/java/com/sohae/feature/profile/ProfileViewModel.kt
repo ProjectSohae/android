@@ -4,16 +4,14 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sohae.domain.myinformation.entity.MyLeaveEntity
 import com.sohae.domain.myinformation.entity.MyRankEntity
 import com.sohae.domain.myinformation.entity.MyWelfareEntity
 import com.sohae.domain.myinformation.entity.MyWorkInfoEntity
-import com.sohae.domain.myinformation.usecase.MyInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -66,16 +64,16 @@ class ProfileViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateMyWorkInfo(idx: Int, value: Any) {
         val tmpMyWorkInfo = mutableListOf(
-            myWorkInfo.value!!.workPlace,
-            myWorkInfo.value!!.startWorkDay,
-            myWorkInfo.value!!.finishWorkDay
+            myWorkInfo.value?.workPlace ?: "해당 없음",
+            myWorkInfo.value?.startWorkDay ?: -1,
+            myWorkInfo.value?.finishWorkDay ?: -1
         )
 
         tmpMyWorkInfo[idx] = value.toString().toLong()
 
         viewModelScope.launch {
             myInfoUseCase.updateMyWorkInfo(
-                input = com.sohae.domain.myinformation.entity.MyWorkInfoEntity(
+                input = MyWorkInfoEntity(
                     id = 0,
                     workPlace = tmpMyWorkInfo[0].toString(),
                     startWorkDay = tmpMyWorkInfo[1].toString().toLong(),
@@ -88,16 +86,16 @@ class ProfileViewModel @Inject constructor(
 
     fun updateMyRank(idx: Int, value: Long) {
         val tmpMyRank = mutableListOf(
-            myRank.value!!.firstPromotionDay,
-            myRank.value!!.secondPromotionDay,
-            myRank.value!!.thirdPromotionDay
+            myRank.value?.firstPromotionDay ?: -1,
+            myRank.value?.secondPromotionDay ?: -1,
+            myRank.value?.thirdPromotionDay ?: -1
         )
 
         tmpMyRank[idx] = value
 
         viewModelScope.launch {
             myInfoUseCase.updateMyRank(
-                com.sohae.domain.myinformation.entity.MyRankEntity(
+                MyRankEntity(
                     id = 0,
                     firstPromotionDay = tmpMyRank[0],
                     secondPromotionDay = tmpMyRank[1],
@@ -109,16 +107,16 @@ class ProfileViewModel @Inject constructor(
 
     fun updateMyWelfare(idx: Int, value: Int) {
         val tmpMyWelfare = mutableListOf(
-            myWelfare.value!!.lunchSupport,
-            myWelfare.value!!.transportationSupport,
-            myWelfare.value!!.payday
+            myWelfare.value?.lunchSupport ?: 0,
+            myWelfare.value?.transportationSupport ?: 0,
+            myWelfare.value?.payday ?: 0
         )
 
         tmpMyWelfare[idx] = value
 
         viewModelScope.launch {
             myInfoUseCase.updateMyWelfare(
-                com.sohae.domain.myinformation.entity.MyWelfareEntity(
+                MyWelfareEntity(
                     id = 0,
                     lunchSupport = tmpMyWelfare[0],
                     transportationSupport = tmpMyWelfare[1],
@@ -130,9 +128,9 @@ class ProfileViewModel @Inject constructor(
 
     fun updateMyLeave(idx: Int, days: Int) {
         val tmpMyLeave = mutableListOf(
-            myLeave.value!!.firstAnnualLeave,
-            myLeave.value!!.secondAnnualLeave,
-            myLeave.value!!.sickLeave
+            myLeave.value?.firstAnnualLeave ?: -1,
+            myLeave.value?.secondAnnualLeave ?: -1,
+            myLeave.value?.sickLeave ?: -1
         )
 
         tmpMyLeave[idx] = days

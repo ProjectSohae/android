@@ -19,11 +19,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,18 +41,20 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.ProfileImage
 import com.sohae.common.ui.custom.dialog.TypingTextDialog
+import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
+import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.domain.myinformation.entity.MyAccountEntity
 import com.sohae.feature.myprofile.signin.SignInView
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun MyProfileView(
-
+    myProfileViewModel: MyProfileViewModel
 ) {
     val brightTertiary = Color(
         ColorUtils.blendARGB(
@@ -79,7 +82,7 @@ fun MyProfileView(
         ) {
             MyProfileHeaderView()
 
-            MyProfileBodyView()
+            MyProfileBodyView(myProfileViewModel)
         }
     }
 }
@@ -126,7 +129,7 @@ private fun MyProfileHeaderView(
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 private fun MyProfileBodyView(
-
+    myProfileViewModel: MyProfileViewModel
 ) {
     val tertiary = MaterialTheme.colorScheme.tertiary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
@@ -139,35 +142,52 @@ private fun MyProfileBodyView(
                 cornerRadius = CornerRadius(50f, 50f)
             )
         }
-    var myNickname by rememberSaveable { mutableStateOf("") }
-    val myEmail = ""
+    val myAccount = myProfileViewModel.myAccount.collectAsState().value
+    var isReadyInfo by remember { mutableStateOf(false) }
     var showDialog by remember { mutableIntStateOf(-1) }
+
+    LaunchedEffect(myAccount) {
+
+        if (myAccount != null) {
+            isReadyInfo = true
+        }
+    }
 
     when (showDialog) {
         // 닉네임 설정
         0 -> {
-            TypingTextDialog(
-                hazeState = MainScreenController.hazeState,
-                intensity = 0.75f,
-                title = "닉네임 설정",
-                content = "설정 하고자 하는 닉네임을 입력해 주세요.",
-                inputFormatsList = listOf(Pair("닉네임 입력(10자 이내)", "")),
-                initialValuesList = listOf(""),
-                limitLength = 10,
-                isIntegerList = listOf(false),
-                keyboardOptionsList = listOf(
-                    KeyboardOptions(keyboardType = KeyboardType.Ascii)
-                ),
-                onDismissRequest = { showDialog = -1 },
-                onConfirmation = {
-                    myNickname = it
-                    showDialog = -1
-                }
-            )
+            if (myAccount != null) {
+                TypingTextDialog(
+                    hazeState = MainScreenController.hazeState,
+                    intensity = 0.75f,
+                    title = "닉네임 설정",
+                    content = "설정 하고자 하는 닉네임을 입력해 주세요.",
+                    inputFormatsList = listOf(Pair("닉네임 입력(10자 이내)", "")),
+                    initialValuesList = listOf(myAccount!!.username),
+                    limitLength = 10,
+                    isIntegerList = listOf(false),
+                    keyboardOptionsList = listOf(
+                        KeyboardOptions(keyboardType = KeyboardType.Ascii)
+                    ),
+                    onDismissRequest = { showDialog = -1 },
+                    onConfirmation = {
+                        myProfileViewModel.updateMyUsername(
+                            MyAccountEntity(
+                                id = myAccount.id,
+                                username = it,
+                                emailAddress = myAccount.emailAddress
+                            )
+                        )
+                        showDialog = -1
+                    }
+                )
+            } else {
+                SnackBarController.show("로그인이 필요합니다.", SnackBarBehindTarget.VIEW)
+            }
         }
         // 로그아웃
         1 -> {
-
+            myProfileViewModel.signOut()
 
             showDialog = -1
         }
@@ -232,7 +252,7 @@ private fun MyProfileBodyView(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = myNickname.ifBlank { "닉네임 없음" },
+                            text = myAccount?.username ?: "닉네임 없음",
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(end = 8.dp)
@@ -259,7 +279,7 @@ private fun MyProfileBodyView(
                     )
 
                     Text(
-                        text = myEmail.ifBlank { "로그인이 필요합니다." },
+                        text = myAccount?.emailAddress ?: "로그인이 필요합니다.",
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(end = 8.dp)
@@ -273,7 +293,7 @@ private fun MyProfileBodyView(
                 modifier = itemModifier,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (false) {
+                if (myAccount != null) {
                     Text(
                         text = "로그아웃",
                         fontSize = 16.sp,

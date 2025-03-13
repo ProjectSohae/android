@@ -16,132 +16,131 @@ import com.sohae.domain.myinformation.entity.MyTokenEntity
 import com.sohae.domain.myinformation.entity.MyUsedLeaveEntity
 import com.sohae.domain.myinformation.entity.MyWelfareEntity
 import com.sohae.domain.myinformation.entity.MyWorkInfoEntity
+import java.util.UUID
 
-fun MyAccountMapper(input: MyAccountDTO): com.sohae.domain.myinformation.entity.MyAccountEntity =
-    com.sohae.domain.myinformation.entity.MyAccountEntity(
-        input.id,
-        input.realName,
-        input.nickname,
-        input.emailAddress
+fun MyAccountDTO.toMyAccountEntity(): MyAccountEntity =
+    MyAccountEntity(
+        id = UUID.fromString(this.id),
+        username = this.username,
+        emailAddress = this.emailAddress
     )
 
-fun MyAccountMapper(input: com.sohae.domain.myinformation.entity.MyAccountEntity): MyAccountDTO =
+fun MyAccountEntity.toMyAccountDTO(): MyAccountDTO =
     MyAccountDTO(
-        input.id,
-        input.realName,
-        input.nickname,
-        input.emailAddress
+        id = this.id.toString(),
+        username = this.username,
+        emailAddress = this.emailAddress
     )
 
-fun MyLeaveMapper(input: MyLeaveDTO): com.sohae.domain.myinformation.entity.MyLeaveEntity =
-    com.sohae.domain.myinformation.entity.MyLeaveEntity(
-        input.id,
-        input.firstAnnualLeave,
-        input.secondAnnualLeave,
-        input.sickLeave
+fun MyLeaveDTO.toMyLeaveEntity(): MyLeaveEntity =
+    MyLeaveEntity(
+        this.id,
+        this.firstAnnualLeave,
+        this.secondAnnualLeave,
+        this.sickLeave
     )
 
-fun MyLeaveMapper(input: com.sohae.domain.myinformation.entity.MyLeaveEntity): MyLeaveDTO =
+fun MyLeaveEntity.toMyLeaveDTO(): MyLeaveDTO =
     MyLeaveDTO(
-        input.id,
-        input.firstAnnualLeave,
-        input.secondAnnualLeave,
-        input.sickLeave
+        this.id,
+        this.firstAnnualLeave,
+        this.secondAnnualLeave,
+        this.sickLeave
     )
 
-fun MyRankMapper(input: MyRankDTO): com.sohae.domain.myinformation.entity.MyRankEntity =
-    com.sohae.domain.myinformation.entity.MyRankEntity(
-        input.id,
-        input.firstPromotionDay,
-        input.secondPromotionDay,
-        input.thirdPromotionDay
+fun MyRankDTO.toMyRankEntity(): MyRankEntity =
+    MyRankEntity(
+        this.id,
+        this.firstPromotionDay,
+        this.secondPromotionDay,
+        this.thirdPromotionDay
     )
 
-fun MyRankMapper(input: com.sohae.domain.myinformation.entity.MyRankEntity): MyRankDTO =
+fun MyRankEntity.toMyRankDTO(): MyRankDTO =
     MyRankDTO(
-        input.id,
-        input.firstPromotionDay,
-        input.secondPromotionDay,
-        input.thirdPromotionDay
+        this.id,
+        this.firstPromotionDay,
+        this.secondPromotionDay,
+        this.thirdPromotionDay
     )
 
-fun MyUsedLeaveMapper(input: MyUsedLeaveDTO): com.sohae.domain.myinformation.entity.MyUsedLeaveEntity =
-    com.sohae.domain.myinformation.entity.MyUsedLeaveEntity(
-        input.id,
-        input.leaveKindIdx,
-        input.leaveTypeIdx,
-        input.reason,
-        input.usedLeaveTime,
-        input.leaveStartDate,
-        input.leaveEndDate,
-        input.receiveLunchSupport,
-        input.receiveTransportationSupport
+fun MyUsedLeaveDTO.toMyUsedLeaveEntity(): MyUsedLeaveEntity =
+    MyUsedLeaveEntity(
+        this.id,
+        this.leaveKindIdx,
+        this.leaveTypeIdx,
+        this.reason,
+        this.usedLeaveTime,
+        this.leaveStartDate,
+        this.leaveEndDate,
+        this.receiveLunchSupport,
+        this.receiveTransportationSupport
     )
 
-fun MyUsedLeaveMapper(input: com.sohae.domain.myinformation.entity.MyUsedLeaveEntity): MyUsedLeaveDTO =
+fun MyUsedLeaveEntity.toMyUsedLeaveDTO(): MyUsedLeaveDTO =
     MyUsedLeaveDTO(
-        input.id,
-        input.leaveKindIdx,
-        input.leaveTypeIdx,
-        input.reason,
-        input.usedLeaveTime,
-        input.leaveStartDate,
-        input.leaveEndDate,
-        input.receiveLunchSupport,
-        input.receiveTransportationSupport
+        this.id,
+        this.leaveKindIdx,
+        this.leaveTypeIdx,
+        this.reason,
+        this.usedLeaveTime,
+        this.leaveStartDate,
+        this.leaveEndDate,
+        this.receiveLunchSupport,
+        this.receiveTransportationSupport
     )
 
-fun MyWelfareMapper(input: MyWelfareDTO): com.sohae.domain.myinformation.entity.MyWelfareEntity =
-    com.sohae.domain.myinformation.entity.MyWelfareEntity(
-        input.id,
-        input.lunchSupport,
-        input.transportationSupport,
-        input.payday
+fun MyWelfareDTO.toMyWelfareEntity(): MyWelfareEntity =
+    MyWelfareEntity(
+        this.id,
+        this.lunchSupport,
+        this.transportationSupport,
+        this.payday
     )
 
-fun MyWelfareMapper(input: com.sohae.domain.myinformation.entity.MyWelfareEntity): MyWelfareDTO =
+fun MyWelfareEntity.toMyWelfareDTO(): MyWelfareDTO =
     MyWelfareDTO(
-        input.id,
-        input.lunchSupport,
-        input.transportationSupport,
-        input.payday
+        this.id,
+        this.lunchSupport,
+        this.transportationSupport,
+        this.payday
     )
 
-fun MyWorkInfoMapper(input: MyWorkInformationDTO): com.sohae.domain.myinformation.entity.MyWorkInfoEntity =
-    com.sohae.domain.myinformation.entity.MyWorkInfoEntity(
-        input.id,
-        input.workPlace,
-        input.startWorkDay,
-        input.finishWorkDay
+fun MyWorkInformationDTO.toMyWorkInfoEntity(): MyWorkInfoEntity =
+    MyWorkInfoEntity(
+        this.id,
+        this.workPlace,
+        this.startWorkDay,
+        this.finishWorkDay
     )
 
-fun MyWorkInfoMapper(input: com.sohae.domain.myinformation.entity.MyWorkInfoEntity): MyWorkInformationDTO =
+fun MyWorkInfoEntity.toMyWorkInformationDTO(): MyWorkInformationDTO =
     MyWorkInformationDTO(
-        input.id,
-        input.workPlace,
-        input.startWorkDay,
-        input.finishWorkDay
+        this.id,
+        this.workPlace,
+        this.startWorkDay,
+        this.finishWorkDay
     )
 
-fun MySearchHistoryMapper(input: MySearchHistoryDTO): com.sohae.domain.myinformation.entity.MySearchHistoryEntity =
-    com.sohae.domain.myinformation.entity.MySearchHistoryEntity(
-        input.id,
-        input.keyword
+fun MySearchHistoryDTO.toMySearchHistoryEntity(): MySearchHistoryEntity =
+    MySearchHistoryEntity(
+        this.id,
+        this.keyword
     )
 
-fun MySearchHistoryMapper(input: com.sohae.domain.myinformation.entity.MySearchHistoryEntity): MySearchHistoryDTO =
+fun MySearchHistoryEntity.toMySearchHistoryDTO(): MySearchHistoryDTO =
     MySearchHistoryDTO(
-        input.id,
-        input.keyword
+        this.id,
+        this.keyword
     )
 
-fun MyTokenDTO.toMyTokenEntity(): com.sohae.domain.myinformation.entity.MyTokenEntity =
-    com.sohae.domain.myinformation.entity.MyTokenEntity(
+fun MyTokenDTO.toMyTokenEntity(): MyTokenEntity =
+    MyTokenEntity(
         accessToken = this.accessToken,
         refreshToken = this.refreshToken
     )
 
-fun com.sohae.domain.myinformation.entity.MyTokenEntity.toMyTokenDTO(): MyTokenDTO = MyTokenDTO(
+fun MyTokenEntity.toMyTokenDTO(): MyTokenDTO = MyTokenDTO(
     accessToken = this.accessToken,
     refreshToken = this.refreshToken
 )

@@ -5,11 +5,9 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sohae.common.resource.R
+import com.sohae.domain.home.entity.SalaryDetailsEntity
 import com.sohae.domain.myinformation.entity.MyUsedLeaveEntity
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
-import com.sohae.domain.home.entity.SalaryDetailsEntity
-import com.sohae.domain.utils.getLeavePeriod
-import com.sohae.domain.utils.getWeekendCount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 class HomeViewModel @Inject constructor(
-    private val myInfoUseCase: com.sohae.domain.myinformation.usecase.MyInfoUseCase
+    private val myInfoUseCase: MyInfoUseCase
 ): ViewModel() {
 
     val myAccount = myInfoUseCase.getMyAccount().stateIn(
@@ -82,7 +80,7 @@ class HomeViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private var _salaryDetails = MutableStateFlow(
-        com.sohae.domain.home.entity.SalaryDetailsEntity(
+        SalaryDetailsEntity(
             beginPayDate = LocalDate.MIN,
             endPayDate = LocalDate.MIN
         )
@@ -107,6 +105,10 @@ class HomeViewModel @Inject constructor(
         1200000,
         1500000
     )
+
+    private fun nullCheck(input: Any?): Boolean {
+        return input?.let { false } ?: true
+    }
 
     fun updateMonthsCount(input: Int) {
         if (input >= 0) {
@@ -147,6 +149,15 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getMyCurrentRank(currentTime: Long): String {
+
+        if (
+            nullCheck(myRank.value)
+            || nullCheck(myWorkInfo.value)
+            )
+        {
+            return "보수 등급 없음"
+        }
+
         val promotionDays = listOf(
             myRank.value!!.firstPromotionDay,
             myRank.value!!.secondPromotionDay,
@@ -172,6 +183,15 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getNextPromotionDay(): String {
+
+        if (
+            nullCheck(myRank.value)
+            || nullCheck(myWorkInfo.value)
+            )
+        {
+            return "해당 없음"
+        }
+
         val currentTime = System.currentTimeMillis()
         val promotionDays = listOf(
             myRank.value!!.firstPromotionDay,
@@ -317,7 +337,23 @@ class HomeViewModel @Inject constructor(
 
     // Pair < 기간, 월급 >
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun getMyCurrentSalary(monthsCount: Int): com.sohae.domain.home.entity.SalaryDetailsEntity {
+    private fun getMyCurrentSalary(monthsCount: Int): SalaryDetailsEntity {
+
+        val failure: (String) -> SalaryDetailsEntity = { msg ->
+            SalaryDetailsEntity(
+                beginPayDate = LocalDate.MIN,
+                endPayDate = LocalDate.MIN,
+                errorMessage = msg
+            )
+        }
+
+        if (
+            nullCheck(myWelfare.value)
+            || nullCheck(myWorkInfo.value)
+            ) {
+            return failure("복무 대기 중")
+        }
+
         val payday: Int = myWelfare.value?.payday.let {
             if (it == null) { -1 } else {
                 if (it > 0) { it } else { -1 }
@@ -326,19 +362,11 @@ class HomeViewModel @Inject constructor(
 
         if (myWorkInfo.value!!.startWorkDay < 0
             || myWorkInfo.value!!.finishWorkDay < 0) {
-            return com.sohae.domain.home.entity.SalaryDetailsEntity(
-                beginPayDate = LocalDate.MIN,
-                endPayDate = LocalDate.MIN,
-                errorMessage = "복무 대기 중"
-            )
+            return failure("복무 대기 중")
         }
 
         if (payday < 1) {
-            return com.sohae.domain.home.entity.SalaryDetailsEntity(
-                beginPayDate = LocalDate.MIN,
-                endPayDate = LocalDate.MIN,
-                errorMessage = "월급일 미설정"
-            )
+            return failure("월급일 미설정")
         }
 
         val startWorkDate = LocalDateTime.ofInstant(
@@ -398,7 +426,7 @@ class HomeViewModel @Inject constructor(
             }
 
         if (endPayDate.isBefore(beginPayDate)) {
-            return com.sohae.domain.home.entity.SalaryDetailsEntity(
+            return SalaryDetailsEntity(
                 beginPayDate = LocalDate.MIN,
                 endPayDate = LocalDate.MIN,
                 errorMessage = "소집 해제"
@@ -472,7 +500,7 @@ class HomeViewModel @Inject constructor(
                         + (noTransportationSupportCountInStartMonth + noTransportationSupportCountInEndMonth))
                         )
 
-        return com.sohae.domain.home.entity.SalaryDetailsEntity(
+        return SalaryDetailsEntity(
             startRank = startRank,
             endRank = endRank,
             allDayOfStartMonth = allDayOfStartMonth,
@@ -497,19 +525,19 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun takeMyLeave(inputMyUsedLeave: com.sohae.domain.myinformation.entity.MyUsedLeaveEntity) {
+    fun takeMyLeave(inputMyUsedLeave: MyUsedLeaveEntity) {
         viewModelScope.launch {
             myInfoUseCase.updateMyUsedLeave(inputMyUsedLeave)
         }
     }
 
-    fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): List<com.sohae.domain.myinformation.entity.MyUsedLeaveEntity> {
+    fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeaveEntity> {
         return runBlocking {
              return@runBlocking myInfoUseCase.getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx)
         }
     }
 
-    fun getMyUsedLeaveListByDate(startDateValue: Long, endDateValue: Long): List<com.sohae.domain.myinformation.entity.MyUsedLeaveEntity> {
+    fun getMyUsedLeaveListByDate(startDateValue: Long, endDateValue: Long): List<MyUsedLeaveEntity> {
         return runBlocking {
             return@runBlocking myInfoUseCase.getMyUsedLeaveListByDate(startDateValue, endDateValue)
         }

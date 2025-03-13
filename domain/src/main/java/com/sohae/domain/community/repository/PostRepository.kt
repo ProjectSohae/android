@@ -6,6 +6,7 @@ import com.sohae.common.models.post.entity.PostEntity
 interface PostRepository {
 
     fun createPost(
+        accessToken: String,
         postDetails: PostEntity,
         callBack: (Boolean) -> Unit
     )

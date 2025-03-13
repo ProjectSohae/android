@@ -18,4 +18,7 @@ interface MyTokenDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun setMyToken(input: MyTokenDTO)
+
+    @Query("delete from my_token")
+    fun deleteAll()
 }

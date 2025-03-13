@@ -26,6 +26,7 @@ import com.sohae.feature.jobreview.JobReviewView
 import com.sohae.feature.mycommentlist.MyCommentListView
 import com.sohae.feature.mypostlist.MyPostListView
 import com.sohae.feature.myprofile.main.MyProfileView
+import com.sohae.feature.myprofile.main.MyProfileViewModel
 import com.sohae.feature.post.post.PostImageView
 import com.sohae.feature.post.post.PostView
 import com.sohae.feature.searchjob.SearchJobView
@@ -128,7 +129,7 @@ fun MainNavGraphView(
             }
             // in profile view
             composable(MainNavGraphRoutes.MYPROFILE.name) {
-                MyProfileView()
+                MyProfileView(hiltViewModel<MyProfileViewModel>())
             }
             composable(MainNavGraphRoutes.SETTINGOPTIONS.name) {
                 SettingOptionsView()

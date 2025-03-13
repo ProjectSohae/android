@@ -13,14 +13,21 @@ import com.sohae.data.myinformation.dao.MyWorkInformationDAO
 import com.sohae.data.myinformation.database.MyInformationDBGraph
 import com.sohae.data.myinformation.dto.MyRankDTO
 import com.sohae.data.myinformation.dto.MyWorkInformationDTO
-import com.sohae.data.myinformation.mapper.MyAccountMapper
-import com.sohae.data.myinformation.mapper.MyLeaveMapper
-import com.sohae.data.myinformation.mapper.MyRankMapper
-import com.sohae.data.myinformation.mapper.MySearchHistoryMapper
-import com.sohae.data.myinformation.mapper.MyUsedLeaveMapper
-import com.sohae.data.myinformation.mapper.MyWelfareMapper
-import com.sohae.data.myinformation.mapper.MyWorkInfoMapper
+import com.sohae.data.myinformation.mapper.toMyAccountDTO
+import com.sohae.data.myinformation.mapper.toMyAccountEntity
+import com.sohae.data.myinformation.mapper.toMyLeaveDTO
+import com.sohae.data.myinformation.mapper.toMyLeaveEntity
+import com.sohae.data.myinformation.mapper.toMyRankDTO
+import com.sohae.data.myinformation.mapper.toMyRankEntity
+import com.sohae.data.myinformation.mapper.toMySearchHistoryDTO
+import com.sohae.data.myinformation.mapper.toMySearchHistoryEntity
 import com.sohae.data.myinformation.mapper.toMyTokenDTO
+import com.sohae.data.myinformation.mapper.toMyUsedLeaveDTO
+import com.sohae.data.myinformation.mapper.toMyUsedLeaveEntity
+import com.sohae.data.myinformation.mapper.toMyWelfareDTO
+import com.sohae.data.myinformation.mapper.toMyWelfareEntity
+import com.sohae.data.myinformation.mapper.toMyWorkInfoEntity
+import com.sohae.data.myinformation.mapper.toMyWorkInformationDTO
 import com.sohae.domain.myinformation.entity.MyAccountEntity
 import com.sohae.domain.myinformation.entity.MyLeaveEntity
 import com.sohae.domain.myinformation.entity.MyRankEntity
@@ -38,7 +45,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-object MyInfoRepositoryImpl : com.sohae.domain.myinformation.repository.MyInfoRepository {
+object MyInfoRepositoryImpl : MyInfoRepository {
 
     private val myInfoDB = MyInformationDBGraph.database
     private val myAccountDAO: MyAccountDAO = myInfoDB.myAccountDAO()
@@ -50,28 +57,28 @@ object MyInfoRepositoryImpl : com.sohae.domain.myinformation.repository.MyInfoRe
     private val mySearchHistoryDAO: MySearchHistoryDAO = myInfoDB.mySearchHistoryDAO()
     private val myTokenDAO: MyTokenDAO = myInfoDB.myTokenDAO()
 
-    override fun getMyAccount(): Flow<com.sohae.domain.myinformation.entity.MyAccountEntity?> = flow {
+    override fun getMyAccount(): Flow<MyAccountEntity?> = flow {
         myAccountDAO.selectAll()
             .map {
-                if (it != null) {
-                    MyAccountMapper(it)
-                } else { it }
+                it?.toMyAccountEntity()
             }
             .collect {
                 emit(it)
             }
     }
 
-    override fun updateMyAccount(inputMyAccount: com.sohae.domain.myinformation.entity.MyAccountEntity) {
-        myAccountDAO.insert(MyAccountMapper(inputMyAccount))
+    override fun updateMyAccount(inputMyAccount: MyAccountEntity) {
+        myAccountDAO.insert(inputMyAccount.toMyAccountDTO())
     }
 
-    override fun getMyWorkInformation(): Flow<com.sohae.domain.myinformation.entity.MyWorkInfoEntity?> = flow {
+    override fun deleteMyAccount() {
+        myAccountDAO.deleteAll()
+    }
+
+    override fun getMyWorkInformation(): Flow<MyWorkInfoEntity?> = flow {
         myWorkInfoDAO.selectAll()
             .map {
-                if (it != null) {
-                    MyWorkInfoMapper(it)
-                } else { it }
+                it?.toMyWorkInfoEntity()
             }
             .collect {
                 emit(it)
@@ -80,10 +87,10 @@ object MyInfoRepositoryImpl : com.sohae.domain.myinformation.repository.MyInfoRe
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun updateMyWorkInformation(
-        inputMyWorkInformation: com.sohae.domain.myinformation.entity.MyWorkInfoEntity,
+        inputMyWorkInformation: MyWorkInfoEntity,
         updateRelatedInfo: Boolean
     ) {
-        var tmpMyWorkInfo = MyWorkInfoMapper(inputMyWorkInformation)
+        var tmpMyWorkInfo = inputMyWorkInformation.toMyWorkInformationDTO()
 
         if (updateRelatedInfo) {
             var startWorkDay = LocalDateTime.ofInstant(
@@ -103,121 +110,113 @@ object MyInfoRepositoryImpl : com.sohae.domain.myinformation.repository.MyInfoRe
             // 진급일
             startWorkDay = startWorkDay.minusDays( (startWorkDay.dayOfMonth - 1).toLong() )
             updateMyRank(
-                MyRankMapper(
-                    MyRankDTO(
-                        firstPromotionDay = startWorkDay
-                            .plusMonths(2)
-                            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                        secondPromotionDay = startWorkDay
-                            .plusMonths(8)
-                            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                        thirdPromotionDay = startWorkDay
-                            .plusMonths(14)
-                            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                    )
-                )
+                MyRankDTO(
+                    firstPromotionDay = startWorkDay
+                        .plusMonths(2)
+                        .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                    secondPromotionDay = startWorkDay
+                        .plusMonths(8)
+                        .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                    thirdPromotionDay = startWorkDay
+                        .plusMonths(14)
+                        .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                ).toMyRankEntity()
             )
         }
 
         myWorkInfoDAO.insert(tmpMyWorkInfo)
     }
 
-    override fun getMyRank(): Flow<com.sohae.domain.myinformation.entity.MyRankEntity?> = flow {
+    override fun getMyRank(): Flow<MyRankEntity?> = flow {
         myRankDAO.selectAll()
             .map {
-                if (it != null) {
-                    MyRankMapper(it)
-                } else { it }
+                it?.toMyRankEntity()
             }
             .collect {
                 emit(it)
             }
     }
 
-    override fun updateMyRank(inputMyRank: com.sohae.domain.myinformation.entity.MyRankEntity) {
-        myRankDAO.insert(MyRankMapper(inputMyRank))
+    override fun updateMyRank(inputMyRank: MyRankEntity) {
+        myRankDAO.insert(inputMyRank.toMyRankDTO())
     }
 
-    override fun getMyWelfare(): Flow<com.sohae.domain.myinformation.entity.MyWelfareEntity?> = flow {
+    override fun getMyWelfare(): Flow<MyWelfareEntity?> = flow {
         myWelfareDAO.selectAll()
             .map {
-                if (it != null) {
-                    MyWelfareMapper(it)
-                } else { it }
+                it?.toMyWelfareEntity()
             }
             .collect {
                 emit(it)
             }
     }
 
-    override fun updateMyWelfare(inputMyWelfare: com.sohae.domain.myinformation.entity.MyWelfareEntity) {
-        myWelfareDAO.insert(MyWelfareMapper(inputMyWelfare))
+    override fun updateMyWelfare(inputMyWelfare: MyWelfareEntity) {
+        myWelfareDAO.insert(inputMyWelfare.toMyWelfareDTO())
     }
 
-    override fun getMyLeave(): Flow<com.sohae.domain.myinformation.entity.MyLeaveEntity?> = flow {
+    override fun getMyLeave(): Flow<MyLeaveEntity?> = flow {
         myLeaveDAO.selectAll()
             .map {
-                if (it != null) {
-                    MyLeaveMapper(it)
-                } else { it }
+                it?.toMyLeaveEntity()
             }
             .collect {
                 emit(it)
             }
     }
 
-    override fun updateMyLeave(inputMyLeave: com.sohae.domain.myinformation.entity.MyLeaveEntity) {
-        myLeaveDAO.insert(MyLeaveMapper(inputMyLeave))
+    override fun updateMyLeave(inputMyLeave: MyLeaveEntity) {
+        myLeaveDAO.insert(inputMyLeave.toMyLeaveDTO())
     }
 
-    override fun getAllMyUsedLeaveList(): Flow<List<com.sohae.domain.myinformation.entity.MyUsedLeaveEntity>?> = flow {
+    override fun getAllMyUsedLeaveList(): Flow<List<MyUsedLeaveEntity>?> = flow {
         myUsedLeaveDAO.selectAll()
             .map { myUsedLeaveList ->
-                myUsedLeaveList?.map { MyUsedLeaveMapper(it) }
+                myUsedLeaveList?.map { it.toMyUsedLeaveEntity() }
             }
             .collect {
                 emit(it)
             }
     }
 
-    override fun updateMyUsedLeave(inputMyUsedLeave: com.sohae.domain.myinformation.entity.MyUsedLeaveEntity) {
-        myUsedLeaveDAO.insert(MyUsedLeaveMapper(inputMyUsedLeave))
+    override fun updateMyUsedLeave(inputMyUsedLeave: MyUsedLeaveEntity) {
+        myUsedLeaveDAO.insert(inputMyUsedLeave.toMyUsedLeaveDTO())
     }
 
     override fun deleteMyUsedLeave(id: Int) {
         myUsedLeaveDAO.deleteById(id)
     }
 
-    override fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): List<com.sohae.domain.myinformation.entity.MyUsedLeaveEntity>? {
+    override fun getMyUsedLeaveListByLeaveKindIdx(leaveKindIdx: Int): List<MyUsedLeaveEntity>? {
         return runBlocking {
             return@runBlocking myUsedLeaveDAO
                 .selectByLeaveKindIdx(leaveKindIdx)?.map {
-                    MyUsedLeaveMapper(it)
+                    it.toMyUsedLeaveEntity()
                 }
         }
     }
 
-    override fun getMyUsedLeaveListByDate(startDate: Long, endDate: Long): List<com.sohae.domain.myinformation.entity.MyUsedLeaveEntity>? {
+    override fun getMyUsedLeaveListByDate(startDate: Long, endDate: Long): List<MyUsedLeaveEntity>? {
         return runBlocking {
             return@runBlocking myUsedLeaveDAO
                 .selectByDate(startDate, endDate)?.map {
-                    MyUsedLeaveMapper(it)
+                    it.toMyUsedLeaveEntity()
                 }
         }
     }
 
-    override fun getAllMySearchHistory(): Flow<List<com.sohae.domain.myinformation.entity.MySearchHistoryEntity>?> = flow {
+    override fun getAllMySearchHistory(): Flow<List<MySearchHistoryEntity>?> = flow {
         mySearchHistoryDAO.selectAll()
             .map { mySearchHistoryList ->
-                mySearchHistoryList?.map { MySearchHistoryMapper(it) }
+                mySearchHistoryList?.map { it.toMySearchHistoryEntity() }
             }
             .collect {
                 emit(it)
             }
     }
 
-    override fun updateMySearchHistory(input: com.sohae.domain.myinformation.entity.MySearchHistoryEntity) {
-        mySearchHistoryDAO.insert(MySearchHistoryMapper(input))
+    override fun updateMySearchHistory(input: MySearchHistoryEntity) {
+        mySearchHistoryDAO.insert(input.toMySearchHistoryDTO())
     }
 
     override fun deleteAllMySearchHistory() {
@@ -240,7 +239,11 @@ object MyInfoRepositoryImpl : com.sohae.domain.myinformation.repository.MyInfoRe
         }
     }
 
-    override fun setMyToken(input: com.sohae.domain.myinformation.entity.MyTokenEntity) {
+    override fun updateMyToken(input: MyTokenEntity) {
         myTokenDAO.setMyToken(input.toMyTokenDTO())
+    }
+
+    override fun deleteMyToken() {
+        myTokenDAO.deleteAll()
     }
 }

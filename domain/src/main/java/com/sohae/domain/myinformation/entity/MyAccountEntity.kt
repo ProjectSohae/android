@@ -1,14 +1,14 @@
 package com.sohae.domain.myinformation.entity
 
+import java.util.UUID
+
 data class MyAccountEntity (
 
-    val id: Int,
-
-    // 실명
-    val realName: String,
+    // uuid
+    val id: UUID,
 
     // 닉네임
-    val nickname: String,
+    val username: String,
 
     // 이메일
     val emailAddress: String,

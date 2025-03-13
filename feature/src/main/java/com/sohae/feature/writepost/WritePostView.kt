@@ -172,7 +172,7 @@ private fun SelectCategory(
 
                 isPressed = false
             },
-            optionsList = categoryList.subList(1, categoryList.size)
+            optionsList = categoryList
         )
     }
 
@@ -514,7 +514,11 @@ private fun WritePostContentView(
 private fun WritePostViewFooter(
     writePostViewModel: WritePostViewModel
 ) {
+    val failure = { msg: String ->
+        SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+    }
     val mainNavController = MainNavGraphViewController.mainNavController
+    val myId = writePostViewModel.myId.collectAsState().value?.id
     val category = writePostViewModel.category.collectAsState().value
     val title = writePostViewModel.title.collectAsState().value
     val content = writePostViewModel.content.collectAsState().value
@@ -541,13 +545,18 @@ private fun WritePostViewFooter(
     ) {
         Button(
             onClick = {
-                writePostViewModel.uploadPost { msg, isSucceed ->
 
-                    SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+                if (myId != null) {
+                    writePostViewModel.uploadPost(myId) { msg, isSucceed ->
 
-                    if (isSucceed) {
-                        mainNavController.popBackStack()
+                        SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+
+                        if (isSucceed) {
+                            mainNavController.popBackStack()
+                        }
                     }
+                } else {
+                    failure("계정에 문제가 발생했습니다.\n나중에 다시 시도해 주세요.")
                 }
             },
             enabled = enablePressButton,

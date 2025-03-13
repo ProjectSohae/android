@@ -15,20 +15,22 @@ import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.Scope
 import com.kakao.sdk.user.UserApiClient
 import com.sohae.domain.myinformation.entity.MyTokenEntity
+import com.sohae.domain.myinformation.usecase.MyInfoUseCase
+import com.sohae.domain.profile.usecase.ProfileUseCase
 import com.sohae.domain.signin.entity.AuthTokenEntity
 import com.sohae.domain.signin.type.AuthType
+import com.sohae.domain.signin.usecase.SignInUseCase
 import com.sohae.feature.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-    private val signInUseCase: com.sohae.domain.signin.usecase.SignInUseCase,
-    private val myInfoUseCase: com.sohae.domain.myinformation.usecase.MyInfoUseCase
+    private val signInUseCase: SignInUseCase,
+    private val myInfoUseCase: MyInfoUseCase,
+    private val profileUseCase: ProfileUseCase
 ): ViewModel() {
 
     private val tag = "sohae_signIn"
@@ -91,6 +93,7 @@ class SignInViewModel @Inject constructor(
 
                 if (authTokenEntity != null) {
                     insertNewMyToken(authTokenEntity)
+                    insertNewMyAccount(authTokenEntity.accessToken)
                     callback(true)
                 } else {
                     callback(false)
@@ -99,39 +102,30 @@ class SignInViewModel @Inject constructor(
         }
     }
 
-    private fun insertNewMyAccount(
-
-    ) {
-
-    }
-
     private fun insertNewMyToken(
         authTokenEntity: AuthTokenEntity
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            myInfoUseCase.setMyToken(
-                MyTokenEntity(
-                    0,
-                    authTokenEntity.accessToken,
-                    authTokenEntity.refreshToken
-                )
+        myInfoUseCase.updateMyToken(
+            MyTokenEntity(
+                0,
+                authTokenEntity.accessToken,
+                authTokenEntity.refreshToken
             )
-        }
+        )
     }
 
-    private fun checkMyRefreshToken(
-        callback: (String) -> Unit
+    private fun insertNewMyAccount(
+        accessToken: String
     ) {
-
-        CoroutineScope(Dispatchers.IO).launch {
-            myInfoUseCase.getMyRefreshToken().collect {
-                callback(it)
+        profileUseCase.getMyProfile(accessToken) { myProfileEntity ->
+            myProfileEntity?.let {
+                myInfoUseCase.updateMyAccount(myProfileEntity)
             }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private suspend fun googleSignIn(
+    private fun googleSignIn(
         currentContext: Context,
         reCheckForGoogleSignInView: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
         callBack: (String, Boolean) -> Unit

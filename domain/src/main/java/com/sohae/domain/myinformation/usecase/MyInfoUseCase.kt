@@ -12,33 +12,20 @@ import com.sohae.domain.myinformation.repository.MyInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import java.util.UUID
 import javax.inject.Inject
 
 class MyInfoUseCase @Inject constructor(
     private val myInfoRepository: MyInfoRepository
 ) {
 
-    fun getMyAccount(): Flow<MyAccountEntity> = flow {
-        myInfoRepository.getMyAccount()
-            .mapNotNull {
-                it ?: MyAccountEntity(
-                    id = 0,
-                    realName = "",
-                    nickname = "",
-                    emailAddress = ""
-                )
-            }
-            .collect {
-                emit(it)
-            }
+    fun getMyAccount(): Flow<MyAccountEntity?> = flow {
+        myInfoRepository.getMyAccount().collect {
+            emit(it)
+        }
     }
 
     fun updateMyAccount(input: MyAccountEntity) {
@@ -47,19 +34,16 @@ class MyInfoUseCase @Inject constructor(
         }
     }
 
-    fun getMyWorkInfo(): Flow<MyWorkInfoEntity> = flow {
-        myInfoRepository.getMyWorkInformation()
-            .mapNotNull {
-                it ?: MyWorkInfoEntity(
-                    id = 0,
-                    workPlace = "",
-                    startWorkDay = -1,
-                    finishWorkDay = -1
-                )
-            }
-            .collect {
+    fun deleteMyAccount() {
+        CoroutineScope(Dispatchers.IO).launch {
+            myInfoRepository.deleteMyAccount()
+        }
+    }
+
+    fun getMyWorkInfo(): Flow<MyWorkInfoEntity?> = flow {
+        myInfoRepository.getMyWorkInformation().collect {
                 emit(it)
-            }
+        }
     }
 
     fun updateMyWorkInfo(
@@ -71,19 +55,10 @@ class MyInfoUseCase @Inject constructor(
         }
     }
 
-    fun getMyRank(): Flow<MyRankEntity> = flow {
-        myInfoRepository.getMyRank()
-            .mapNotNull {
-                it ?: MyRankEntity(
-                    id = 0,
-                    firstPromotionDay = -1,
-                    secondPromotionDay = -1,
-                    thirdPromotionDay = -1
-                )
-            }
-            .collect {
-                emit(it)
-            }
+    fun getMyRank(): Flow<MyRankEntity?> = flow {
+        myInfoRepository.getMyRank().collect {
+            emit(it)
+        }
     }
 
     fun updateMyRank(input: MyRankEntity) {
@@ -92,19 +67,10 @@ class MyInfoUseCase @Inject constructor(
         }
     }
 
-    fun getMyWelfare(): Flow<MyWelfareEntity> = flow {
-        myInfoRepository.getMyWelfare()
-            .mapNotNull {
-                it ?: MyWelfareEntity(
-                    id = 0,
-                    lunchSupport = 0,
-                    transportationSupport = 0,
-                    payday = -1
-                )
-            }
-            .collect {
-                emit(it)
-            }
+    fun getMyWelfare(): Flow<MyWelfareEntity?> = flow {
+        myInfoRepository.getMyWelfare().collect {
+            emit(it)
+        }
     }
 
     fun updateMyWelfare(input: MyWelfareEntity) {
@@ -113,19 +79,10 @@ class MyInfoUseCase @Inject constructor(
         }
     }
 
-    fun getMyLeave(): Flow<MyLeaveEntity> = flow {
-        myInfoRepository.getMyLeave()
-            .mapNotNull {
-                it ?: MyLeaveEntity(
-                    id = 0,
-                    firstAnnualLeave = -1,
-                    secondAnnualLeave = -1,
-                    sickLeave = -1
-                )
-            }
-            .collect {
-                emit(it)
-            }
+    fun getMyLeave(): Flow<MyLeaveEntity?> = flow {
+        myInfoRepository.getMyLeave().collect {
+            emit(it)
+        }
     }
 
     fun updateMyLeave(input: MyLeaveEntity) {
@@ -192,27 +149,27 @@ class MyInfoUseCase @Inject constructor(
         }
     }
 
-    fun getMyAccessToken(): Flow<String> = flow {
+    fun getMyAccessToken(): Flow<String?> = flow {
         myInfoRepository.getMyAccessToken().collect {
-            if (it == null) {
-                emit("")
-            } else {
-                emit(it)
-            }
+            emit(it)
         }
     }
-    fun getMyRefreshToken(): Flow<String> = flow {
+
+    fun getMyRefreshToken(): Flow<String?> = flow {
         myInfoRepository.getMyRefreshToken().collect {
-            if (it == null) {
-                emit("")
-            } else {
-                emit(it)
-            }
+            emit(it)
         }
     }
 
-    fun setMyToken(input: MyTokenEntity) {
-        myInfoRepository.setMyToken(input)
+    fun updateMyToken(input: MyTokenEntity) {
+        CoroutineScope(Dispatchers.IO).launch {
+            myInfoRepository.updateMyToken(input)
+        }
     }
 
+    fun deleteMyToken() {
+        CoroutineScope(Dispatchers.IO).launch {
+            myInfoRepository.deleteMyToken()
+        }
+    }
 }

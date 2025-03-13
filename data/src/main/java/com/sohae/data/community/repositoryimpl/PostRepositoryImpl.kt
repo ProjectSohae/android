@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
     private val retrofit: Retrofit
-): com.sohae.domain.community.repository.PostRepository {
+): PostRepository {
 
     private val tag = "sohae_post"
 
@@ -28,6 +28,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override fun createPost(
+        accessToken: String,
         postDetails: PostEntity,
         callBack: (Boolean) -> Unit
     ) {
@@ -37,7 +38,10 @@ class PostRepositoryImpl @Inject constructor(
         val failure = {
             callBack(false)
         }
-        val request = client.createPost(postDetails.toCreatePostRequest())
+        val request = client.createPost(
+            "Bearer $accessToken",
+            postDetails.toCreatePostRequest()
+        )
 
         request.enqueue(object: Callback<Long> {
             override fun onResponse(p0: Call<Long>, p1: Response<Long>) {

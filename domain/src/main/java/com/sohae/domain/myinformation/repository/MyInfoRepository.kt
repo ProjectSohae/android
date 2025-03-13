@@ -14,6 +14,7 @@ interface MyInfoRepository {
 
     fun getMyAccount(): Flow<MyAccountEntity?>
     fun updateMyAccount(inputMyAccount: MyAccountEntity)
+    fun deleteMyAccount()
 
     fun getMyWorkInformation(): Flow<MyWorkInfoEntity?>
     fun updateMyWorkInformation(
@@ -44,5 +45,6 @@ interface MyInfoRepository {
 
     fun getMyAccessToken(): Flow<String?>
     fun getMyRefreshToken(): Flow<String?>
-    fun setMyToken(input: MyTokenEntity)
+    fun updateMyToken(input: MyTokenEntity)
+    fun deleteMyToken()
 }

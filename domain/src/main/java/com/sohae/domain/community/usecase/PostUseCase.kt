@@ -10,10 +10,11 @@ class PostUseCase @Inject constructor(
 ) {
 
     fun createPost(
+        accessToken: String,
         postDetails: PostEntity,
         callBack: (Boolean) -> Unit
     ) {
-        postRepository.createPost(postDetails) {
+        postRepository.createPost(accessToken, postDetails) {
             callBack(it)
         }
     }

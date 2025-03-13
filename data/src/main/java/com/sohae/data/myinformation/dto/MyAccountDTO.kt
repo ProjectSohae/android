@@ -7,11 +7,11 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "my_account")
 data class MyAccountDTO (
     // 고유 식별자
-    @PrimaryKey val id: Int = 0,
-    // 본명
-    @ColumnInfo(name = "real_name") val realName: String,
+    @PrimaryKey val idx: Int = 0,
+    // uuid
+    @ColumnInfo(name = "id") val id: String,
     // 닉네임
-    @ColumnInfo(name = "nickname") val nickname: String,
+    @ColumnInfo(name = "username") val username: String,
     // 이메일
-    @ColumnInfo(name = "email_address") val emailAddress: String,
+    @ColumnInfo(name = "email") val emailAddress: String,
 )

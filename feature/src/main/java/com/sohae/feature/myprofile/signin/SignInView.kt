@@ -11,12 +11,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +46,7 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
+import com.sohae.common.ui.custom.snackbar.SnackbarView
 import com.sohae.controller.mainnavgraph.MainScreenController
 import com.sohae.domain.signin.type.AuthType
 import dev.chrisbanes.haze.HazeEffectScope
@@ -60,6 +64,7 @@ fun SignInView(
     onConfirm: () -> Unit
 ) {
     val currentContext = LocalContext.current
+    var selectedSignInType by remember { mutableStateOf<AuthType?>(null) }
     val signInSucceed = {
         SnackBarController.show(
             "로그인 성공.",
@@ -94,7 +99,6 @@ fun SignInView(
         currentContext,
         reCheckCallbackLogic
     )
-    var selectedSignInType by remember { mutableStateOf<AuthType?>(null) }
 
     LaunchedEffect(selectedSignInType) {
 

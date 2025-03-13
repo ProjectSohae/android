@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -56,8 +57,9 @@ import com.sohae.common.ui.custom.composable.ProfileImage
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.barcolor.BarColorController
-import com.sohae.domain.utils.displayAsAmount
 import com.sohae.domain.utils.getLeavePeriod
+import kotlinx.coroutines.Delay
+import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -187,6 +189,14 @@ private fun HomeViewBody(
     val myLeave = homeViewModel.myLeave.collectAsState().value
     var isReadyInfo by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        delay(1000L)
+
+        if (!isReadyInfo) {
+            isReadyInfo = true
+        }
+    }
+
     LaunchedEffect(
         myAccount,
         myWorkInfo,
@@ -206,7 +216,12 @@ private fun HomeViewBody(
     }
 
     if (!isReadyInfo) {
-        CircularLoadingBarView()
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularLoadingBarView()
+        }
     }
     else {
         Column(
@@ -234,17 +249,14 @@ private fun HomeViewBody(
 private fun MyDetails(
     homeViewModel: HomeViewModel
 ) {
-    val myInfo = homeViewModel.myAccount.collectAsState().value!!
-    val myWorkInfo = homeViewModel.myWorkInfo.collectAsState().value!!
+    val myInfo = homeViewModel.myAccount.collectAsState().value
+    val myWorkInfo = homeViewModel.myWorkInfo.collectAsState().value
 
     Column(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         Text(
-            text = myInfo.nickname.let {
-                if (it.isBlank()) { "로그인이 필요합니다." }
-                else { myInfo.nickname }
-            },
+            text = myInfo?.username ?: "로그인이 필요합니다.",
             fontSize = 32.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -252,9 +264,15 @@ private fun MyDetails(
         )
 
         Text(
-            text = myWorkInfo.startWorkDay.let {
-                if (it < 0 || System.currentTimeMillis() < it) { "직무 없음" } else { "사회복무요원" }
-            },
+            text = myWorkInfo?.let {
+                if (
+                    it.startWorkDay < 0
+                    || System.currentTimeMillis() < it.startWorkDay
+                    )
+                {
+                    "직무 없음"
+                } else { "사회복무요원" }
+            } ?: "직무 없음",
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
@@ -268,9 +286,7 @@ private fun MyDetails(
         )
 
         Text(
-            text = myWorkInfo.workPlace.let {
-                if (it.isBlank()) { "복무지 미정" } else { myWorkInfo.workPlace }
-            },
+            text = myWorkInfo?.workPlace ?: "복무지 미정",
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface
@@ -283,20 +299,24 @@ private fun MyDetails(
 private fun DateDetails(
     homeViewModel: HomeViewModel
 ) {
-    val myWorkInfo = homeViewModel.myWorkInfo.collectAsState().value!!
-    val restWorkDays = ChronoUnit.DAYS
-        .between(
-            LocalDateTime
-                .ofInstant(
-                    Instant.ofEpochMilli(System.currentTimeMillis()),
-                    ZoneId.systemDefault())
-                .toLocalDate(),
-            LocalDateTime
-                .ofInstant(
-                    Instant.ofEpochMilli(myWorkInfo.finishWorkDay),
-                    ZoneId.systemDefault())
-                .toLocalDate()
-        )
+    val myWorkInfo = homeViewModel.myWorkInfo.collectAsState().value
+    val restWorkDays = if (myWorkInfo != null) {
+        ChronoUnit.DAYS
+            .between(
+                LocalDateTime
+                    .ofInstant(
+                        Instant.ofEpochMilli(System.currentTimeMillis()),
+                        ZoneId.systemDefault())
+                    .toLocalDate(),
+                LocalDateTime
+                    .ofInstant(
+                        Instant.ofEpochMilli(myWorkInfo.finishWorkDay),
+                        ZoneId.systemDefault())
+                    .toLocalDate()
+            )
+    } else {
+        null
+    }
 
     Column(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
@@ -319,13 +339,13 @@ private fun DateDetails(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = myWorkInfo.startWorkDay.let {
-                    if (it < 0 || myWorkInfo.finishWorkDay < it) {
+                text = myWorkInfo?.let {
+                    if (it.startWorkDay < 0 || it.finishWorkDay < it.startWorkDay) {
                         "해당 없음"
                     } else {
-                        "${((myWorkInfo.finishWorkDay - it) / (1000 * 60 * 60 * 24)) + 1}일"
+                        "${((it.finishWorkDay - it.startWorkDay) / (1000 * 60 * 60 * 24)) + 1}일"
                     }
-                },
+                } ?: "해당 없음",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary
@@ -349,22 +369,22 @@ private fun DateDetails(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = myWorkInfo.startWorkDay.let {
-                    if (it < 0
-                        || myWorkInfo.finishWorkDay < it
-                        || System.currentTimeMillis() < it)
+                text = myWorkInfo?.let {
+                    if (it.startWorkDay < 0
+                        || it.finishWorkDay < it.startWorkDay
+                        || System.currentTimeMillis() < it.startWorkDay)
                     {
                         "해당 없음"
                     } else {
-                        val lastTime = if (myWorkInfo.finishWorkDay < System.currentTimeMillis()) {
-                            myWorkInfo.finishWorkDay
+                        val lastTime = if (it.finishWorkDay < System.currentTimeMillis()) {
+                            it.finishWorkDay
                         } else {
                             System.currentTimeMillis()
                         }
 
-                        "${((lastTime - it) / (1000 * 60 * 60 * 24)) + 1}일"
+                        "${((lastTime - it.startWorkDay) / (1000 * 60 * 60 * 24)) + 1}일"
                     }
-                },
+                } ?: "해당 없음",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary
@@ -388,18 +408,18 @@ private fun DateDetails(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = myWorkInfo.finishWorkDay.let {
+                text = myWorkInfo?.let {
                     if (
-                        myWorkInfo.startWorkDay < 0
-                        || System.currentTimeMillis() < myWorkInfo.startWorkDay
-                        || it < myWorkInfo.startWorkDay
-                        || it < System.currentTimeMillis())
+                        it.startWorkDay < 0
+                        || System.currentTimeMillis() < it.startWorkDay
+                        || it.finishWorkDay < it.startWorkDay
+                        || it.finishWorkDay < System.currentTimeMillis())
                     {
                         "해당 없음"
                     } else {
                         "${restWorkDays}일"
                     }
-                },
+                } ?: "해당 없음",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary
@@ -626,12 +646,12 @@ private fun MyLeaveList(
     homeViewModel: HomeViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
-    val myLeave = homeViewModel.myLeave.collectAsState().value!!
+    val myLeave = homeViewModel.myLeave.collectAsState().value
     val useLeaveItemsList = homeViewModel.leaveKindList
     val maxLeaveDaysList = listOf(
-        myLeave.firstAnnualLeave,
-        myLeave.secondAnnualLeave,
-        myLeave.sickLeave
+        myLeave?.firstAnnualLeave ?: 0,
+        myLeave?.secondAnnualLeave ?: 0,
+        myLeave?.sickLeave ?: 0
     )
     var selectedItemName by remember { mutableStateOf("휴가") }
     var showUsedMyLeaveListKindIdx by remember { mutableIntStateOf(-1) }
@@ -668,7 +688,7 @@ private fun MyLeaveList(
                                 // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
                                 else {
                                     SnackBarController.show(
-                                        "${com.sohae.domain.utils.getLeavePeriod(it)}을 초과하여 휴가 사용할 수 없습니다.",
+                                        "${getLeavePeriod(it)}을 초과하여 휴가 사용할 수 없습니다.",
                                         SnackBarBehindTarget.VIEW
                                     )
                                 }

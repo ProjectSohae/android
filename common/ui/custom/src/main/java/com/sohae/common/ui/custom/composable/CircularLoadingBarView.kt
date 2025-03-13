@@ -14,19 +14,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun CircularLoadingBarView(
-    backgroundColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(64.dp),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.tertiary
-        )
-    }
+    CircularProgressIndicator(
+        modifier = Modifier.size(64.dp),
+        color = MaterialTheme.colorScheme.primary,
+        trackColor = MaterialTheme.colorScheme.tertiary
+    )
 }
