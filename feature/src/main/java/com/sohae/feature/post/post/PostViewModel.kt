@@ -2,14 +2,32 @@ package com.sohae.feature.post.post
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.sohae.common.models.comment.entity.CommentEntity
 import com.sohae.common.models.post.entity.PostEntity
+import com.sohae.domain.community.usecase.PostUseCase
+import com.sohae.domain.myinformation.usecase.MyInfoUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import java.util.UUID
+import javax.inject.Inject
 
-class PostViewModel: ViewModel() {
+@HiltViewModel
+class PostViewModel @Inject constructor(
+    private val myInfoUseCase: MyInfoUseCase,
+    private val postUseCase: PostUseCase
+): ViewModel() {
+
+    val myAccount = myInfoUseCase.getMyAccount().stateIn(
+        viewModelScope,
+        SharingStarted.Lazily,
+        null
+    )
 
     private var _postDetails = MutableStateFlow<PostEntity?>(null)
     val postDetails = _postDetails.asStateFlow()
@@ -19,25 +37,18 @@ class PostViewModel: ViewModel() {
 
     val textFieldInteraction = MutableInteractionSource()
 
-    private fun generatePostDetails(): PostEntity {
+    fun getPostDetails(postId: Long) {
 
-        return PostEntity(
-            id = 0L,
-            categoryId = 0,
-            userId = UUID.randomUUID(),
-            title = "test",
-            content = "test",
-            images = emptyList(),
-            commentCount = 0,
-            viewsCount = 0,
-            likesCount = 0,
-            bookmarksCount = 0,
-            createdAt = Clock.System.now()
-        )
-    }
+        postUseCase.getPostDetails(
+            postId
+        ) { getPostDetails, isSucceed ->
 
-    fun getPostDetails(postId: Int) {
-        _postDetails.value = generatePostDetails()
+            if (isSucceed) {
+                _postDetails.value = getPostDetails
+            } else {
+
+            }
+        }
     }
 
     private fun generateComments(count: Int): List<CommentEntity> {

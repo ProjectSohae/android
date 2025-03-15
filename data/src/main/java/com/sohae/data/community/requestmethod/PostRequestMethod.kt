@@ -18,7 +18,6 @@ interface PostRequestMethod {
 
     @POST("posts")
     fun createPost(
-        @Header("Authorization") accessToken: String,
         @Body postDetails: CreatePostRequest
     ): Call<Long>
 

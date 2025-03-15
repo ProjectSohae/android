@@ -71,8 +71,8 @@ import com.sohae.domain.utils.getDiffTimeFromNow
 
 @Composable
 fun PostView(
-    postId: Int?,
-    postViewModel: PostViewModel = viewModel()
+    postId: Long?,
+    postViewModel: PostViewModel
 ) {
     val mainNavController = MainNavGraphViewController.mainNavController
     val postDetails = postViewModel.postDetails.collectAsState().value
@@ -105,22 +105,24 @@ fun PostView(
             ) {
 
                 if (postDetails == null) {
-                    CircularLoadingBarView()
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularLoadingBarView()
+                    }
                 } else {
-                    PostHeaderView(postId, postDetails.userId)
+                    PostHeaderView(postViewModel)
 
                     LazyColumn(
                         modifier = Modifier.weight(1f)
                     ) {
                         item {
-                            PostDetailsView(postViewModel, postDetails)
+                            PostDetailsView(postViewModel)
                         }
 
                         item {
-                            CommentListView(
-                                postViewModel,
-                                postDetails.userId
-                            )
+                            CommentListView(postViewModel)
                         }
                     }
 
@@ -133,19 +135,27 @@ fun PostView(
 
 @Composable
 private fun PostHeaderView(
-    postId: Int,
-    posterUUID: UserId
+    postViewModel: PostViewModel
 ) {
+    val myAccount = postViewModel.myAccount.collectAsState().value
+    val postDetails = postViewModel.postDetails.collectAsState().value!!
     val mainNavController = MainNavGraphViewController.mainNavController
     var showOptionsDialog by remember { mutableStateOf(false) }
 
     if (showOptionsDialog) {
-        PostOptionView(
-            postId = postId,
-            posterNickname = "닉네임",
-            onDismissRequest = { showOptionsDialog = false },
-            onConfirm = { showOptionsDialog = false }
-        )
+
+        if (myAccount != null) {
+            PostOptionView(
+                isMyPost = postDetails.userId == myAccount.id,
+                onDismissRequest = { showOptionsDialog = false },
+                onConfirm = { showOptionsDialog = false }
+            )
+        } else {
+            SnackBarController.show(
+                "나중에 다시 시도해 주세요.",
+                SnackBarBehindTarget.VIEW
+            )
+        }
     }
 
     Row(
@@ -182,176 +192,174 @@ private fun PostHeaderView(
 
 @Composable
 private fun PostDetailsView(
-    postViewModel: PostViewModel,
-    postDetails: PostEntity?
+    postViewModel: PostViewModel
 ) {
+    val postDetails = postViewModel.postDetails.collectAsState().value!!
     val mainNavController = MainNavGraphViewController.mainNavController
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
     var likeThisPost by remember { mutableStateOf(false) }
     var bookmarkThisPost by remember { mutableStateOf(false) }
 
-    if (postDetails != null) {
-        // 글 제목
-        Text(
-            text = postDetails.title,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 24.sp,
-            color = MaterialTheme.colorScheme.primary,
+    // 글 제목
+    Text(
+        text = postDetails.title,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 24.dp, end = 24.dp, bottom = 12.dp)
+    )
+
+    // 글 내용
+    Text(
+        text = postDetails.content,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 24.dp, end = 24.dp, bottom = 12.dp)
+    )
+
+    // 글 사진목록
+    if (postDetails.images.isNotEmpty()) {
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, bottom = 12.dp)
-        )
-
-        // 글 내용
-        Text(
-            text = postDetails.content,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, bottom = 12.dp)
-        )
-
-        // 글 사진목록
-        if (postDetails.images.isNotEmpty()) {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 24.dp, bottom = 12.dp)
-            ) {
-                item {
-                    postDetails.images.forEach {
-                        Image(
-                            painter = painterResource(id = R.drawable.yoon),
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                                .size(120.dp)
-                                .clip(RoundedCornerShape(10))
-                                .clickable {
-                                    mainNavController.navigate(MainNavGraphRoutes.POSTIMAGE.name)
-                                },
-                            contentDescription = null
-                        )
-                    }
+                .padding(start = 24.dp, bottom = 12.dp)
+        ) {
+            item {
+                postDetails.images.forEach {
+                    Image(
+                        painter = painterResource(id = R.drawable.yoon),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(120.dp)
+                            .clip(RoundedCornerShape(10))
+                            .clickable {
+                                mainNavController.navigate(MainNavGraphRoutes.POSTIMAGE.name)
+                            },
+                        contentDescription = null
+                    )
                 }
             }
         }
+    }
 
-        // 작성자, 글 작성 시간
+    // 작성자, 글 작성 시간
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .drawBehind {
+                drawLine(
+                    color = tertiary,
+                    start = Offset(0f, this.size.height),
+                    end = Offset(this.size.width, this.size.height),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
+            .padding(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 24.dp)
+    ) {
+        Text(
+            text = "${postDetails.username} • ${getDiffTimeFromNow(postDetails.createdAt)}",
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+
+    // 추천, 댓글, 스크랩
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 18.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        // 추천
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .drawBehind {
-                    drawLine(
-                        color = tertiary,
-                        start = Offset(0f, this.size.height),
-                        end = Offset(this.size.width, this.size.height),
-                        strokeWidth = 1.dp.toPx()
-                    )
-                }
-                .padding(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 24.dp)
+                .weight(1f)
+                .clickable { likeThisPost = !likeThisPost },
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                painter = painterResource(
+                    id = if (likeThisPost) {
+                        R.drawable.baseline_thumb_up_24
+                    } else { R.drawable.baseline_thumb_up_off_alt_24 }
+                ),
+                tint = if (likeThisPost) { primary } else { tertiary },
+                contentDescription = null
+            )
+
             Text(
-                text = "닉네임 • ${com.sohae.domain.utils.getDiffTimeFromNow(postDetails.createdAt)}",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.primary
+                text = " 추천 ${postDetails.likesCount}",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (likeThisPost) { primary } else { tertiary },
+                style = TextStyle(
+                    platformStyle = PlatformTextStyle(
+                        includeFontPadding = false
+                    )
+                )
             )
         }
 
-        // 추천, 댓글, 스크랩
+        // 댓글
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_comment_24),
+                tint = tertiary,
+                contentDescription = null
+            )
+
+            Text(
+                text = " 댓글 ${postDetails.commentCount}",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                style = TextStyle(
+                    platformStyle = PlatformTextStyle(
+                        includeFontPadding = false
+                    )
+                ),
+                color = tertiary
+            )
+        }
+
+        // 스크랩
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 18.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .weight(1f)
+                .clickable { bookmarkThisPost = !bookmarkThisPost },
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // 추천
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { likeThisPost = !likeThisPost },
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(
-                        id = if (likeThisPost) {
-                            R.drawable.baseline_thumb_up_24
-                        } else { R.drawable.baseline_thumb_up_off_alt_24 }
-                    ),
-                    tint = if (likeThisPost) { primary } else { tertiary },
-                    contentDescription = null
-                )
+            Icon(
+                painter = painterResource(
+                    id = if (bookmarkThisPost) {
+                        R.drawable.baseline_bookmark_24
+                    } else { R.drawable.baseline_bookmark_border_24 }
+                ),
+                tint = if (bookmarkThisPost) { primary } else { tertiary },
+                contentDescription = null
+            )
 
-                Text(
-                    text = " 추천 ${postDetails.likesCount}",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (likeThisPost) { primary } else { tertiary },
-                    style = TextStyle(
-                        platformStyle = PlatformTextStyle(
-                            includeFontPadding = false
-                        )
+            Text(
+                text = " 스크랩 ${postDetails.bookmarksCount}",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (bookmarkThisPost) { primary } else { tertiary },
+                style = TextStyle(
+                    platformStyle = PlatformTextStyle(
+                        includeFontPadding = false
                     )
                 )
-            }
-
-            // 댓글
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_comment_24),
-                    tint = tertiary,
-                    contentDescription = null
-                )
-
-                Text(
-                    text = " 댓글 ${postDetails.commentCount}",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    style = TextStyle(
-                        platformStyle = PlatformTextStyle(
-                            includeFontPadding = false
-                        )
-                    ),
-                    color = tertiary
-                )
-            }
-
-            // 스크랩
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { bookmarkThisPost = !bookmarkThisPost },
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(
-                        id = if (bookmarkThisPost) {
-                            R.drawable.baseline_bookmark_24
-                        } else { R.drawable.baseline_bookmark_border_24 }
-                    ),
-                    tint = if (bookmarkThisPost) { primary } else { tertiary },
-                    contentDescription = null
-                )
-
-                Text(
-                    text = " 스크랩 ${postDetails.bookmarksCount}",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (bookmarkThisPost) { primary } else { tertiary },
-                    style = TextStyle(
-                        platformStyle = PlatformTextStyle(
-                            includeFontPadding = false
-                        )
-                    )
-                )
-            }
+            )
         }
     }
 
@@ -366,9 +374,9 @@ private fun PostDetailsView(
 
 @Composable
 private fun CommentListView(
-    postViewModel: PostViewModel,
-    posterUUID: UserId
+    postViewModel: PostViewModel
 ) {
+    val postDetails = postViewModel.postDetails.collectAsState().value!!
     var showCommentOption by remember { mutableStateOf(false) }
     var selectedCommentEntity by remember { mutableStateOf<CommentEntity?>(null) }
     val commentsList = postViewModel.commentsList.collectAsState().value
@@ -418,7 +426,7 @@ private fun CommentListView(
 
             if (commentEntity.id == commentEntity.parentCommentId) {
                 CommentView(
-                    posterUUID = posterUUID,
+                    posterUUID = postDetails.userId,
                     commentDetails = commentEntity,
                     drawDivider = idx != 0,
                     postViewModel = postViewModel,
@@ -506,7 +514,7 @@ private fun CommentView(
 
                 Text(
                     text = "${commentDetails.userName} • ${
-                        com.sohae.domain.utils.getDiffTimeFromNow(
+                        getDiffTimeFromNow(
                             commentDetails.createdAt
                         )
                     }",
@@ -604,7 +612,7 @@ private fun ReplyView(
 
                     Text(
                         text = "${replyDetails.userName} • ${
-                            com.sohae.domain.utils.getDiffTimeFromNow(
+                            getDiffTimeFromNow(
                                 replyDetails.createdAt
                             )
                         }",

@@ -25,10 +25,11 @@ import com.sohae.feature.jobinformation.JobInformationView
 import com.sohae.feature.jobreview.JobReviewView
 import com.sohae.feature.mycommentlist.MyCommentListView
 import com.sohae.feature.mypostlist.MyPostListView
-import com.sohae.feature.myprofile.main.MyProfileView
-import com.sohae.feature.myprofile.main.MyProfileViewModel
+import com.sohae.feature.myprofile.MyProfileView
+import com.sohae.feature.myprofile.MyProfileViewModel
 import com.sohae.feature.post.post.PostImageView
 import com.sohae.feature.post.post.PostView
+import com.sohae.feature.post.post.PostViewModel
 import com.sohae.feature.searchjob.SearchJobView
 import com.sohae.feature.searchpost.SearchPostView
 import com.sohae.feature.searchpost.SearchPostViewModel
@@ -99,10 +100,13 @@ fun MainNavGraphView(
             }
             composable(MainNavGraphRoutes.POST.name) {
                 val pressedPostId by remember {
-                    mutableStateOf(mainNavController.previousBackStackEntry?.savedStateHandle?.get<Int>("pressed_post_id"))
+                    mutableStateOf(mainNavController.previousBackStackEntry?.savedStateHandle?.get<Long>("selected_post_id"))
                 }
 
-                PostView(pressedPostId)
+                PostView(
+                    pressedPostId,
+                    hiltViewModel<PostViewModel>()
+                )
             }
             composable(MainNavGraphRoutes.POSTIMAGE.name) {
                 PostImageView("")

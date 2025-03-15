@@ -12,30 +12,23 @@ fun getDate(value: Long): String =
         .format(value)
 
 fun getDiffTimeFromNow(input: Instant): String {
-    val targetTime = input.toLocalDateTime(TimeZone.currentSystemDefault())
-    val nowTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-    val simpleFormat: (Int, Int, String) -> (String) = { target, now, timeDelimeter ->
-
-        if (timeDelimeter == "년") {
-            getDate(input.toEpochMilliseconds())
-        } else {
-            "${now - target}${timeDelimeter} 전"
-        }
-    }
-    val timeList: List<Pair<Pair<Int, Int>, String>> = listOf(
-        Pair(Pair(targetTime.year, nowTime.year), "년"),
-        Pair(Pair(targetTime.monthNumber, nowTime.monthNumber), "달"),
-        Pair(Pair(targetTime.dayOfMonth, nowTime.dayOfMonth), "일"),
-        Pair(Pair(targetTime.hour, nowTime.hour), "시간"),
-        Pair(Pair(targetTime.minute, nowTime.minute), "분"),
-        Pair(Pair(targetTime.second, nowTime.second), "초")
+    val timeList: List<Pair<Long, String>> = listOf(
+        Pair(1000, "초"),
+        Pair(60, "분"),
+        Pair(60, "시간"),
+        Pair(24, "일"),
+        Pair(30, "달"),
+        Pair(365, "년")
     )
-    var result: String = "방금 전"
+    var diffTime = Clock.System.now().toEpochMilliseconds() - input.toEpochMilliseconds()
+    var result = "방금 전"
 
     timeList.forEach forEach@{ item ->
 
-        if (item.first.first < item.first.second) {
-            result = simpleFormat(item.first.first, item.first.second, item.second)
+        if (diffTime / item.first > 0) {
+            diffTime /= item.first
+            result = "${diffTime}${item.second} 전"
+        } else {
             return@forEach
         }
     }

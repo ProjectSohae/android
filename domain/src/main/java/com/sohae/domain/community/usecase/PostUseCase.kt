@@ -10,22 +10,25 @@ class PostUseCase @Inject constructor(
 ) {
 
     fun createPost(
-        accessToken: String,
         postDetails: PostEntity,
         callBack: (Boolean) -> Unit
     ) {
-        postRepository.createPost(accessToken, postDetails) {
+        postRepository.createPost(postDetails) {
             callBack(it)
         }
     }
 
     fun getPreviewPostsList(
+        accessToken: String,
         page: Int,
         categoryId: CategoryId,
-        callBack: (List<PostEntity>) -> Unit
+        callback: (List<PostEntity>) -> Unit
     ) {
-        postRepository.getPreviewPostsList(page, categoryId) { previewPostsList, isSucceed ->
-            callBack(previewPostsList)
+        postRepository.getPreviewPostsList(
+            page,
+            categoryId
+        ) { previewPostsList, isSucceed ->
+            callback(previewPostsList)
         }
     }
 
@@ -33,7 +36,9 @@ class PostUseCase @Inject constructor(
         postId: Long,
         callBack: (PostEntity?, Boolean) -> Unit
     ) {
-        postRepository.getPostDetails(postId) { getPostEntity, errMsg ->
+        postRepository.getPostDetails(
+            postId
+        ) { getPostEntity, errMsg ->
 
             if (errMsg.isBlank()) {
                 callBack(getPostEntity, true)

@@ -5,6 +5,7 @@ import com.sohae.common.models.post.entity.PostImageEntity
 import com.sohae.common.models.post.request.CreatePostRequest
 import com.sohae.common.models.post.request.UpdatePostRequest
 import com.sohae.common.models.post.response.PostResponse
+import kotlinx.datetime.Instant
 
 fun PostEntity.toCreatePostRequest(): CreatePostRequest = CreatePostRequest(
     this.categoryId,
@@ -24,6 +25,7 @@ fun PostResponse.toPostEntity(): PostEntity = PostEntity(
     this.id,
     this.categoryId,
     this.author.id,
+    this.author.nickname,
     this.title,
     this.content,
     this.images.map { PostImageEntity(it) },
@@ -31,5 +33,6 @@ fun PostResponse.toPostEntity(): PostEntity = PostEntity(
     this.viewsCount,
     this.likesCount,
     this.bookmarksCount,
-    this.createdAt
+    Instant.fromEpochMilliseconds(this.createdAt),
+    Instant.fromEpochMilliseconds(this.updatedAt)
 )

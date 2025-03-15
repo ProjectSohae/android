@@ -44,7 +44,9 @@ interface MyInfoRepository {
     fun deleteMySearchHistoryById(id: Int)
 
     fun getMyAccessToken(): Flow<String?>
+    suspend fun getMyAccessTokenNotFlow(): String?
     fun getMyRefreshToken(): Flow<String?>
+    suspend fun getMyRefreshTokenNotFlow(): String?
     fun updateMyToken(input: MyTokenEntity)
     fun deleteMyToken()
 }

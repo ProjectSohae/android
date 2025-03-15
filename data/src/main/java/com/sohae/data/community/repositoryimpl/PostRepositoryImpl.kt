@@ -16,19 +16,18 @@ import retrofit2.Retrofit
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
-    private val retrofit: Retrofit
+    private val retrofitWithToken: Retrofit
 ): PostRepository {
 
     private val tag = "sohae_post"
 
-    val client: PostRequestMethod = retrofit.create(PostRequestMethod::class.java)
+    val client: PostRequestMethod = retrofitWithToken.create(PostRequestMethod::class.java)
 
     fun failureLog(msg: String, e: Throwable?) {
         Log.e(tag, msg, e)
     }
 
     override fun createPost(
-        accessToken: String,
         postDetails: PostEntity,
         callBack: (Boolean) -> Unit
     ) {
@@ -38,10 +37,7 @@ class PostRepositoryImpl @Inject constructor(
         val failure = {
             callBack(false)
         }
-        val request = client.createPost(
-            "Bearer $accessToken",
-            postDetails.toCreatePostRequest()
-        )
+        val request = client.createPost(postDetails.toCreatePostRequest())
 
         request.enqueue(object: Callback<Long> {
             override fun onResponse(p0: Call<Long>, p1: Response<Long>) {

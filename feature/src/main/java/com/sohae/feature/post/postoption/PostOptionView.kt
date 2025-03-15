@@ -27,8 +27,7 @@ import dev.chrisbanes.haze.hazeEffect
 
 @Composable
 fun PostOptionView(
-    postId: Int,
-    posterNickname: String,
+    isMyPost: Boolean,
     onDismissRequest: () -> Unit,
     onConfirm: (Int) -> Unit
 ) {
@@ -71,7 +70,7 @@ fun PostOptionView(
         ) {
 
             // 타인 게시글
-            if (posterNickname != myNickname) {
+            if (!isMyPost) {
                 Text(
                     text = "작성자 차단",
                     fontSize = 16.sp,

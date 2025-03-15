@@ -1,4 +1,4 @@
-package com.sohae.feature.community
+package com.sohae.domain.community.category
 
 enum class CommunityCategory(
     val idx: Int,

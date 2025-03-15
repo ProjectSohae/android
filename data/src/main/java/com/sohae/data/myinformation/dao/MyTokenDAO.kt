@@ -13,8 +13,14 @@ interface MyTokenDAO {
     @Query("select access_token from my_token")
     fun getMyAccessToken(): Flow<String>
 
+    @Query("select access_token from my_token")
+    fun getMyAccessTokenNotFlow(): String?
+
     @Query("select refresh_token from my_token")
     fun getMyRefreshToken(): Flow<String>
+
+    @Query("select refresh_token from my_token")
+    fun getMyRefreshTokenNotFlow(): String?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun setMyToken(input: MyTokenDTO)

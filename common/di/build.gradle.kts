@@ -37,8 +37,9 @@ android {
 
 dependencies {
 
+    implementation(libs.javax.inject)
+
     implementation(libs.hilt.android)
-    implementation(project(":domain"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.room.runtime)

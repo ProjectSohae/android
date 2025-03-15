@@ -1,6 +1,6 @@
 package com.sohae.common.di.repositorymodule
 
-import com.sohae.common.di.remote.RetrofitClient
+import com.sohae.common.di.client.RetrofitClient
 import com.sohae.data.community.repositoryimpl.PostRepositoryImpl
 import com.sohae.data.myinformation.repositoryimpl.MyInfoRepositoryImpl
 import com.sohae.data.profile.repositoryimpl.ProfileRepositoryImpl
@@ -22,7 +22,7 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun providePostRepository(): PostRepository {
-        return PostRepositoryImpl(RetrofitClient.retrofit)
+        return PostRepositoryImpl(RetrofitClient.retrofitWithToken)
     }
 
     @Provides

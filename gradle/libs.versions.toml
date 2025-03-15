@@ -13,6 +13,7 @@ hiltAndroidCompiler = "2.55"
 hiltNavigationCompose = "1.2.0"
 javaxInject = "1"
 jetbrainsKotlinxCoroutinesCore = "1.10.1"
+jjwtApi = "0.12.6"
 jsoup = "1.18.3"
 kotlin = "2.1.10"
 coreKtx = "1.15.0"
@@ -72,6 +73,7 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 jetbrains-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetimeVersion" }
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwtApi" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

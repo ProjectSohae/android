@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.sohae.data2"
+    namespace = "com.sohae.data"
     compileSdk = 35
 
     defaultConfig {

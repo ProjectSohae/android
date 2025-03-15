@@ -233,10 +233,18 @@ object MyInfoRepositoryImpl : MyInfoRepository {
         }
     }
 
+    override suspend fun getMyAccessTokenNotFlow(): String? {
+        return myTokenDAO.getMyAccessTokenNotFlow()
+    }
+
     override fun getMyRefreshToken(): Flow<String?> = flow {
         myTokenDAO.getMyRefreshToken().collect {
             emit(it)
         }
+    }
+
+    override suspend fun getMyRefreshTokenNotFlow(): String? {
+        return myTokenDAO.getMyRefreshTokenNotFlow()
     }
 
     override fun updateMyToken(input: MyTokenEntity) {

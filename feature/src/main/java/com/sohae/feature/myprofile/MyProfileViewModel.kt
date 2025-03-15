@@ -1,4 +1,4 @@
-package com.sohae.feature.myprofile.main
+package com.sohae.feature.myprofile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

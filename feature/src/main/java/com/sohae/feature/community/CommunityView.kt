@@ -1,6 +1,5 @@
 package com.sohae.feature.community
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,14 +34,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
@@ -58,7 +54,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,9 +64,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.resource.R
+import com.sohae.common.ui.custom.composable.CircularLoadingBarView
+import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
+import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.barcolor.BarColorController
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
+import com.sohae.domain.community.category.CommunityCategory
+import com.sohae.domain.utils.getDiffTimeFromNow
 import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
 
@@ -188,13 +188,22 @@ private fun CommunityBodyView(
                 exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
             ) {
                 composable(CommunityCategory.ALL.name) {
-                    CommunityPostsListView(communityViewModel)
+                    CommunityPostsListView(
+                        currentSelectedCategory,
+                        communityViewModel
+                    )
                 }
                 composable(CommunityCategory.HOT.name) {
-                    CommunityPostsListView(communityViewModel)
+                    CommunityPostsListView(
+                        currentSelectedCategory,
+                        communityViewModel
+                    )
                 }
                 composable(CommunityCategory.NOTICE.name) {
-                    CommunityPostsListView(communityViewModel)
+                    CommunityPostsListView(
+                        currentSelectedCategory,
+                        communityViewModel
+                    )
                 }
             }
 
@@ -455,12 +464,16 @@ private fun CommunitySubCategoryView(
                                         showSelectedSubCategoryBackground
                                     ) {
                                         (animateRightXPos - animateLeftXPos) * (0.5f * (1f - selectedSubCategoryBackgroundScale))
-                                    } else { 0f },
+                                    } else {
+                                        0f
+                                    },
                                     right = animateRightXPos - if (
                                         showSelectedSubCategoryBackground
                                     ) {
                                         (animateRightXPos - animateLeftXPos) * (0.5f * (1f - selectedSubCategoryBackgroundScale))
-                                    } else { 0f },
+                                    } else {
+                                        0f
+                                    },
                                     top = this.size.height * (0.5f - (0.5f * selectedSubCategoryBackgroundScale)),
                                     bottom = this.size.height * (0.5f + (0.5f * selectedSubCategoryBackgroundScale)),
                                     cornerRadius = CornerRadius(100f, 100f)
@@ -526,28 +539,51 @@ private fun CommunitySubCategoryView(
 
 @Composable
 private fun CommunityPostsListView(
+    currentSelectedCategory: CommunityCategory,
     communityViewModel: CommunityViewModel
 ) {
     var isReadyPostsList by rememberSaveable { mutableStateOf(false) }
-    val currentSelectedCategory = communityViewModel.selectedCategory.collectAsState().value
     val currentSelectedSubCategory = communityViewModel.selectedSubCategory.collectAsState().value
     val previewPostsList = communityViewModel.previewPostsList.collectAsState().value
+
+    LaunchedEffect(Unit) {
+
+        if (!isReadyPostsList) {
+            communityViewModel.getPreviewPostsList(
+                page = 1,
+                category = currentSelectedCategory,
+                subCategoryIdx = currentSelectedSubCategory
+            ) {
+                SnackBarController.show(it, SnackBarBehindTarget.VIEW)
+            }
+            isReadyPostsList = true
+        }
+    }
 
     // 게시글이 없는 경우
     if (previewPostsList.isEmpty()) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.onPrimary),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "게시글 없음",
-                fontSize = 24.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
+        if (isReadyPostsList) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.onPrimary),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "게시글 없음",
+                    fontSize = 24.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularLoadingBarView()
+            }
         }
     } else {
         LazyColumn(
@@ -604,7 +640,7 @@ private fun CommunityPostsListItemView(
             }
             .padding(vertical = 12.dp)
             .clickable {
-                mainNavController.currentBackStackEntry?.savedStateHandle?.set("pressed_post_id", 0)
+                mainNavController.currentBackStackEntry?.savedStateHandle?.set("selected_post_id", previewPost.id)
                 mainNavController.navigate(MainNavGraphRoutes.POST.name)
             }
     ) {
@@ -679,7 +715,7 @@ private fun CommunityPostsListItemView(
         ) {
             // posted time and view count
             Text(
-                text = "0분 전 • 조회 999",
+                text = "${getDiffTimeFromNow(previewPost.createdAt)} • 조회 ${previewPost.viewsCount}",
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.tertiary
@@ -698,7 +734,7 @@ private fun CommunityPostsListItemView(
                         contentDescription = null
                     )
                     Text(
-                        text = " 999",
+                        text = " ${previewPost.likesCount}",
                         fontWeight = FontWeight.Medium,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.tertiary
@@ -715,7 +751,7 @@ private fun CommunityPostsListItemView(
                         contentDescription = null
                     )
                     Text(
-                        text = " 999",
+                        text = " ${previewPost.commentCount}",
                         fontWeight = FontWeight.Medium,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.tertiary

@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 class MyInfoUseCase @Inject constructor(
@@ -155,10 +154,18 @@ class MyInfoUseCase @Inject constructor(
         }
     }
 
+    suspend fun getMyAccessTokenNotFlow(): String? {
+        return myInfoRepository.getMyAccessTokenNotFlow()
+    }
+
     fun getMyRefreshToken(): Flow<String?> = flow {
         myInfoRepository.getMyRefreshToken().collect {
             emit(it)
         }
+    }
+
+    suspend fun getMyRefreshTokenNotFlow(): String? {
+        return myInfoRepository.getMyRefreshTokenNotFlow()
     }
 
     fun updateMyToken(input: MyTokenEntity) {

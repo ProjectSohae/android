@@ -7,7 +7,7 @@ import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.models.post.entity.PostImageEntity
 import com.sohae.domain.community.usecase.PostUseCase
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
-import com.sohae.feature.community.CommunityCategory
+import com.sohae.domain.community.category.CommunityCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -71,19 +71,19 @@ class WritePostViewModel @Inject constructor(
             callback(msg, false)
         }
         val postEntity = PostEntity(
-            0,
-            category.value.toLong(),
-            myId,
-            title.value,
-            content.value,
-            selectedImageList.value.map {
+            categoryId = category.value.toLong(),
+            userId = myId,
+            title = title.value,
+            content = content.value,
+            images = selectedImageList.value.map {
                 PostImageEntity(it.toString())
             },
-            0,
-            0,
-            0,
-            0,
-            Clock.System.now()
+            viewsCount = 0,
+            likesCount = 0,
+            commentCount = 0,
+            bookmarksCount = 0,
+            createdAt = Clock.System.now(),
+            updatedAt = Clock.System.now()
         )
 
         viewModelScope.launch {
@@ -91,7 +91,7 @@ class WritePostViewModel @Inject constructor(
 
                 if (accessToken != null) {
 
-                    postUseCase.createPost(accessToken, postEntity) {
+                    postUseCase.createPost(postEntity) {
 
                         if (it) {
                             success("게시글 작성 완료.")
