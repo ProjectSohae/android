@@ -1,1 +1,1 @@
-![dependency drawio (1)](https://github.com/user-attachments/assets/120529fa-13f4-4c7f-acf5-9cca471e3ff5)
+![dependency drawio (2)](https://github.com/user-attachments/assets/f7578385-5b2b-4b81-a10a-8b3cdef3ed06)
