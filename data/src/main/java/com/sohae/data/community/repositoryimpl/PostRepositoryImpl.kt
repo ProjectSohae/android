@@ -104,13 +104,13 @@ class PostRepositoryImpl @Inject constructor(
 
     override fun getPostDetails(
         postId: Long,
-        callBack: (PostEntity?, String) -> Unit
+        callBack: (PostEntity?) -> Unit
     ) {
         val success: (PostResponse) -> Unit = {
-            callBack(it.toPostEntity(), "")
+            callBack(it.toPostEntity())
         }
         val failure: (String) -> Unit = {
-            callBack(null, it)
+            callBack(null)
         }
         val request = client.getPostDetails(postId)
 

@@ -1,6 +1,5 @@
 package com.sohae.feature.community.communitypostlist
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,10 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -37,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.CircularLoadingBarView
@@ -47,10 +41,6 @@ import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.domain.community.category.CommunityCategory
 import com.sohae.domain.utils.getDiffTimeFromNow
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun CommunityPostListView(
@@ -174,24 +164,26 @@ private fun CommunityPostsListItemView(
                         fontSize = 12.sp,
                         color = Color(0xFFAF1740),
                         modifier = Modifier
+                            .padding(end = 4.dp)
                             .background(
                                 color = Color(0xFFFFB0B0),
                                 shape = RoundedCornerShape(15)
                             )
                             .padding(horizontal = 6.dp)
                     )
-                    Spacer(modifier = Modifier.size(4.dp))
                 }
 
                 if (currentSelectedSubCategory == -1
                     || currentSelectedCategory == CommunityCategory.HOT
                 ) {
                     Text(
-                        text = "카테고리",
+                        text = CommunityCategory
+                            .ALL.subCategories[previewPost.categoryId.toInt()],
                         fontWeight = FontWeight.Medium,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
+                            .padding(end = 4.dp)
                             .background(
                                 color = tertiary,
                                 shape = RoundedCornerShape(15)
@@ -200,7 +192,6 @@ private fun CommunityPostsListItemView(
                     )
                 }
             }
-            Spacer(modifier = Modifier.size(4.dp))
         }
 
         // title

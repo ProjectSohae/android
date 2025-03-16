@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import java.util.UUID
 import javax.inject.Inject
@@ -37,7 +36,10 @@ class PostViewModel @Inject constructor(
 
     val textFieldInteraction = MutableInteractionSource()
 
-    fun getPostDetails(postId: Long) {
+    fun getPostDetails(
+        postId: Long,
+        callback: (Boolean) -> Unit
+    ) {
 
         postUseCase.getPostDetails(
             postId
@@ -45,13 +47,24 @@ class PostViewModel @Inject constructor(
 
             if (isSucceed) {
                 _postDetails.value = getPostDetails
+                callback(true)
             } else {
-
+                callback(false)
             }
         }
     }
 
-    private fun generateComments(count: Int): List<CommentEntity> {
+    fun deletePost(
+        postId: Long,
+        callback: (Boolean) -> Unit
+    ) {
+
+        postUseCase.deletePost(postId) { isSucceed ->
+            callback(isSucceed)
+        }
+    }
+
+    private fun createComments(count: Int): List<CommentEntity> {
         val tmp = mutableListOf<CommentEntity>()
 
         for (idx: Int in 0..<count) {
@@ -73,7 +86,7 @@ class PostViewModel @Inject constructor(
 
     fun getCommentsList(postId: Int, offset: Int, count: Int) {
 
-        _commentsList.value = (generateComments(count) + _commentsList.value).sortedWith(
+        _commentsList.value = (createComments(count) + _commentsList.value).sortedWith(
             compareBy({ it.parentCommentId }, { it.id })
         )
     }

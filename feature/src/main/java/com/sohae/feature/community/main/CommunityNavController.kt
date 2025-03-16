@@ -1,4 +1,4 @@
-package com.sohae.feature.community
+package com.sohae.feature.community.main
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

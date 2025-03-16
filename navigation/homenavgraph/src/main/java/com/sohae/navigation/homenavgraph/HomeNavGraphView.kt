@@ -37,8 +37,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.sohae.feature.community.CommunityView
-import com.sohae.feature.community.CommunityViewModel
+import com.sohae.feature.community.main.CommunityView
+import com.sohae.feature.community.main.CommunityViewModel
 import com.sohae.feature.home.HomeView
 import com.sohae.feature.home.HomeViewModel
 import com.sohae.feature.houseaccount.HouseAccountView

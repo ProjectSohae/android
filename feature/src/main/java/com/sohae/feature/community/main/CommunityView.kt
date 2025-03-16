@@ -1,6 +1,5 @@
-package com.sohae.feature.community
+package com.sohae.feature.community.main
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -67,7 +66,6 @@ import com.sohae.domain.community.category.CommunityCategory
 import com.sohae.feature.community.allpostlist.AllPostNavView
 import com.sohae.feature.community.hotpostlist.HotPostNavView
 import com.sohae.feature.community.noticelist.NoticePostNavVew
-import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
 
 @Composable

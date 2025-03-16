@@ -89,6 +89,9 @@ fun MainNavGraphView(
             composable(MainNavGraphRoutes.WRITEPOST.name) {
                 val writePostViewModel = hiltViewModel<WritePostViewModel>()
 
+                writePostViewModel.postId = mainNavController
+                    .previousBackStackEntry?.savedStateHandle?.get("selected_post_id")
+
                 writePostViewModel.setSelectedImageList(
                     mainNavController.currentBackStackEntry?.savedStateHandle
                         ?.get<List<Uri>>("selected_image_list") ?: emptyList()

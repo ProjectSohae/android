@@ -38,12 +38,12 @@ class PostUseCase @Inject constructor(
     ) {
         postRepository.getPostDetails(
             postId
-        ) { getPostEntity, errMsg ->
+        ) { getPostEntity ->
 
-            if (errMsg.isBlank()) {
+            if (getPostEntity != null) {
                 callBack(getPostEntity, true)
             } else {
-                callBack(getPostEntity, false)
+                callBack(null, false)
             }
         }
     }

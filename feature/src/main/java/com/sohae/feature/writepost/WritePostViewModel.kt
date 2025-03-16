@@ -24,6 +24,13 @@ class WritePostViewModel @Inject constructor(
     private val postUseCase: PostUseCase
 ): ViewModel() {
 
+    var postId: Long? = null
+
+    private var postDetails: PostEntity? = null
+
+    private var _isReadyPostDetails = MutableStateFlow(false)
+    val isReadyPostDetails = _isReadyPostDetails.asStateFlow()
+
     val categoryList = CommunityCategory.ALL.subCategories
 
     val myId = myInfoUseCase.getMyAccount().stateIn(
@@ -60,6 +67,57 @@ class WritePostViewModel @Inject constructor(
         _selectedImageList.value = input
     }
 
+    fun setIsReadyPostDetails(input: Boolean) {
+        _isReadyPostDetails.value = input
+    }
+
+    fun loadPostDetails(
+        callback: (Boolean) -> Unit
+    ) {
+
+        postUseCase.getPostDetails(postId!!) { getPostDetails, isSucceed ->
+
+            if (getPostDetails != null) {
+                setTitle(getPostDetails.title)
+                setContent(getPostDetails.content)
+                setCategory(getPostDetails.categoryId.toInt())
+                postDetails = getPostDetails
+                //setSelectedImageList(postDetails.images)
+                callback(true)
+            } else {
+                callback(false)
+            }
+        }
+    }
+
+    fun updatePost(
+        myId: UUID,
+        callback: (Boolean) -> Unit
+    ) {
+
+        postUseCase.updatePost(
+            PostEntity(
+                id = postDetails!!.id,
+                categoryId = category.value.toLong(),
+                userId = myId,
+                title = title.value,
+                content = content.value,
+                images = selectedImageList.value.map {
+                    PostImageEntity(it.toString())
+                },
+                viewsCount = 0,
+                likesCount = 0,
+                commentCount = 0,
+                bookmarksCount = 0,
+                createdAt = postDetails!!.createdAt,
+                updatedAt = Clock.System.now()
+            )
+        ) { isSucceed ->
+
+            callback(isSucceed)
+        }
+    }
+
     fun uploadPost(
         myId: UUID,
         callback: (String, Boolean) -> Unit
@@ -71,6 +129,7 @@ class WritePostViewModel @Inject constructor(
             callback(msg, false)
         }
         val postEntity = PostEntity(
+            id = 0,
             categoryId = category.value.toLong(),
             userId = myId,
             title = title.value,

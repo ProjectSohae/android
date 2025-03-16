@@ -86,7 +86,16 @@ fun PostView(
 
         // 게시글 로딩
         LaunchedEffect(Unit) {
-            postViewModel.getPostDetails(postId)
+            postViewModel.getPostDetails(postId) { isSucceed ->
+
+                if (!isSucceed) {
+                    SnackBarController.show(
+                        "존재하지 않는 게시글입니다.",
+                        SnackBarBehindTarget.VIEW
+                    )
+                    mainNavController.popBackStack()
+                }
+            }
         }
 
         Scaffold {
@@ -148,7 +157,44 @@ private fun PostHeaderView(
             PostOptionView(
                 isMyPost = postDetails.userId == myAccount.id,
                 onDismissRequest = { showOptionsDialog = false },
-                onConfirm = { showOptionsDialog = false }
+                onConfirm = { selectedOptionIdx ->
+                    showOptionsDialog = false
+
+                    when (selectedOptionIdx) {
+                        // 작성자 차단
+                        0 -> {
+
+                        }
+                        // 게시글 신고
+                        1 -> {
+
+                        }
+                        // 게시글 수정
+                        2 -> {
+                            mainNavController.currentBackStackEntry?.savedStateHandle
+                                ?.set("selected_post_id", postDetails.id)
+                            mainNavController.navigate(MainNavGraphRoutes.WRITEPOST.name)
+                        }
+                        // 게시글 삭제
+                        3 -> {
+                            postViewModel.deletePost(postDetails.id) { isSucceed ->
+
+                                if (isSucceed) {
+                                    SnackBarController.show(
+                                        "게시글 삭제 성공",
+                                        SnackBarBehindTarget.VIEW
+                                    )
+                                    mainNavController.popBackStack()
+                                } else {
+                                    SnackBarController.show(
+                                        "게시글 삭제 실패하였습니다.\n잠시 후 다시 시도해주세요.",
+                                        SnackBarBehindTarget.VIEW
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             )
         } else {
             SnackBarController.show(

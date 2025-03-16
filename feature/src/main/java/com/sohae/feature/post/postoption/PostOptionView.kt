@@ -32,7 +32,6 @@ fun PostOptionView(
     onConfirm: (Int) -> Unit
 ) {
     val tertiary = MaterialTheme.colorScheme.tertiary
-    val myNickname = ""
     val itemModifier = Modifier
         .fillMaxWidth()
         .drawBehind {

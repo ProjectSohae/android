@@ -18,7 +18,7 @@ interface PostRepository {
 
     fun getPostDetails(
         postId: Long,
-        callBack: (PostEntity?, String) -> Unit
+        callBack: (PostEntity?) -> Unit
     )
 
     fun updatePost(

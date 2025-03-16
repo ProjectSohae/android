@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.sohae.common.resource.R
+import com.sohae.common.ui.custom.composable.CircularLoadingBarView
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
@@ -68,6 +69,30 @@ import com.sohae.controller.mainnavgraph.MainScreenController
 fun WritePostView(
     writePostViewModel: WritePostViewModel
 ){
+    val mainNavController = MainNavGraphViewController.mainNavController
+    val isReadyPostDetails = writePostViewModel.isReadyPostDetails.collectAsState().value
+
+    LaunchedEffect(Unit) {
+
+        if (writePostViewModel.postId != null) {
+
+            writePostViewModel.loadPostDetails { isSucceed ->
+
+                if (isSucceed) {
+                    writePostViewModel.setIsReadyPostDetails(true)
+                } else {
+                    SnackBarController.show(
+                        "게시글을 불러오는데 실패했습니다.\n다시 시도해 주세요.",
+                        SnackBarBehindTarget.VIEW
+                    )
+                    mainNavController.popBackStack()
+                }
+            }
+        } else {
+            writePostViewModel.setIsReadyPostDetails(true)
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -85,13 +110,22 @@ fun WritePostView(
         ) {
             WritePostViewHeader()
 
-            LazyColumn(modifier = Modifier
-                .fillMaxSize()
-                .weight(1f)) {
-                item { WritePostViewBody(writePostViewModel) }
-            }
+            if (!isReadyPostDetails) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularLoadingBarView()
+                }
+            } else {
+                LazyColumn(modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)) {
+                    item { WritePostViewBody(writePostViewModel) }
+                }
 
-            WritePostViewFooter(writePostViewModel)
+                WritePostViewFooter(writePostViewModel)
+            }
         }
     }
 }
@@ -547,12 +581,31 @@ private fun WritePostViewFooter(
             onClick = {
 
                 if (myId != null) {
-                    writePostViewModel.uploadPost(myId) { msg, isSucceed ->
 
-                        SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+                    if (writePostViewModel.postId != null) {
+                        writePostViewModel.updatePost(myId) { isSucceed ->
 
-                        if (isSucceed) {
-                            mainNavController.popBackStack()
+                            if (isSucceed) {
+                                SnackBarController.show(
+                                    "게시글을 수정했습니다.",
+                                    SnackBarBehindTarget.VIEW
+                                )
+                                mainNavController.popBackStack()
+                            } else {
+                                SnackBarController.show(
+                                    "게시글 수정에 문제가 발생했습니다.\n잠시 후 다시 시도해 주세요.",
+                                    SnackBarBehindTarget.VIEW
+                                )
+                            }
+                        }
+                    } else {
+                        writePostViewModel.uploadPost(myId) { msg, isSucceed ->
+
+                            SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+
+                            if (isSucceed) {
+                                mainNavController.popBackStack()
+                            }
                         }
                     }
                 } else {
