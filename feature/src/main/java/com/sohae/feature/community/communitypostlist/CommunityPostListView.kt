@@ -23,6 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -51,11 +53,14 @@ fun CommunityPostListView(
 ) {
     val pageOffset = communityPostListViewModel.PAGE_OFFSET
     val lazyListState = rememberLazyListState()
+    val firstVisibleItemIndex = remember {
+        derivedStateOf { lazyListState.firstVisibleItemIndex }
+    }
     val maxFirstVisibleItemIndex = communityPostListViewModel.maxFirstVisibleItemIndex.collectAsState().value
     val isReadyPostsList = communityPostListViewModel.isReadyPostsList.collectAsState().value
     val previewPostsList = communityPostListViewModel.previewPostsList.collectAsState().value
 
-    LaunchedEffect(lazyListState.firstVisibleItemIndex) {
+    LaunchedEffect(firstVisibleItemIndex) {
 
         lazyListState.firstVisibleItemIndex.let { it ->
 
