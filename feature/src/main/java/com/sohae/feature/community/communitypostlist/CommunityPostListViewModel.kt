@@ -19,8 +19,9 @@ class CommunityPostListViewModel @Inject constructor(
     private val postUseCase: PostUseCase
 ): ViewModel() {
 
-    private var _initPostsList = MutableStateFlow(false)
-    val initPostsList = _initPostsList.asStateFlow()
+    var currentPage = 1
+
+    val PAGE_OFFSET = 20
 
     private var _isReadyPostsList = MutableStateFlow(false)
     val isReadyPostsList = _isReadyPostsList.asStateFlow()
@@ -28,28 +29,31 @@ class CommunityPostListViewModel @Inject constructor(
     private var _previewPostsList = MutableStateFlow<List<PostEntity>>(emptyList())
     val previewPostsList = _previewPostsList.asStateFlow()
 
-    fun setInitPostsList(input: Boolean) {
-        _initPostsList.value = input
-    }
+    private var _maxFirstVisibleItemIndex = MutableStateFlow(-1)
+    val maxFirstVisibleItemIndex = _maxFirstVisibleItemIndex.asStateFlow()
 
     fun setIsReadyPostsList(input: Boolean) {
         _isReadyPostsList.value = input
+    }
+
+    fun setMaxFirstVisibleItemIndex(input: Int) {
+        _maxFirstVisibleItemIndex.value = input
     }
 
     fun getPreviewPostsList(
         page: Int,
         category: CommunityCategory,
         subCategoryIdx: Int,
-        callback: (String) -> Unit
+        callback: (String, Boolean) -> Unit
     ) {
-        Log.d("sohae_", "load")
         val onSucceed = { getPostList: List<PostEntity> ->
             setIsReadyPostsList(true)
             _previewPostsList.value += getPostList
+            callback("", true)
         }
         val onFailure = { msg: String ->
-            setInitPostsList(true)
-            callback(msg)
+            setIsReadyPostsList(true)
+            callback(msg, false)
         }
 
         viewModelScope.launch {

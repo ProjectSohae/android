@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,20 +49,35 @@ fun CommunityPostListView(
     currentSelectedSubCategoryIdx: Int,
     communityPostListViewModel: CommunityPostListViewModel
 ) {
-    val initPostsList = communityPostListViewModel.initPostsList.collectAsState().value
+    val pageOffset = communityPostListViewModel.PAGE_OFFSET
+    val lazyListState = rememberLazyListState()
+    val maxFirstVisibleItemIndex = communityPostListViewModel.maxFirstVisibleItemIndex.collectAsState().value
     val isReadyPostsList = communityPostListViewModel.isReadyPostsList.collectAsState().value
     val previewPostsList = communityPostListViewModel.previewPostsList.collectAsState().value
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(lazyListState.firstVisibleItemIndex) {
 
-        if (previewPostsList.isEmpty() && !initPostsList) {
-            communityPostListViewModel.setInitPostsList(true)
-            communityPostListViewModel.getPreviewPostsList(
-                page = 1,
-                category = currentSelectedCategory,
-                subCategoryIdx = currentSelectedSubCategoryIdx
-            ) {
-                SnackBarController.show(it, SnackBarBehindTarget.VIEW)
+        lazyListState.firstVisibleItemIndex.let { it ->
+
+            if (maxFirstVisibleItemIndex < it) {
+                communityPostListViewModel.setMaxFirstVisibleItemIndex(
+                    maxFirstVisibleItemIndex.let {
+                        if (it < 0) { 0 } else { it }
+                    } + (pageOffset / 2)
+                )
+
+                communityPostListViewModel.getPreviewPostsList(
+                    page = communityPostListViewModel.currentPage,
+                    category = currentSelectedCategory,
+                    subCategoryIdx = currentSelectedSubCategoryIdx
+                ) { msg: String, isSucceed: Boolean ->
+
+                    if (!isSucceed) {
+                        SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+                    } else {
+                        communityPostListViewModel.currentPage++
+                    }
+                }
             }
         }
     }
@@ -93,7 +109,8 @@ fun CommunityPostListView(
         }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            state = lazyListState
         ) {
             itemsIndexed(
                 items = previewPostsList,

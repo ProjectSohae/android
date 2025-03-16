@@ -172,7 +172,7 @@ private fun PostHeaderView(
                         // 게시글 수정
                         2 -> {
                             mainNavController.currentBackStackEntry?.savedStateHandle
-                                ?.set("selected_post_id", postDetails.id)
+                                ?.set("modify_post_id", postDetails.id)
                             mainNavController.navigate(MainNavGraphRoutes.WRITEPOST.name)
                         }
                         // 게시글 삭제

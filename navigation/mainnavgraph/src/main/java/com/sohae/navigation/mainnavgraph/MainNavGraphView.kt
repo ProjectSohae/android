@@ -90,7 +90,7 @@ fun MainNavGraphView(
                 val writePostViewModel = hiltViewModel<WritePostViewModel>()
 
                 writePostViewModel.postId = mainNavController
-                    .previousBackStackEntry?.savedStateHandle?.get("selected_post_id")
+                    .previousBackStackEntry?.savedStateHandle?.get("modify_post_id")
 
                 writePostViewModel.setSelectedImageList(
                     mainNavController.currentBackStackEntry?.savedStateHandle
