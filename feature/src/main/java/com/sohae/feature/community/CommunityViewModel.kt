@@ -26,9 +26,6 @@ class CommunityViewModel @Inject constructor(
     private var _selectedSubCategory = MutableStateFlow(-1)
     val selectedSubCategory = _selectedSubCategory.asStateFlow()
 
-    private var _previewPostsList = MutableStateFlow<List<PostEntity>>(emptyList())
-    val previewPostsList = _previewPostsList.asStateFlow()
-
     fun selectCategory(input: CommunityCategory) {
 
         _selectedCategory.value = input
@@ -39,51 +36,5 @@ class CommunityViewModel @Inject constructor(
 
     fun selectSubCategory(input: Int) {
         _selectedSubCategory.value = input
-    }
-
-    fun getPreviewPostsList(
-        page: Int,
-        category: CommunityCategory,
-        subCategoryIdx: Int,
-        onFailure: (String) -> Unit
-    ) {
-        viewModelScope.launch {
-            myInfoUseCase.getMyAccessToken().collect { myAccessToken ->
-
-                if (myAccessToken != null) {
-
-                    when (category) {
-                        CommunityCategory.ALL -> {
-                            postUseCase.getPreviewPostsList(
-                                myAccessToken,
-                                1,
-                                subCategoryIdx.toLong()
-                            ) {
-
-                                if (it.isNotEmpty()) {
-                                    _previewPostsList.value += it
-                                } else {
-                                    onFailure("불러올 게시글이 더 이상 없습니다.")
-                                }
-                            }
-                        }
-
-                        CommunityCategory.HOT -> {
-
-                        }
-
-                        CommunityCategory.NOTICE -> {
-
-                        }
-
-                        else -> {
-                            onFailure("잘못된 카테고리 입니다.")
-                        }
-                    }
-                } else {
-                    onFailure("로그인 상태가 아닙니다.")
-                }
-            }
-        }
     }
 }
