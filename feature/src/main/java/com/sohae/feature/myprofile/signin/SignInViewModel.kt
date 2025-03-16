@@ -17,9 +17,9 @@ import com.kakao.sdk.user.UserApiClient
 import com.sohae.domain.myinformation.entity.MyTokenEntity
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
 import com.sohae.domain.profile.usecase.ProfileUseCase
-import com.sohae.domain.signin.entity.AuthTokenEntity
-import com.sohae.domain.signin.type.AuthType
-import com.sohae.domain.signin.usecase.SignInUseCase
+import com.sohae.domain.session.entity.AuthTokenEntity
+import com.sohae.domain.session.type.AuthType
+import com.sohae.domain.session.usecase.SessionUseCase
 import com.sohae.feature.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-    private val signInUseCase: SignInUseCase,
+    private val sessionUseCase: SessionUseCase,
     private val myInfoUseCase: MyInfoUseCase,
     private val profileUseCase: ProfileUseCase
 ): ViewModel() {
@@ -89,7 +89,7 @@ class SignInViewModel @Inject constructor(
         callback: (Boolean) -> Unit
     ) {
         viewModelScope.launch {
-            signInUseCase.getAuthToken(authType, socialToken) { authTokenEntity ->
+            sessionUseCase.getAuthToken(authType, socialToken) { authTokenEntity ->
 
                 if (authTokenEntity != null) {
                     insertNewMyToken(authTokenEntity)

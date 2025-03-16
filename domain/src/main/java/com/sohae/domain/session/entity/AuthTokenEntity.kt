@@ -1,4 +1,4 @@
-package com.sohae.domain.signin.entity
+package com.sohae.domain.session.entity
 
 data class AuthTokenEntity (
 

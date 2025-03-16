@@ -1,4 +1,4 @@
-package com.sohae.data.signin.response
+package com.sohae.data.session.response
 
 data class SignInResponse(
 

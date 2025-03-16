@@ -187,7 +187,20 @@ private fun MyProfileBodyView(
         }
         // 로그아웃
         1 -> {
-            myProfileViewModel.signOut()
+            myProfileViewModel.signOut { isSucceed ->
+
+                if (isSucceed) {
+                    SnackBarController.show(
+                        "로그아웃 성공",
+                        SnackBarBehindTarget.VIEW
+                    )
+                } else {
+                    SnackBarController.show(
+                        "로그아웃 실패.\n다시 시도해 주세요.",
+                        SnackBarBehindTarget.VIEW
+                    )
+                }
+            }
 
             showDialog = -1
         }

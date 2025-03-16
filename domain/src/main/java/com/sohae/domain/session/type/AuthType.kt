@@ -1,4 +1,4 @@
-package com.sohae.domain.signin.type
+package com.sohae.domain.session.type
 
 enum class AuthType {
     KAKAO,

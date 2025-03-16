@@ -4,11 +4,11 @@ import com.sohae.common.di.client.RetrofitClient
 import com.sohae.data.community.repositoryimpl.PostRepositoryImpl
 import com.sohae.data.myinformation.repositoryimpl.MyInfoRepositoryImpl
 import com.sohae.data.profile.repositoryimpl.ProfileRepositoryImpl
-import com.sohae.data.signin.repositoryimpl.SignInRepositoryImpl
+import com.sohae.data.session.repositoryimpl.SessionRepositoryImpl
 import com.sohae.domain.community.repository.PostRepository
 import com.sohae.domain.myinformation.repository.MyInfoRepository
 import com.sohae.domain.profile.repository.ProfileReposiotory
-import com.sohae.domain.signin.repository.SignInRepository
+import com.sohae.domain.session.repository.SessionRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,8 +27,11 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideSignInRepository(): SignInRepository {
-        return SignInRepositoryImpl(RetrofitClient.retrofit)
+    fun provideSessionRepository(): SessionRepository {
+        return SessionRepositoryImpl(
+            RetrofitClient.retrofit,
+            RetrofitClient.retrofitWithToken
+        )
     }
 
     @Provides
