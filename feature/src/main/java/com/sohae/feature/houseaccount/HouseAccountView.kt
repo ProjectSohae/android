@@ -1,7 +1,9 @@
 package com.sohae.feature.houseaccount
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -15,7 +17,11 @@ import androidx.compose.ui.unit.dp
 fun HouseAccountView(
     
 ) {
-    Scaffold {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary)
+    ) {
         val innerPadding = PaddingValues(
             it.calculateLeftPadding(LayoutDirection.Rtl),
             it.calculateTopPadding(),

@@ -1,6 +1,6 @@
 package com.sohae.common.di.client
 
-import com.sohae.common.di.interceptor.TokenInterceptor
+import com.sohae.common.di.interceptor.CheckExpiredTokenInterceptor
 import com.sohae.data.myinformation.repositoryimpl.MyInfoRepositoryImpl
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
 import okhttp3.OkHttpClient
@@ -21,9 +21,7 @@ object RetrofitClient {
         .client(
             OkHttpClient().newBuilder()
                 .addInterceptor(
-                    TokenInterceptor(
-                        MyInfoUseCase(MyInfoRepositoryImpl)
-                    )
+                    CheckExpiredTokenInterceptor(MyInfoUseCase(MyInfoRepositoryImpl))
                 )
                 .build()
         )

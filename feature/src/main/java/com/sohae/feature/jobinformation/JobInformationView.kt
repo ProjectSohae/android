@@ -82,7 +82,9 @@ fun JobInformationView() {
         NaverMapSdk.NaverCloudPlatformClient(BuildConfig.NAVER_MAP_CLIENT)
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary)
     ) {
         val innerPadding = PaddingValues(
             it.calculateLeftPadding(LayoutDirection.Rtl),
@@ -791,7 +793,7 @@ private fun JobReviewItemView() {
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                com.sohae.domain.jobreview.entity.JobReviewScoreNamesList.forEach { scoreName ->
+                JobReviewScoreNamesList.forEach { scoreName ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,

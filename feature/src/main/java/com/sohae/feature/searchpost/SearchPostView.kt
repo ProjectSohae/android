@@ -45,7 +45,9 @@ fun SearchPostView(
     searchPostViewModel: SearchPostViewModel
 ) {
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary)
     ) {
         val innerPadding = PaddingValues(
             it.calculateLeftPadding(LayoutDirection.Rtl),
@@ -238,8 +240,8 @@ private fun RecentSearchHistoryListView(
             LazyColumn {
                 itemsIndexed(
                     items = recentMySearchHistoryList,
-                    key = { idx: Int, item: com.sohae.domain.myinformation.entity.MySearchHistoryEntity -> idx }
-                ) { idx: Int, item: com.sohae.domain.myinformation.entity.MySearchHistoryEntity ->
+                    key = { idx: Int, item: MySearchHistoryEntity -> idx }
+                ) { idx: Int, item: MySearchHistoryEntity ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

@@ -2,6 +2,7 @@ package com.sohae.feature.profile
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -87,7 +88,9 @@ fun ProfileView(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary)
     ) {
         val innerPadding = PaddingValues(
             it.calculateLeftPadding(LayoutDirection.Rtl),

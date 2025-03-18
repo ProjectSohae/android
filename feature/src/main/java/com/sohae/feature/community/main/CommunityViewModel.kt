@@ -1,7 +1,7 @@
 package com.sohae.feature.community.main
 
 import androidx.lifecycle.ViewModel
-import com.sohae.domain.community.category.CommunityCategory
+import com.sohae.feature.community.category.CommunityCategory
 import com.sohae.domain.community.usecase.PostUseCase
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

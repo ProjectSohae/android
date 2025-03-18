@@ -41,7 +41,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -58,7 +57,6 @@ import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.barcolor.BarColorController
 import com.sohae.domain.utils.getLeavePeriod
-import kotlinx.coroutines.Delay
 import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.LocalDate
@@ -73,7 +71,11 @@ fun HomeView(
 ){
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
-    Scaffold {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary)
+    ) {
         val leftPadding = it.calculateLeftPadding(LayoutDirection.Rtl)
         val rightPadding = it.calculateRightPadding(LayoutDirection.Rtl)
 
@@ -729,7 +731,7 @@ private fun MyLeaveList(
                             maxDays = maxLeaveDaysList[idx]
                         )
                     } else {
-                        com.sohae.domain.utils.getLeavePeriod(
+                        getLeavePeriod(
                             homeViewModel.getTotalUsedLeaveTime(
                                 idx
                             )

@@ -65,7 +65,9 @@ fun MyProfileView(
     )
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary)
     ) {
         val innerPadding = PaddingValues(
             it.calculateLeftPadding(LayoutDirection.Rtl),
@@ -163,7 +165,7 @@ private fun MyProfileBodyView(
                     title = "닉네임 설정",
                     content = "설정 하고자 하는 닉네임을 입력해 주세요.",
                     inputFormatsList = listOf(Pair("닉네임 입력(10자 이내)", "")),
-                    initialValuesList = listOf(myAccount!!.username),
+                    initialValuesList = listOf(myAccount.username),
                     limitLength = 10,
                     isIntegerList = listOf(false),
                     keyboardOptionsList = listOf(

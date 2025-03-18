@@ -42,7 +42,7 @@ import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.domain.community.category.CommunityCategory
+import com.sohae.feature.community.category.CommunityCategory
 import com.sohae.domain.utils.getDiffTimeFromNow
 
 @Composable
@@ -106,7 +106,9 @@ fun CommunityPostListView(
             }
         } else {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.onPrimary),
                 contentAlignment = Alignment.Center
             ) {
                 CircularLoadingBarView()
@@ -114,7 +116,9 @@ fun CommunityPostListView(
         }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.onPrimary),
             state = lazyListState
         ) {
             itemsIndexed(

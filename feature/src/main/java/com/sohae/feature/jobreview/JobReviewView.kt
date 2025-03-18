@@ -45,7 +45,9 @@ fun JobReviewView(
     jobReviewViewModel: JobReviewViewModel = viewModel()
 ) {
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary)
     ) {
         val innerPadding = PaddingValues(
             it.calculateLeftPadding(LayoutDirection.Rtl),
@@ -176,7 +178,7 @@ fun JobReviewBodyView() {
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            com.sohae.domain.jobreview.entity.JobReviewScoreNamesList.forEach { scoreName ->
+                            JobReviewScoreNamesList.forEach { scoreName ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,

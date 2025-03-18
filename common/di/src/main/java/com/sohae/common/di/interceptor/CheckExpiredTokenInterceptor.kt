@@ -1,17 +1,12 @@
 package com.sohae.common.di.interceptor
 
-import android.util.Log
 import com.sohae.domain.myinformation.entity.MyTokenEntity
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class TokenInterceptor(
+class CheckExpiredTokenInterceptor(
     private val myInfoUseCase: MyInfoUseCase
 ): Interceptor {
 

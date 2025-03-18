@@ -7,7 +7,7 @@ import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.models.post.entity.PostImageEntity
 import com.sohae.domain.community.usecase.PostUseCase
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
-import com.sohae.domain.community.category.CommunityCategory
+import com.sohae.feature.community.category.CommunityCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

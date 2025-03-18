@@ -1,9 +1,12 @@
 package com.sohae.feature.community.main
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,19 +56,20 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.sohae.common.resource.R
 import com.sohae.controller.barcolor.BarColorController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.domain.community.category.CommunityCategory
-import com.sohae.feature.community.allpostlist.AllPostNavView
-import com.sohae.feature.community.hotpostlist.HotPostNavView
-import com.sohae.feature.community.noticelist.NoticePostNavVew
+import com.sohae.feature.community.category.CommunityCategory
+import com.sohae.feature.community.category.CommunityCategoryRoute
+import com.sohae.feature.community.communitypostlist.CommunityPostListView
+import com.sohae.feature.community.communitypostlist.CommunityPostListViewModel
 import kotlin.math.abs
 
 @Composable
@@ -74,7 +78,11 @@ fun CommunityView(
 ) {
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
-    Scaffold {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.onPrimary)
+    ) {
         val innerPadding = PaddingValues(
             it.calculateLeftPadding(LayoutDirection.Rtl),
             it.calculateTopPadding(),
@@ -132,23 +140,35 @@ private fun CommunityBodyView(
     communityNavController : NavHostController = rememberNavController(),
 ) {
     val mainNavController = MainNavGraphViewController.mainNavController
-    val currentSelectedCategory = communityNavController.currentBackStackEntryAsState().value?.destination?.route
-    var preSelectedCategory by rememberSaveable {
-        mutableStateOf(CommunityCategory.ALL)
-    }
+    val currentSelectedCategory = communityViewModel.selectedCategory.collectAsState().value
+    val currentSelectedSubCategoryIdx = communityViewModel.selectedSubCategory.collectAsState().value
+    var preSelectedCategory by rememberSaveable { mutableStateOf(CommunityCategory.ALL) }
+    var preSelectedSubCategory by rememberSaveable { mutableIntStateOf(-1) }
     var transitionDir by rememberSaveable { mutableIntStateOf(1) }
+    val getTransitionDir = { end: Int, start: Int ->
+        if (start >= 0 && end >= 0) {
+            (end - start).let { if (it != 0) { it / abs(it) } else { 0 } }
+        } else { 0 }
+    }
 
-    LaunchedEffect(currentSelectedCategory) {
+    LaunchedEffect(
+        currentSelectedCategory,
+        currentSelectedSubCategoryIdx
+    ) {
 
-        if (currentSelectedCategory != null) {
-            (
-                    CommunityCategory.valueOf(currentSelectedCategory).idx
-                            - preSelectedCategory.idx
-            ).let {
-                transitionDir = if (abs(it) > 0) { it / abs(it) } else { 0 }
-            }
-
-            preSelectedCategory = CommunityCategory.valueOf(currentSelectedCategory)
+        if (preSelectedCategory != currentSelectedCategory) {
+            transitionDir = getTransitionDir(
+                currentSelectedCategory.idx,
+                preSelectedCategory.idx
+            )
+            preSelectedCategory = currentSelectedCategory
+            preSelectedSubCategory = currentSelectedSubCategoryIdx
+        } else {
+            transitionDir = getTransitionDir(
+                currentSelectedSubCategoryIdx,
+                preSelectedSubCategory
+            )
+            preSelectedSubCategory = currentSelectedSubCategoryIdx
         }
     }
 
@@ -163,6 +183,7 @@ private fun CommunityBodyView(
 
         CommunitySubCategoryView(
             Modifier.zIndex(2f),
+            communityNavController,
             communityViewModel
         )
 
@@ -173,18 +194,85 @@ private fun CommunityBodyView(
             NavHost(
                 modifier = Modifier.fillMaxSize(),
                 navController = communityNavController,
-                startDestination = CommunityCategory.ALL.name,
-                enterTransition = { slideInHorizontally( initialOffsetX = { transitionDir * it } ) },
-                exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
+                startDestination = CommunityCategoryRoute.ALL,
+                enterTransition = {
+                    if (transitionDir == 0) {
+                        EnterTransition.None
+                    } else {
+                        slideInHorizontally( initialOffsetX = { transitionDir * it } )
+                    }
+                },
+                exitTransition = {
+                    if (transitionDir == 0) {
+                        ExitTransition.None
+                    } else {
+                        slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } )
+                    }
+                }
             ) {
-                composable(CommunityCategory.ALL.name) {
-                    AllPostNavView(communityViewModel)
+                navigation<CommunityCategoryRoute.ALL>(
+                    startDestination = CommunityCategoryRoute.ALL.MAIN
+                ) {
+                    composable<CommunityCategoryRoute.ALL.MAIN> {
+                        CommunityPostListView(
+                            currentSelectedCategory = CommunityCategory.ALL,
+                            currentSelectedSubCategoryIdx = -1,
+                            communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
+                        )
+                    }
+                    composable<CommunityCategoryRoute.ALL.COMMON> {
+                        CommunityPostListView(
+                            currentSelectedCategory = CommunityCategory.ALL,
+                            currentSelectedSubCategoryIdx = 0,
+                            communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
+                        )
+                    }
+                    composable<CommunityCategoryRoute.ALL.QUESTION> {
+                        CommunityPostListView(
+                            currentSelectedCategory = CommunityCategory.ALL,
+                            currentSelectedSubCategoryIdx = 1,
+                            communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
+                        )
+                    }
+                    composable<CommunityCategoryRoute.ALL.TIP> {
+                        CommunityPostListView(
+                            currentSelectedCategory = CommunityCategory.ALL,
+                            currentSelectedSubCategoryIdx = 2,
+                            communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
+                        )
+                    }
                 }
-                composable(CommunityCategory.HOT.name) {
-                    HotPostNavView(communityViewModel)
+                navigation<CommunityCategoryRoute.HOT>(
+                    startDestination = CommunityCategoryRoute.HOT.DAY
+                ) {
+                    composable<CommunityCategoryRoute.HOT.DAY> {
+                        CommunityPostListView(
+                            currentSelectedCategory = CommunityCategory.HOT,
+                            currentSelectedSubCategoryIdx = 0,
+                            communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
+                        )
+                    }
+                    composable<CommunityCategoryRoute.HOT.WEEK> {
+                        CommunityPostListView(
+                            currentSelectedCategory = CommunityCategory.HOT,
+                            currentSelectedSubCategoryIdx = 1,
+                            communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
+                        )
+                    }
+                    composable<CommunityCategoryRoute.HOT.MONTH> {
+                        CommunityPostListView(
+                            currentSelectedCategory = CommunityCategory.HOT,
+                            currentSelectedSubCategoryIdx = 2,
+                            communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
+                        )
+                    }
                 }
-                composable(CommunityCategory.NOTICE.name) {
-                    NoticePostNavVew(communityViewModel)
+                composable<CommunityCategoryRoute.NOTICE> {
+                    CommunityPostListView(
+                        currentSelectedCategory = CommunityCategory.NOTICE,
+                        currentSelectedSubCategoryIdx = 0,
+                        communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
+                    )
                 }
             }
 
@@ -278,7 +366,7 @@ private fun CommunityCategoryView(
                     .weight(1f)
                     .clickable {
                         if (selectedCategoryIdx != item.idx) {
-                            communityNavController.navigate(item.name) {
+                            communityNavController.communityNavigate(item, -1) {
                                 communityNavController.popBackStack()
                                 communityViewModel.selectCategory(item)
                             }
@@ -292,6 +380,7 @@ private fun CommunityCategoryView(
 @Composable
 private fun CommunitySubCategoryView(
     modifier: Modifier,
+    communityNavController: NavHostController,
     communityViewModel: CommunityViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -503,15 +592,27 @@ private fun CommunitySubCategoryView(
                                 if (currentSelectedSubCategoryIdx == idx) {
 
                                     if (currentSelectedCategory != CommunityCategory.HOT) {
-                                        communityViewModel.selectSubCategory(-1)
                                         showSelectedSubCategoryBackground = false
                                         preSelectedSubCategoryIdx = -1
                                         selectedSubCategoryLeftXPos = -1f
                                         selectedSubCategoryRightXPos = -1f
+                                        communityNavController.communityNavigate(
+                                            currentSelectedCategory,
+                                            -1
+                                        ) {
+                                            communityNavController.popBackStack()
+                                            communityViewModel.selectSubCategory(-1)
+                                        }
                                     }
                                 } else {
                                     preSelectedSubCategoryIdx = currentSelectedSubCategoryIdx
-                                    communityViewModel.selectSubCategory(idx)
+                                    communityNavController.communityNavigate(
+                                        currentSelectedCategory,
+                                        idx
+                                    ) {
+                                        communityNavController.popBackStack()
+                                        communityViewModel.selectSubCategory(idx)
+                                    }
                                 }
                             }
                             .padding(horizontal = 12.dp, vertical = 4.dp)

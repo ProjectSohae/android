@@ -19,7 +19,6 @@ class PostUseCase @Inject constructor(
     }
 
     fun getPreviewPostsList(
-        accessToken: String,
         page: Int,
         categoryId: CategoryId,
         callback: (List<PostEntity>) -> Unit
