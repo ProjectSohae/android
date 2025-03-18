@@ -1,4 +1,4 @@
-package com.sohae.feature.post.postoption
+package com.sohae.feature.post.option
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

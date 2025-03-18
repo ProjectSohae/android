@@ -61,7 +61,6 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(project(":domain"))
     implementation(project(":common:remote"))
-    implementation(project(":data"))
     implementation(libs.play.services.auth)
     kapt(libs.hilt.android.compiler)
 

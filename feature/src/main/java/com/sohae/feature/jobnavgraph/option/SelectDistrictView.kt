@@ -1,4 +1,4 @@
-package com.sohae.feature.jobnavgraph.selectdistrict
+package com.sohae.feature.jobnavgraph.option
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

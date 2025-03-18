@@ -2,9 +2,15 @@ package com.sohae.feature.jobnavgraph.jobinfolist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sohae.domain.jobinformation.usecase.JobInfoUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PreviewJobInfoListViewModel: ViewModel() {
+@HiltViewModel
+class PreviewJobInfoListViewModel @Inject constructor(
+    private val jobInfoUseCase: JobInfoUseCase
+): ViewModel() {
 
     // 접수 년도
     val jeopsu_yy = mapOf(
@@ -65,7 +71,7 @@ class PreviewJobInfoListViewModel: ViewModel() {
         bjdsggjuso_cd = emptyMap()
 
         viewModelScope.launch {
-            com.sohae.data.jobinformation.repositoryimpl.DistrictRepositoryImpl.getDistrictList(
+            jobInfoUseCase.getDistrictList(
                 ghjbc_cd,
                 codegubun,
                 callback = { response, errorMessage ->

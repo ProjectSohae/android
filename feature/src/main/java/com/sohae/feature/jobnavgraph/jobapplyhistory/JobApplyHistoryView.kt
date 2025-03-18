@@ -1,6 +1,7 @@
 package com.sohae.feature.jobnavgraph.jobapplyhistory
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,18 +37,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.mainnavgraph.MainScreenController
-import com.sohae.feature.jobnavgraph.selectdistrict.SelectDistrictView
+import com.sohae.feature.jobnavgraph.option.SelectDistrictView
 
 // 이전 경쟁률
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun JobApplyHistoryView(
-    jobApplyHistoryViewModel: JobApplyHistoryViewModel = viewModel()
+    jobApplyHistoryViewModel: JobApplyHistoryViewModel = hiltViewModel()
 ) {
     val tertiary = MaterialTheme.colorScheme.tertiary
     var selectedFilterIdx by rememberSaveable { mutableIntStateOf(-1) }
@@ -87,10 +89,10 @@ fun JobApplyHistoryView(
         if (loadJobApplyHistoryList) {
             jobApplyHistoryViewModel.updateJobApplyHistoryList(emptyList())
             jobApplyHistoryViewModel.getJobApplyHistoryList(
-                jobApplyHistoryViewModel.jeopsu_yy.get(jeopsu_yy) ?: "",
-                jobApplyHistoryViewModel.jeopsu_tms.get(jeopsu_tms) ?: "",
-                jobApplyHistoryViewModel.ghjbc_cd.get(ghjbc_cd) ?: "",
-                jobApplyHistoryViewModel.bjdsggjuso_cd.get(bjdsggjuso_cd) ?: "",
+                jobApplyHistoryViewModel.jeopsu_yy[jeopsu_yy] ?: "",
+                jobApplyHistoryViewModel.jeopsu_tms[jeopsu_tms] ?: "",
+                jobApplyHistoryViewModel.ghjbc_cd[ghjbc_cd] ?: "",
+                jobApplyHistoryViewModel.bjdsggjuso_cd[bjdsggjuso_cd] ?: "",
                 callback = {
                     SnackBarController.show(it, SnackBarBehindTarget.VIEW)
                 }
@@ -294,24 +296,28 @@ fun JobApplyHistoryView(
                         Column(modifier = Modifier.width(3600.dp)) {
                             JobDetailsCategoryView(jobApplyHistoryViewModel)
 
-                            LazyColumn {
-                                itemsIndexed(
-                                    items = jobApplyHistoryList,
-                                    key = { index: Int, item ->
-                                        index
-                                    }
-                                ) { index: Int, item ->
-                                    JobApplyHistoryItem(
-                                        jobApplyHistory = item,
-                                        drawOverline = (index > 0),
-                                        isPressed = (index == pressedItemIdx),
-                                        jobApplyHistoryViewModel = jobApplyHistoryViewModel,
-                                        pressItem = {
-                                            if (index == pressedItemIdx) {
-                                                pressedItemIdx = -1
-                                            } else { pressedItemIdx = index }
+                            if (jobApplyHistoryList.isEmpty()) {
+
+                            } else {
+                                LazyColumn {
+                                    itemsIndexed(
+                                        items = jobApplyHistoryList,
+                                        key = { index: Int, item ->
+                                            index
                                         }
-                                    )
+                                    ) { index: Int, item ->
+                                        JobApplyHistoryItem(
+                                            jobApplyHistory = item,
+                                            drawOverline = (index > 0),
+                                            isPressed = (index == pressedItemIdx),
+                                            jobApplyHistoryViewModel = jobApplyHistoryViewModel,
+                                            pressItem = {
+                                                pressedItemIdx = if (index == pressedItemIdx) {
+                                                    -1
+                                                } else { index }
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }

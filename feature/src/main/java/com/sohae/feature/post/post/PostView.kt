@@ -54,9 +54,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.models.comment.entity.CommentEntity
-import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.models.user.entity.UserId
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.CircularLoadingBarView
@@ -66,7 +64,7 @@ import com.sohae.controller.barcolor.BarColorController
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.feature.post.commentoption.CommentOptionView
-import com.sohae.feature.post.postoption.PostOptionView
+import com.sohae.feature.post.option.PostOptionView
 import com.sohae.domain.utils.getDiffTimeFromNow
 
 @Composable

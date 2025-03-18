@@ -10,11 +10,12 @@ import retrofit2.http.Query
 
 interface JobApplyHistoryRequestMethod {
 
-    @Headers("Content-Type: application/x-www-form-urlencoded")
-    @FormUrlEncoded
     @POST("selectSHBMBISTBMGGCJJeopSuHH.json")
     fun getJobApplyHistoryList(
         @Query("hwamyeon_id") hwamyeon_id: String = "SHBMBISTCJJeopSuHHAN_M",
-        @FieldMap fieldMap: Map<String, String>
+        @Query("jeopsu_yy") jeopsu_yy: String,
+        @Query("jeopsu_tms") jeopsu_tms: String,
+        @Query("ghjbc_cd") ghjbc_cd: String,
+        @Query("bjdsggjuso_cd") bjdsggjuso_cd: String
     ): Call<ResponseBody>
 }

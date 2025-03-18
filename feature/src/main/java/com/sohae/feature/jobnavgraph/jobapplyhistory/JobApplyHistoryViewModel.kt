@@ -1,12 +1,20 @@
 package com.sohae.feature.jobnavgraph.jobapplyhistory
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sohae.common.models.workplace.entity.ApplyHistoryEntity
+import com.sohae.domain.jobinformation.usecase.JobInfoUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class JobApplyHistoryViewModel: ViewModel() {
+@HiltViewModel
+class JobApplyHistoryViewModel @Inject constructor(
+    private val jobInfoUseCase: JobInfoUseCase
+): ViewModel() {
 
     // 접수 년도
     val jeopsu_yy = mapOf(
@@ -94,7 +102,7 @@ class JobApplyHistoryViewModel: ViewModel() {
         bjdsggjuso_cd = emptyMap()
 
         viewModelScope.launch {
-            com.sohae.data.jobinformation.repositoryimpl.DistrictRepositoryImpl.getDistrictList(
+            jobInfoUseCase.getDistrictList(
                 ghjbc_cd,
                 codegubun,
                 callback = { response, errorMessage ->
@@ -116,7 +124,9 @@ class JobApplyHistoryViewModel: ViewModel() {
     fun getJobApplyHistoryList(
         jeopsu_yy: String,
         jeopsu_tms: String,
+        // 관할 병무청
         ghjbc_cd: String,
+        // 시.군.구
         bjdsggjuso_cd: String,
         callback: (String) -> Unit
     ) {
@@ -131,19 +141,32 @@ class JobApplyHistoryViewModel: ViewModel() {
         }
 
         viewModelScope.launch {
-            val tmp = mutableListOf<List<String>>()
-            val getMaxStack: (String, String, String, String) -> Int = { zero, one, two, three ->
+            val getMaxStack: (ApplyHistoryEntity, Int) -> Int = { entity, round ->
 
-                if (three != "0") {
-                    3
-                } else if (two != "0") {
-                    2
-                } else if (one != "0") {
-                    1
-                } else if (zero != "0") {
-                    0
+                if (round == 1) {
+                    if (entity.탈락_횟수별_1지망_선택_인원_3회_이상 > 0) {
+                        3
+                    } else if (entity.탈락_횟수별_1지망_선택_인원_2회 > 0) {
+                        2
+                    } else if (entity.탈락_횟수별_1지망_선택_인원_1회 > 0) {
+                        1
+                    } else if (entity.탈락_횟수별_1지망_선택_인원_0회 > 0) {
+                        0
+                    } else {
+                        -1
+                    }
                 } else {
-                    -1
+                    if (entity.탈락_횟수별_2지망_선택_인원_3회_이상 > 0) {
+                        3
+                    } else if (entity.탈락_횟수별_2지망_선택_인원_2회 > 0) {
+                        2
+                    } else if (entity.탈락_횟수별_2지망_선택_인원_1회 > 0) {
+                        1
+                    } else if (entity.탈락_횟수별_2지망_선택_인원_0회 > 0) {
+                        0
+                    } else {
+                        -1
+                    }
                 }
             }
             val maxStackToString: (Int) -> String = { value ->
@@ -156,14 +179,24 @@ class JobApplyHistoryViewModel: ViewModel() {
                     else -> { "없음" }
                 }
             }
-            val getMaxStackCount: (Int, String, String, String, String) -> Int = { maxStack, zeroCnt, oneCnt, twoCnt, threeCnt ->
+            val getMaxStackCount: (ApplyHistoryEntity, Int, Int) -> Int = { entity, maxStack, round ->
 
-                when (maxStack) {
-                    3 -> { threeCnt.toInt() }
-                    2 -> { twoCnt.toInt() }
-                    1 -> { oneCnt.toInt() }
-                    0 -> { zeroCnt.toInt() }
-                    else -> { -1 }
+                if (round == 1) {
+                    when (maxStack) {
+                        3 -> { entity.탈락_횟수별_1지망_선택_인원_3회_이상 }
+                        2 -> { entity.탈락_횟수별_1지망_선택_인원_2회 }
+                        1 -> { entity.탈락_횟수별_1지망_선택_인원_1회 }
+                        0 -> { entity.탈락_횟수별_1지망_선택_인원_0회 }
+                        else -> { -1 }
+                    }
+                } else {
+                    when (maxStack) {
+                        3 -> { entity.탈락_횟수별_2지망_선택_인원_3회_이상 }
+                        2 -> { entity.탈락_횟수별_2지망_선택_인원_2회 }
+                        1 -> { entity.탈락_횟수별_2지망_선택_인원_1회 }
+                        0 -> { entity.탈락_횟수별_2지망_선택_인원_0회 }
+                        else -> { -1 }
+                    }
                 }
             }
             val getMaxStackCompetitionRate: (Int, Int) -> String = { value, div ->
@@ -173,33 +206,86 @@ class JobApplyHistoryViewModel: ViewModel() {
                     "없음"
                 }
             }
-            val getAllCompetitionRate: (String, String, String, String, String) -> String = { zeroStack, oneStack, twoStack, threeStack, div ->
-                val total = zeroStack.toInt() + oneStack.toInt() + twoStack.toInt() + threeStack.toInt()
+            val getAllCompetitionRate: (ApplyHistoryEntity, Int) -> String = { entity, round ->
+                val total = if (round == 1) {
+                    entity.탈락_횟수별_1지망_선택_인원_0회 +
+                            entity.탈락_횟수별_1지망_선택_인원_1회 +
+                            entity.탈락_횟수별_1지망_선택_인원_2회 +
+                            entity.탈락_횟수별_1지망_선택_인원_3회_이상
+                }
+                else {
+                    entity.탈락_횟수별_2지망_선택_인원_0회 +
+                            entity.탈락_횟수별_2지망_선택_인원_1회 +
+                            entity.탈락_횟수별_2지망_선택_인원_2회 +
+                            entity.탈락_횟수별_2지망_선택_인원_3회_이상
+                }
 
-                if (total > 0 && div.toInt() != 0) {
-                    "${total.toFloat() / div.toInt().toFloat()}:1"
+                if (total > 0 && entity.공석 != 0) {
+                    "${total.toFloat() / entity.공석.toFloat()}:1"
                 } else {
                     "없음"
                 }
             }
 
-            com.sohae.data.jobinformation.repositoryimpl.JobApplyHistoryRepositoryImpl.getJobApplyHistoryList(
+            jobInfoUseCase.getJobApplyHistoryList(
                 jeopsu_yy = jeopsu_yy,
                 jeopsu_tms = jeopsu_tms,
                 ghjbc_cd = ghjbc_cd,
-                bjdsggjuso_cd = bjdsggjuso_cd,
-                callback = { jobApplyHistoryList, errorMessage ->
+                bjdsggjuso_cd = bjdsggjuso_cd
+            ) { response, msg, isSucceed ->
 
-                    if (errorMessage.isBlank()) {
-                        jobApplyHistoryList.forEach {
+                if (isSucceed) {
+                    updateJobApplyHistoryList(
+                        response.map { entity ->
 
+                            listOf(
+                                entity.소집_일자,
+                                entity.복무_기관_분류,
+                                entity.복무_기관,
+                                entity.공석.toString(),
+                                maxStackToString(getMaxStack(entity, 1)),
+                                getMaxStack(entity, 1).let { stackValue ->
+                                    if (stackValue < 0) {
+                                        "없음"
+                                    } else {
+                                        getMaxStackCompetitionRate(
+                                            getMaxStackCount(entity, stackValue, 1),
+                                            entity.공석
+                                        )
+                                    }
+                                },
+                                getAllCompetitionRate(entity, 1),
+                                entity.전공자_선택_인원_1지망.toString(),
+                                entity.탈락_횟수별_1지망_선택_인원_3회_이상.toString(),
+                                entity.탈락_횟수별_1지망_선택_인원_2회.toString(),
+                                entity.탈락_횟수별_1지망_선택_인원_1회.toString(),
+                                entity.탈락_횟수별_1지망_선택_인원_0회.toString(),
+                                maxStackToString(getMaxStack(entity, 2)),
+                                getMaxStack(entity, 2).let { stackValue ->
+                                    if (stackValue < 0) {
+                                        "없음"
+                                    } else {
+                                        getMaxStackCompetitionRate(
+                                            getMaxStackCount(entity, stackValue, 2),
+                                            entity.공석
+                                        )
+                                    }
+                                },
+                                getAllCompetitionRate(entity, 2),
+                                entity.전공자_선택_인원_2지망.toString(),
+                                entity.탈락_횟수별_2지망_선택_인원_3회_이상.toString(),
+                                entity.탈락_횟수별_2지망_선택_인원_2회.toString(),
+                                entity.탈락_횟수별_2지망_선택_인원_1회.toString(),
+                                entity.탈락_횟수별_2지망_선택_인원_0회.toString(),
+                                entity.세부_주소,
+                                entity.입영_부대
+                            )
                         }
-                        updateJobApplyHistoryList(tmp)
-                    } else {
-                        callback(errorMessage)
-                    }
+                    )
+                } else {
+
                 }
-            )
+            }
         }
     }
 }

@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
@@ -54,13 +55,13 @@ import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainScreenController
-import com.sohae.feature.jobnavgraph.selectdistrict.SelectDistrictView
+import com.sohae.feature.jobnavgraph.option.SelectDistrictView
 
 // 복무지 목록
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PreviewJobInfoListView(
-    previewJobInfoListViewModel: PreviewJobInfoListViewModel = viewModel()
+    previewJobInfoListViewModel: PreviewJobInfoListViewModel = hiltViewModel()
 ) {
     val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
