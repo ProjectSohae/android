@@ -92,7 +92,7 @@ fun HomeNavGraphView(
                 HomeView(hiltViewModel<HomeViewModel>())
             }
             composable(HomeNavGraphBarItems.COMMUNITY.name) {
-                CommunityView(hiltViewModel<CommunityViewModel>())
+                CommunityView()
             }
             composable(HomeNavGraphBarItems.JOBSEARCH.name) {
                 JobInfoNavGraphView()

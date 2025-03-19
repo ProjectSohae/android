@@ -2,6 +2,7 @@ package com.sohae.domain.community.usecase
 
 import com.sohae.common.models.post.entity.CategoryId
 import com.sohae.common.models.post.entity.PostEntity
+import com.sohae.common.models.user.entity.UserId
 import com.sohae.domain.community.repository.PostRepository
 import javax.inject.Inject
 
@@ -26,6 +27,32 @@ class PostUseCase @Inject constructor(
         postRepository.getPreviewPostsList(
             page,
             categoryId
+        ) { previewPostsList, isSucceed ->
+            callback(previewPostsList)
+        }
+    }
+
+    fun getPreviewPostsListByUserId(
+        page: Int,
+        userId: UserId,
+        callback: (List<PostEntity>) -> Unit
+    ) {
+        postRepository.getPreviewPostsListByUserId(
+            page,
+            userId
+        ) { previewPostsList, isSucceed ->
+            callback(previewPostsList)
+        }
+    }
+
+    fun getPreviewPopularPostsList(
+        page: Int,
+        periodIdx: Int,
+        callback: (List<PostEntity>) -> Unit
+    ) {
+        postRepository.getPreviewPopularPostsList(
+            page,
+            periodIdx
         ) { previewPostsList, isSucceed ->
             callback(previewPostsList)
         }

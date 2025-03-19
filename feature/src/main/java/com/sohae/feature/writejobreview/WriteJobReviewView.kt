@@ -538,11 +538,11 @@ private fun WriteJobOthersItem(
             initIdx = initIdx,
             intensity = 0.8f,
             onDismissRequest = { isPressed = false },
-            onConfirmation = { getItemName ->
+            onConfirm = { getItemName ->
                 isPressed = false
                 callback(getItemName.toString())
             },
-            optionsList = optionsList
+            optionList = optionsList
         )
     }
 

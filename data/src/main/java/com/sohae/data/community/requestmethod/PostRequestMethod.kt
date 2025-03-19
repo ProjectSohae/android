@@ -4,6 +4,7 @@ import com.sohae.common.models.post.entity.CategoryId
 import com.sohae.common.models.post.request.CreatePostRequest
 import com.sohae.common.models.post.request.UpdatePostRequest
 import com.sohae.common.models.post.response.PostResponse
+import com.sohae.common.models.user.entity.UserId
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -24,6 +25,18 @@ interface PostRequestMethod {
     @GET("posts")
     fun getPostsList(
         @Query("category_id") categoryId: CategoryId,
+        @Query("page") page: Int
+    ): Call<List<PostResponse>>
+
+    @GET("user/{user_id}/post")
+    fun getPostsListByUserId(
+        @Path("user_id") userId: UserId,
+        @Query("page") page: Int
+    ): Call<List<PostResponse>>
+
+    @GET("posts/popular")
+    fun getPopularPostsList(
+        @Query("period") periodIdx: Int,
         @Query("page") page: Int
     ): Call<List<PostResponse>>
 

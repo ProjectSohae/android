@@ -283,7 +283,7 @@ class JobApplyHistoryViewModel @Inject constructor(
                         }
                     )
                 } else {
-
+                    callback(msg)
                 }
             }
         }

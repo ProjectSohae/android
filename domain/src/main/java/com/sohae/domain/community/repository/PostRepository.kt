@@ -2,6 +2,7 @@ package com.sohae.domain.community.repository
 
 import com.sohae.common.models.post.entity.CategoryId
 import com.sohae.common.models.post.entity.PostEntity
+import com.sohae.common.models.user.entity.UserId
 
 interface PostRepository {
 
@@ -13,6 +14,18 @@ interface PostRepository {
     fun getPreviewPostsList(
         page: Int,
         categoryId: CategoryId,
+        callBack: (List<PostEntity>, Boolean) -> Unit
+    )
+
+    fun getPreviewPopularPostsList(
+        page: Int,
+        periodIdx: Int,
+        callBack: (List<PostEntity>, Boolean) -> Unit
+    )
+
+    fun getPreviewPostsListByUserId(
+        page: Int,
+        userId: UserId,
         callBack: (List<PostEntity>, Boolean) -> Unit
     )
 

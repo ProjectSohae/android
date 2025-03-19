@@ -734,14 +734,14 @@ private fun SalaryDetails(
                 suffix = "일",
                 intensity = 1f,
                 onDismissRequest = { openDialog = -1 },
-                onConfirmation = { getValue ->
+                onConfirm = { getValue ->
                     profileViewModel.updateMyWelfare(
                         openDialog,
                         getValue.toString().toInt()
                     )
                     openDialog = -1
                 },
-                optionsList = profileViewModel.startPayDayList
+                optionList = profileViewModel.startPayDayList
             )
         }
     }
@@ -906,14 +906,14 @@ private fun RestTimeDetails(
             suffix = "일",
             intensity = 0.95f,
             onDismissRequest = { openDialog = -1 },
-            onConfirmation = { getDays ->
+            onConfirm = { getDays ->
                 profileViewModel.updateMyLeave(
                     openDialog,
                     getDays.toString().toInt()
                 )
                 openDialog = -1
             },
-            optionsList = profileViewModel.leaveDayList
+            optionList = profileViewModel.leaveDayList
         )
     }
 

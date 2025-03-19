@@ -110,7 +110,7 @@ fun PreviewJobInfoListView(
                 },
                 intensity = 0.8f,
                 onDismissRequest = { pressedFilterIdx = -1 },
-                onConfirmation = { getOptionValue ->
+                onConfirm = { getOptionValue ->
 
                     when (pressedFilterIdx) {
                         0 -> {
@@ -137,7 +137,7 @@ fun PreviewJobInfoListView(
 
                     pressedFilterIdx = -1
                 },
-                optionsList = filterOptionsList[pressedFilterIdx]
+                optionList = filterOptionsList[pressedFilterIdx]
             )
         }
         // 시.군.구

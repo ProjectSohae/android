@@ -71,7 +71,17 @@ class CommunityPostListViewModel @Inject constructor(
                 }
 
                 CommunityCategory.HOT -> {
+                    postUseCase.getPreviewPopularPostsList(
+                        page,
+                        subCategoryIdx
+                    ) {
 
+                        if (it.isNotEmpty()) {
+                            onSucceed(it)
+                        } else {
+                            onFailure("불러올 게시글이 더 이상 없습니다.")
+                        }
+                    }
                 }
 
                 CommunityCategory.NOTICE -> {

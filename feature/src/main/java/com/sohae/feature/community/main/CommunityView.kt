@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -74,7 +75,7 @@ import kotlin.math.abs
 
 @Composable
 fun CommunityView(
-    communityViewModel: CommunityViewModel
+    communityViewModel: CommunityViewModel = viewModel()
 ) {
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
@@ -141,7 +142,7 @@ private fun CommunityBodyView(
 ) {
     val mainNavController = MainNavGraphViewController.mainNavController
     val currentSelectedCategory = communityViewModel.selectedCategory.collectAsState().value
-    val currentSelectedSubCategoryIdx = communityViewModel.selectedSubCategory.collectAsState().value
+    val currentSelectedSubCategoryIdx = communityViewModel.selectedSubCategoryIdx.collectAsState().value
     var preSelectedCategory by rememberSaveable { mutableStateOf(CommunityCategory.ALL) }
     var preSelectedSubCategory by rememberSaveable { mutableIntStateOf(-1) }
     var transitionDir by rememberSaveable { mutableIntStateOf(1) }
@@ -387,11 +388,10 @@ private fun CommunitySubCategoryView(
     val onPrimary = MaterialTheme.colorScheme.onPrimary
     val tertiary = MaterialTheme.colorScheme.tertiary
 
+    val preSelectedSubCategoryIdx = communityViewModel.preSelectedSubCategoryIdx.collectAsState().value
+
     val currentSelectedCategory = communityViewModel.selectedCategory.collectAsState().value
-    val currentSelectedSubCategoryIdx = communityViewModel.selectedSubCategory.collectAsState().value
-    var preSelectedSubCategoryIdx by rememberSaveable {
-        mutableIntStateOf(-1)
-    }
+    val currentSelectedSubCategoryIdx = communityViewModel.selectedSubCategoryIdx.collectAsState().value
 
     val composableScale by animateFloatAsState(
         targetValue = if (currentSelectedCategory == CommunityCategory.NOTICE) {
@@ -431,8 +431,11 @@ private fun CommunitySubCategoryView(
         ),
         label = ""
     ) {
-        if (preSelectedSubCategoryIdx < 0) {
-            preSelectedSubCategoryIdx = currentSelectedSubCategoryIdx
+        if (
+            preSelectedSubCategoryIdx < 0
+            && preSelectedSubCategoryIdx != currentSelectedSubCategoryIdx
+            ) {
+            communityViewModel.updatePreSelectedSubCategoryIdx(currentSelectedSubCategoryIdx)
 
             if (currentSelectedSubCategoryIdx >= 0) {
                 showSelectedSubCategoryBackground = true
@@ -456,8 +459,11 @@ private fun CommunitySubCategoryView(
         ),
         label = ""
     ) {
-        if (preSelectedSubCategoryIdx < 0) {
-            preSelectedSubCategoryIdx = currentSelectedSubCategoryIdx
+        if (
+            preSelectedSubCategoryIdx < 0
+            && preSelectedSubCategoryIdx != currentSelectedSubCategoryIdx
+            ) {
+            communityViewModel.updatePreSelectedSubCategoryIdx(currentSelectedSubCategoryIdx)
 
             if (currentSelectedSubCategoryIdx >= 0) {
                 showSelectedSubCategoryBackground = true
@@ -469,7 +475,6 @@ private fun CommunitySubCategoryView(
 
         if (currentSelectedCategory != CommunityCategory.HOT) {
             showSelectedSubCategoryBackground = false
-            preSelectedSubCategoryIdx = -1
             selectedSubCategoryLeftXPos = -1f
             selectedSubCategoryRightXPos = -1f
         }
@@ -593,7 +598,7 @@ private fun CommunitySubCategoryView(
 
                                     if (currentSelectedCategory != CommunityCategory.HOT) {
                                         showSelectedSubCategoryBackground = false
-                                        preSelectedSubCategoryIdx = -1
+                                        communityViewModel.updatePreSelectedSubCategoryIdx(-1)
                                         selectedSubCategoryLeftXPos = -1f
                                         selectedSubCategoryRightXPos = -1f
                                         communityNavController.communityNavigate(
@@ -605,7 +610,9 @@ private fun CommunitySubCategoryView(
                                         }
                                     }
                                 } else {
-                                    preSelectedSubCategoryIdx = currentSelectedSubCategoryIdx
+                                    communityViewModel.updatePreSelectedSubCategoryIdx(
+                                        currentSelectedSubCategoryIdx
+                                    )
                                     communityNavController.communityNavigate(
                                         currentSelectedCategory,
                                         idx

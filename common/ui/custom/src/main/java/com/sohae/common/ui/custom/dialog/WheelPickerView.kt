@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,15 +56,15 @@ fun WheelPickerDialog(
     suffix: String = "",
     intensity: Float,
     onDismissRequest: () -> Unit,
-    onConfirmation: (Any) -> Unit,
-    optionsList: List<String>
+    onConfirm: (Any) -> Unit,
+    optionList: List<String>
 ) {
-    val inputListSize = optionsList.size
+    val optionListSize = optionList.size
     val scrollInteraction = remember { MutableInteractionSource() }
     var scrollTotalDelta by remember { mutableIntStateOf(0) }
     var scrollDelta by remember { mutableIntStateOf(0) }
-    var scrollDir = 0
-    var isUndo = false
+    var scrollDir by remember { mutableIntStateOf(0) }
+    var isUndo by remember { mutableStateOf(false) }
     val initialZIndex = listOf( 0, 100, 200, 300, 200, 100, 0 )
     val initialAlpha = listOf( 0.4f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.4f)
     val initialScaleXY = listOf( 0.5f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.5f )
@@ -74,20 +75,20 @@ fun WheelPickerDialog(
     val currentRotateX = mutableListOf( 150f, 75f, 30f, 0f, -30f, -75f, -150f )
     val currentOffsetY = mutableListOf( -20, -72, -24, 70, 164, 212, 160)
     val currentAlpha = mutableListOf( 0.4f, 0.6f, 0.8f, 1f, 0.8f, 0.6f, 0.4f)
-    // currentIdx(i): i번째 item이 ui 상에서 currentIdx(i)번째에 위치함.
+    // currentIdx(i): i-th item's position on UI is equal to currentIdx(i)-th's
     val currentIdx = mutableListOf( 0, 1, 2, 3, 4, 5, 6 )
     val reverseCurrentIdx = mutableListOf( 0, 1, 2, 3, 4, 5, 6 )
     val targetIdx = mutableListOf( 0, 1, 2, 3, 4, 5, 6 )
     var startOptionValueIdx: Int
     var lastOptionValueIdx: Int
     val currentOptionValueIdx = mutableListOf(
-        ((inputListSize - 1) - (2 % inputListSize) + initIdx) % inputListSize,
-        ((inputListSize - 1) - (1 % inputListSize) + initIdx) % inputListSize,
-        ((inputListSize - 1) + initIdx) % inputListSize,
+        ((optionListSize - 1) - (2 % optionListSize) + initIdx) % optionListSize,
+        ((optionListSize - 1) - (1 % optionListSize) + initIdx) % optionListSize,
+        ((optionListSize - 1) + initIdx) % optionListSize,
         initIdx,
-        ((initIdx + 1) % inputListSize),
-        ((initIdx + 2) % inputListSize),
-        ((initIdx + 3) % inputListSize)
+        ((initIdx + 1) % optionListSize),
+        ((initIdx + 2) % optionListSize),
+        ((initIdx + 3) % optionListSize)
     )
     val calcCurrentFloatValue: (Float, Float, Int) -> Float = { current, target, delta ->
         current + ((target - current) * (delta % 100)) / 100f
@@ -105,7 +106,8 @@ fun WheelPickerDialog(
                 .height(300.dp)
                 .scrollable(
                     orientation = Orientation.Vertical,
-                    // + <- 아래로 스크롤, - <- 위로 스크롤
+                    // positive delta <- scroll downward
+                    // negative delta <- scroll upward
                     state = rememberScrollableState { delta ->
                         scrollDelta = delta.toInt()
 
@@ -139,9 +141,9 @@ fun WheelPickerDialog(
         ) {
             val isDragged = scrollInteraction.collectIsDraggedAsState().value
 
-            // ui 위치상 가장 위
+            // uppermost position on UI
             startOptionValueIdx = reverseCurrentIdx[0]
-            // ui 위치상 가장 아래
+            // lowermost position on UI
             lastOptionValueIdx = reverseCurrentIdx[6]
 
             if (!isDragged) {
@@ -163,28 +165,28 @@ fun WheelPickerDialog(
 
                 if (abs(scrollDelta) > 0) {
 
-                    // 위로 스크롤
+                    // scroll upward
                     if (scrollDelta < 0) {
 
                         if (currentIdx[idx] - (scrollTotalDelta / 100) < 0) {
                             currentOptionValueIdx[idx] = (currentOptionValueIdx[lastOptionValueIdx] +
                                     (7 * (((scrollTotalDelta / 100) - currentIdx[idx]) / 7)) +
                                     (lastOptionValueIdx > idx).let { if (it) { 7 - lastOptionValueIdx + idx } else { idx - lastOptionValueIdx } }) %
-                                    inputListSize
+                                    optionListSize
                         }
 
                         currentIdx[idx] = (7 + currentIdx[idx] - ((scrollTotalDelta / 100) % 7)) % 7
                         targetIdx[idx] = (7 + currentIdx[idx] - 1) % 7
                     }
-                    // 아래로 스크롤
+                    // scroll downward
                     else {
 
                         if (currentIdx[idx] + (scrollTotalDelta / 100) > 6) {
                             currentOptionValueIdx[idx] = ((currentOptionValueIdx[startOptionValueIdx] -
                                     (7 * ((((scrollTotalDelta / 100) + currentIdx[idx]) / 7) - 1)) -
                                     (startOptionValueIdx < idx).let { if (it) { 7 - idx + startOptionValueIdx } else { startOptionValueIdx - idx } }) %
-                                    inputListSize)
-                                .let { if (it < 0) { it + inputListSize } else { it } }
+                                    optionListSize)
+                                .let { if (it < 0) { it + optionListSize } else { it } }
                         }
 
                         currentIdx[idx] = (currentIdx[idx] + (scrollTotalDelta / 100)) % 7
@@ -235,9 +237,9 @@ fun WheelPickerDialog(
                     currentIdx = currentIdx[idx],
                     targetIdx = targetIdx[idx],
                     currentAlpha = currentAlpha[idx],
-                    optionValue = optionsList[currentOptionValueIdx[idx]],
+                    optionValue = optionList[currentOptionValueIdx[idx]],
                     onConfirmation = { getOptionValue ->
-                        onConfirmation(getOptionValue)
+                        onConfirm(getOptionValue)
                     }
                 )
             }
@@ -335,7 +337,7 @@ private fun WheelPickerItem(
                         }
                     ),
                     color = currentColor,
-                    style = Stroke(width = 10f)
+                    style = Stroke(width = 4.dp.toPx())
                 )
             }
             .shadow(

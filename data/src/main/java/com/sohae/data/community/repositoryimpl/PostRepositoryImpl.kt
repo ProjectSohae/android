@@ -4,6 +4,7 @@ import android.util.Log
 import com.sohae.common.models.post.entity.CategoryId
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.models.post.response.PostResponse
+import com.sohae.common.models.user.entity.UserId
 import com.sohae.data.community.mapper.toCreatePostRequest
 import com.sohae.data.community.mapper.toPostEntity
 import com.sohae.data.community.mapper.toUpdatePostRequest
@@ -74,6 +75,98 @@ class PostRepositoryImpl @Inject constructor(
             callBack(emptyList(), false)
         }
         val request = client.getPostsList(categoryId, page)
+
+        request.enqueue(object: Callback<List<PostResponse>> {
+            override fun onResponse(
+                p0: Call<List<PostResponse>>,
+                p1: Response<List<PostResponse>>
+            ) {
+
+                if (p1.isSuccessful) {
+
+                    p1.body()?.let {
+                        Log.d(tag, "$it")
+                        success(it)
+                    } ?: {
+                        failureLog("서버 응답 내용 없음", Throwable(p1.errorBody()?.string()))
+                        failure()
+                    }
+                } else {
+                    failureLog("서버 응답 실패", Throwable(p1.errorBody()?.string()))
+                    failure()
+                }
+            }
+
+            override fun onFailure(p0: Call<List<PostResponse>>, p1: Throwable) {
+                failureLog("서버 요청 실패", p1)
+                failure()
+            }
+        })
+    }
+
+    override fun getPreviewPopularPostsList(
+        page: Int,
+        periodIdx: Int,
+        callBack: (List<PostEntity>, Boolean) -> Unit
+    ) {
+        val success: (List<PostResponse>) -> Unit = { response ->
+            callBack(
+                response.map {
+                    it.toPostEntity()
+                },
+                true
+            )
+        }
+        val failure = {
+            callBack(emptyList(), false)
+        }
+        val request = client.getPopularPostsList(periodIdx, page)
+
+        request.enqueue(object: Callback<List<PostResponse>> {
+            override fun onResponse(
+                p0: Call<List<PostResponse>>,
+                p1: Response<List<PostResponse>>
+            ) {
+
+                if (p1.isSuccessful) {
+
+                    p1.body()?.let {
+                        Log.d(tag, "$it")
+                        success(it)
+                    } ?: {
+                        failureLog("서버 응답 내용 없음", Throwable(p1.errorBody()?.string()))
+                        failure()
+                    }
+                } else {
+                    failureLog("서버 응답 실패", Throwable(p1.errorBody()?.string()))
+                    failure()
+                }
+            }
+
+            override fun onFailure(p0: Call<List<PostResponse>>, p1: Throwable) {
+                failureLog("서버 요청 실패", p1)
+                failure()
+            }
+        })
+    }
+
+    override fun getPreviewPostsListByUserId(
+        page: Int,
+        userId: UserId,
+        callBack: (List<PostEntity>, Boolean) -> Unit
+    ) {
+        val success: (List<PostResponse>) -> Unit = { response ->
+            callBack(
+                response.map {
+                    it.toPostEntity()
+                },
+                true
+            )
+        }
+        val failure = {
+            callBack(emptyList(), false)
+        }
+        val request = client.getPostsListByUserId(userId, page)
 
         request.enqueue(object: Callback<List<PostResponse>> {
             override fun onResponse(

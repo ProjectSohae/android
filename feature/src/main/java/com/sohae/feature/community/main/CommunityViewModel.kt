@@ -2,34 +2,36 @@ package com.sohae.feature.community.main
 
 import androidx.lifecycle.ViewModel
 import com.sohae.feature.community.category.CommunityCategory
-import com.sohae.domain.community.usecase.PostUseCase
-import com.sohae.domain.myinformation.usecase.MyInfoUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
 
-@HiltViewModel
-class CommunityViewModel @Inject constructor(
-    private val myInfoUseCase: MyInfoUseCase,
-    private val postUseCase: PostUseCase
-) : ViewModel() {
+class CommunityViewModel : ViewModel() {
 
     private var _selectedCategory = MutableStateFlow(CommunityCategory.ALL)
     val selectedCategory = _selectedCategory.asStateFlow()
 
-    private var _selectedSubCategory = MutableStateFlow(-1)
-    val selectedSubCategory = _selectedSubCategory.asStateFlow()
+    private var _preSelectedSubCategoryIdx = MutableStateFlow(-1)
+    val preSelectedSubCategoryIdx = _preSelectedSubCategoryIdx.asStateFlow()
+
+    private var _selectedSubCategoryIdx = MutableStateFlow(-1)
+    val selectedSubCategoryIdx = _selectedSubCategoryIdx.asStateFlow()
 
     fun selectCategory(input: CommunityCategory) {
 
         _selectedCategory.value = input
-        _selectedSubCategory.value = if (input != CommunityCategory.HOT) {
+        _preSelectedSubCategoryIdx.value = if (input == CommunityCategory.HOT) {
+            _selectedSubCategoryIdx.value
+        } else { -1 }
+        _selectedSubCategoryIdx.value = if (input != CommunityCategory.HOT) {
             -1
         } else { 0 }
     }
 
+    fun updatePreSelectedSubCategoryIdx(input: Int) {
+        _preSelectedSubCategoryIdx.value = input
+    }
+
     fun selectSubCategory(input: Int) {
-        _selectedSubCategory.value = input
+        _selectedSubCategoryIdx.value = input
     }
 }

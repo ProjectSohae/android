@@ -126,7 +126,7 @@ fun JobApplyHistoryView(
                 },
                 intensity = 0.85f,
                 onDismissRequest = { selectedFilterIdx = -1 },
-                onConfirmation = { getSelectedValue ->
+                onConfirm = { getSelectedValue ->
 
                     when (selectedFilterIdx) {
                         // 접수 년도
@@ -165,7 +165,7 @@ fun JobApplyHistoryView(
                         loadJobApplyHistoryList = true
                     }
                 },
-                optionsList = filterOptionsList[selectedFilterIdx]
+                optionList = filterOptionsList[selectedFilterIdx]
             )
         }
         else {

@@ -25,6 +25,7 @@ import com.sohae.feature.jobinformation.JobInformationView
 import com.sohae.feature.jobreview.JobReviewView
 import com.sohae.feature.mycommentlist.MyCommentListView
 import com.sohae.feature.mypostlist.MyPostListView
+import com.sohae.feature.mypostlist.MyPostListViewModel
 import com.sohae.feature.myprofile.MyProfileView
 import com.sohae.feature.myprofile.MyProfileViewModel
 import com.sohae.feature.post.post.PostImageView
@@ -142,7 +143,7 @@ fun MainNavGraphView(
                 SettingOptionsView()
             }
             composable(MainNavGraphRoutes.MYPOSTLIST.name) {
-                MyPostListView()
+                MyPostListView(hiltViewModel<MyPostListViewModel>())
             }
             composable(MainNavGraphRoutes.MYCOMMENTLIST.name) {
                 MyCommentListView()

@@ -13,12 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -31,13 +34,17 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.resource.R
+import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
+import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
+import com.sohae.domain.utils.getDiffTimeFromNow
 
 @Composable
 fun MyPostListView(
-    myPostListViewModel: MyPostListViewModel = viewModel()
+    myPostListViewModel: MyPostListViewModel
 ) {
     Scaffold(
         modifier = Modifier
@@ -104,22 +111,34 @@ fun MyPostListHeaderView() {
 
 @Composable
 fun MyPostListBodyView(myPostListViewModel: MyPostListViewModel) {
-    val test = myPostListViewModel.generateTest(10)
+    val myPostsList = myPostListViewModel.myPostsList.collectAsState().value
+    val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        myPostListViewModel.getMyPostsList(1) { msg, isSucceed ->
+            if (!isSucceed) {
+                SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+            }
+        }
+    }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        state = lazyListState
     ) {
         itemsIndexed(
-            items = test,
+            items = myPostsList,
             key = { idx: Int, item -> idx }
         ) { idx: Int, item ->
-            MyPostListItemView()
+            MyPostListItemView(item, myPostListViewModel)
         }
     }
 }
 
 @Composable
 private fun MyPostListItemView(
+    previewPost: PostEntity,
+    myPostListViewModel: MyPostListViewModel
 ) {
     val mainNavController = MainNavGraphViewController.mainNavController
     val tertiary = MaterialTheme.colorScheme.tertiary
@@ -139,13 +158,13 @@ private fun MyPostListItemView(
             }
             .padding(vertical = 12.dp)
             .clickable {
-                mainNavController.currentBackStackEntry?.savedStateHandle?.set("pressed_post_id", 0)
+                mainNavController.currentBackStackEntry?.savedStateHandle?.set("selected_post_id", previewPost.id)
                 mainNavController.navigate(MainNavGraphRoutes.POST.name)
             }
     ) {
         // category
         Text(
-            text = "카테고리",
+            text = myPostListViewModel.communityCategory[previewPost.categoryId.toInt()],
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.primary,
@@ -160,7 +179,7 @@ private fun MyPostListItemView(
 
         // title
         Text(
-            text = "previewPost.first",
+            text = previewPost.title,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.primary,
@@ -172,7 +191,7 @@ private fun MyPostListItemView(
 
         // content
         Text(
-            text = "previewPost.second",
+            text = previewPost.content,
             fontWeight = FontWeight.Medium,
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.primary,
@@ -189,7 +208,7 @@ private fun MyPostListItemView(
         ) {
             // posted time and view count
             Text(
-                text = "0분 전 • 조회 999",
+                text = "${getDiffTimeFromNow(previewPost.createdAt)} • 조회 ${previewPost.viewsCount}",
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.tertiary
@@ -208,7 +227,7 @@ private fun MyPostListItemView(
                         contentDescription = null
                     )
                     Text(
-                        text = " 999",
+                        text = " ${previewPost.likesCount}",
                         fontWeight = FontWeight.Medium,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.tertiary
@@ -225,7 +244,7 @@ private fun MyPostListItemView(
                         contentDescription = null
                     )
                     Text(
-                        text = " 999",
+                        text = " ${previewPost.commentCount}",
                         fontWeight = FontWeight.Medium,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.tertiary

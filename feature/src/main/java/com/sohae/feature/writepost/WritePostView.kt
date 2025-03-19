@@ -195,7 +195,7 @@ private fun SelectCategory(
             },
             intensity = 0.95f,
             onDismissRequest = { isPressed = false },
-            onConfirmation = { getSelectedCategory ->
+            onConfirm = { getSelectedCategory ->
                 categoryList.forEachIndexed foreach@{ idx, item ->
 
                     if (item == getSelectedCategory.toString()) {
@@ -207,7 +207,7 @@ private fun SelectCategory(
 
                 isPressed = false
             },
-            optionsList = categoryList
+            optionList = categoryList
         )
     }
 
