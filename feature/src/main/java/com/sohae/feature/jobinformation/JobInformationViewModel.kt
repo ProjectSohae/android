@@ -1,6 +1,7 @@
 package com.sohae.feature.jobinformation
 
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 
 val jobInfotmationDetails = listOf(
     "기관 분류",
@@ -32,4 +33,19 @@ enum class JobInformationCategory(
 
 class JobInformationViewModel: ViewModel() {
 
+    lateinit var jobReviewNavController: NavHostController
+
+    fun navigate(route: String) {
+
+        val prevRoute = jobReviewNavController.previousBackStackEntry?.destination?.route
+
+        if (
+            prevRoute != null
+            && prevRoute == route
+        ) {
+            jobReviewNavController.popBackStack()
+        } else {
+            jobReviewNavController.navigate(route)
+        }
+    }
 }

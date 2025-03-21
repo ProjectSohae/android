@@ -68,7 +68,7 @@ import com.sohae.controller.barcolor.BarColorController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.feature.community.category.CommunityCategory
-import com.sohae.feature.community.category.CommunityCategoryRoute
+import com.sohae.feature.community.category.CommunityCategoryNavRoute
 import com.sohae.feature.community.communitypostlist.CommunityPostListView
 import com.sohae.feature.community.communitypostlist.CommunityPostListViewModel
 import kotlin.math.abs
@@ -195,7 +195,7 @@ private fun CommunityBodyView(
             NavHost(
                 modifier = Modifier.fillMaxSize(),
                 navController = communityNavController,
-                startDestination = CommunityCategoryRoute.ALL,
+                startDestination = CommunityCategoryNavRoute.ALL,
                 enterTransition = {
                     if (transitionDir == 0) {
                         EnterTransition.None
@@ -211,31 +211,31 @@ private fun CommunityBodyView(
                     }
                 }
             ) {
-                navigation<CommunityCategoryRoute.ALL>(
-                    startDestination = CommunityCategoryRoute.ALL.MAIN
+                navigation<CommunityCategoryNavRoute.ALL>(
+                    startDestination = CommunityCategoryNavRoute.ALL.MAIN
                 ) {
-                    composable<CommunityCategoryRoute.ALL.MAIN> {
+                    composable<CommunityCategoryNavRoute.ALL.MAIN> {
                         CommunityPostListView(
                             currentSelectedCategory = CommunityCategory.ALL,
                             currentSelectedSubCategoryIdx = -1,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryRoute.ALL.COMMON> {
+                    composable<CommunityCategoryNavRoute.ALL.COMMON> {
                         CommunityPostListView(
                             currentSelectedCategory = CommunityCategory.ALL,
                             currentSelectedSubCategoryIdx = 0,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryRoute.ALL.QUESTION> {
+                    composable<CommunityCategoryNavRoute.ALL.QUESTION> {
                         CommunityPostListView(
                             currentSelectedCategory = CommunityCategory.ALL,
                             currentSelectedSubCategoryIdx = 1,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryRoute.ALL.TIP> {
+                    composable<CommunityCategoryNavRoute.ALL.TIP> {
                         CommunityPostListView(
                             currentSelectedCategory = CommunityCategory.ALL,
                             currentSelectedSubCategoryIdx = 2,
@@ -243,24 +243,24 @@ private fun CommunityBodyView(
                         )
                     }
                 }
-                navigation<CommunityCategoryRoute.HOT>(
-                    startDestination = CommunityCategoryRoute.HOT.DAY
+                navigation<CommunityCategoryNavRoute.HOT>(
+                    startDestination = CommunityCategoryNavRoute.HOT.DAY
                 ) {
-                    composable<CommunityCategoryRoute.HOT.DAY> {
+                    composable<CommunityCategoryNavRoute.HOT.DAY> {
                         CommunityPostListView(
                             currentSelectedCategory = CommunityCategory.HOT,
                             currentSelectedSubCategoryIdx = 0,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryRoute.HOT.WEEK> {
+                    composable<CommunityCategoryNavRoute.HOT.WEEK> {
                         CommunityPostListView(
                             currentSelectedCategory = CommunityCategory.HOT,
                             currentSelectedSubCategoryIdx = 1,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryRoute.HOT.MONTH> {
+                    composable<CommunityCategoryNavRoute.HOT.MONTH> {
                         CommunityPostListView(
                             currentSelectedCategory = CommunityCategory.HOT,
                             currentSelectedSubCategoryIdx = 2,
@@ -268,7 +268,7 @@ private fun CommunityBodyView(
                         )
                     }
                 }
-                composable<CommunityCategoryRoute.NOTICE> {
+                composable<CommunityCategoryNavRoute.NOTICE> {
                     CommunityPostListView(
                         currentSelectedCategory = CommunityCategory.NOTICE,
                         currentSelectedSubCategoryIdx = 0,

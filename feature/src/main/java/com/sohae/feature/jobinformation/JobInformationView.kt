@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,7 +29,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,11 +55,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.NaverMapSdk
@@ -70,16 +68,22 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
+import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.domain.jobreview.entity.JobReviewScoreNamesList
 import com.sohae.feature.BuildConfig
 import kotlinx.coroutines.runBlocking
 
 @Composable
-fun JobInformationView() {
-    NaverMapSdk.getInstance(LocalContext.current).client =
-        NaverMapSdk.NaverCloudPlatformClient(BuildConfig.NAVER_MAP_CLIENT)
+fun JobInformationView(
+    jobInformationViewModel: JobInformationViewModel
+) {
+    val currentContext = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        NaverMapSdk.getInstance(currentContext).client =
+            NaverMapSdk.NaverCloudPlatformClient(BuildConfig.NAVER_MAP_CLIENT)
+    }
 
     Scaffold(
         modifier = Modifier
@@ -100,7 +104,7 @@ fun JobInformationView() {
         ) {
             JobInformationViewHeader()
 
-            JobInformationBody()
+            JobInformationBody(jobInformationViewModel)
         }
     }
 }
@@ -148,8 +152,9 @@ private fun JobInformationViewHeader() {
 
 @Composable
 private fun JobInformationBody(
-    jobReviewNavController : NavHostController = rememberNavController()
+    jobInformationViewModel: JobInformationViewModel
 ) {
+    val jobReviewNavController = jobInformationViewModel.jobReviewNavController
     val currentSelectedCategory = jobReviewNavController
         .currentBackStackEntryAsState()
         .value?.destination?.route?.let {
@@ -158,7 +163,6 @@ private fun JobInformationBody(
     var previousSelectedCategory by rememberSaveable {
         mutableStateOf(JobInformationCategory.PROFILE)
     }
-    val currentRoute = JobReviewNavController.route.collectAsState().value
     var transitionDir = 1
 
     LaunchedEffect(currentSelectedCategory) {
@@ -172,26 +176,19 @@ private fun JobInformationBody(
         }
     }
 
-    LaunchedEffect(currentRoute) {
-
-        if (currentRoute.isNotBlank()) {
-            jobReviewNavController.navigate(currentRoute) {
-                jobReviewNavController.popBackStack()
-            }
-            JobReviewNavController.navigate("")
-        }
-    }
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         JobSimpleInformation()
 
-        JobInformationCategory(currentSelectedCategory)
+        JobInformationCategory(
+            currentSelectedCategory,
+            jobInformationViewModel
+        )
 
         NavHost(
             modifier = Modifier.fillMaxSize(),
-            navController = jobReviewNavController,
+            navController = jobInformationViewModel.jobReviewNavController,
             startDestination = JobInformationCategory.PROFILE.name,
             enterTransition = { slideInHorizontally( initialOffsetX = { transitionDir * it } ) },
             exitTransition = { slideOutHorizontally( targetOffsetX = { (-transitionDir) * it } ) }
@@ -283,12 +280,16 @@ private fun JobSimpleInformation() {
 // 복무지 소개, 리뷰
 @Composable
 private fun JobInformationCategory(
-    currentSelectedCategory: JobInformationCategory
+    currentSelectedCategory: JobInformationCategory,
+    jobInformationViewModel: JobInformationViewModel
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
     var selectedCategory by rememberSaveable { mutableIntStateOf(currentSelectedCategory.idx) }
-    val lowerLineStartPos = animateFloatAsState(targetValue = selectedCategory.toFloat()).value
+    val lowerLineStartPos by animateFloatAsState(
+        targetValue = selectedCategory.toFloat(),
+        label = ""
+    )
 
     Row(
         modifier = Modifier
@@ -339,7 +340,7 @@ private fun JobInformationCategory(
                     .clickable {
                         if (selectedCategory != item.idx) {
                             selectedCategory = item.idx
-                            JobReviewNavController.navigate(item.name)
+                            jobInformationViewModel.navigate(item.name)
                         }
                     }
             )
@@ -354,8 +355,15 @@ private fun JobDetailsView(
 ) {
     var pressedMap by remember { mutableStateOf(false) }
     val jobInformationDetailsCount = jobInfotmationDetails.size
+    val coordinate = LatLng(37.5666103, 126.9783882)
+    val cameraPosition = CameraPosition(coordinate, 16.0)
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+        position = cameraPosition
+    }
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
+
+    pressedMap = cameraPositionState.isMoving
 
     LaunchedEffect(Unit) {
 
@@ -443,14 +451,6 @@ private fun JobDetailsView(
 
         // 복무지 위치
         item {
-            val coordinate = LatLng(37.5666103, 126.9783882)
-            val cameraPosition = CameraPosition(coordinate, 16.0)
-            val cameraPositionState: CameraPositionState = rememberCameraPositionState {
-                position = cameraPosition
-            }
-
-            pressedMap = cameraPositionState.isMoving
-
             Column(
                 modifier = Modifier.padding(horizontal = 24.dp)
             ) {
@@ -489,7 +489,7 @@ private fun JobDetailsView(
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 24.dp)
                         .fillMaxWidth()
-                        .height(240.dp)
+                        .aspectRatio(1.33f)
                         .clip(RoundedCornerShape(5)),
                     cameraPositionState = cameraPositionState
                 ) {
@@ -673,7 +673,10 @@ private fun JobReviewItemView() {
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.onPrimary)
             .clickable {
-                mainNavController.currentBackStackEntry?.savedStateHandle?.set("pressed_job_review_id", 0)
+                mainNavController.currentBackStackEntry?.savedStateHandle?.set(
+                    "pressed_job_review_id",
+                    0
+                )
                 mainNavController.navigate(MainNavGraphRoutes.JOBREVIEW.name)
             }
             .padding(16.dp)

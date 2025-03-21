@@ -5,9 +5,11 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
 
+private const val USER_URL = "user"
+
 interface ProfileRequestMethod {
 
-    @GET("/user/profile")
+    @GET("${USER_URL}/profile")
     fun getMyProfile(
         @Header("Authorization") token: String
     ): Call<UserProfileResponse>

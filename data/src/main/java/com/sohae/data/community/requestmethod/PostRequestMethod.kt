@@ -9,20 +9,21 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+private const val POST_URL = "posts"
+
 interface PostRequestMethod {
 
-    @POST("posts")
+    @POST(POST_URL)
     fun createPost(
         @Body postDetails: CreatePostRequest
     ): Call<Long>
 
-    @GET("posts")
+    @GET(POST_URL)
     fun getPostsList(
         @Query("category_id") categoryId: CategoryId,
         @Query("page") page: Int
@@ -34,24 +35,30 @@ interface PostRequestMethod {
         @Query("page") page: Int
     ): Call<List<PostResponse>>
 
-    @GET("posts/popular")
+    @GET("${POST_URL}/search")
+    fun getPreviewPostsListByKeyword(
+        @Query("keyword", encoded = true) keyword: String,
+        @Query("page") page: Int
+    ): Call<List<PostResponse>>
+
+    @GET("${POST_URL}/popular")
     fun getPopularPostsList(
         @Query("period") periodIdx: Int,
         @Query("page") page: Int
     ): Call<List<PostResponse>>
 
-    @GET("posts/{postId}")
+    @GET("${POST_URL}/{postId}")
     fun getPostDetails(
         @Path("postId") postId: Long
     ): Call<PostResponse>
 
-    @PUT("posts/{postId}")
+    @PUT("${POST_URL}/{postId}")
     fun updatePost(
         @Path("postId") postId: Long,
         @Body postDetails: UpdatePostRequest
     ): Call<Long>
 
-    @DELETE("posts/{postId}")
+    @DELETE("${POST_URL}/{postId}")
     fun deletePost(
         @Path("postId") postId: Long
     ): Call<Unit>

@@ -12,10 +12,10 @@ class PostUseCase @Inject constructor(
 
     fun createPost(
         postDetails: PostEntity,
-        callBack: (Boolean) -> Unit
+        callback: (Boolean) -> Unit
     ) {
         postRepository.createPost(postDetails) {
-            callBack(it)
+            callback(it)
         }
     }
 
@@ -45,6 +45,19 @@ class PostUseCase @Inject constructor(
         }
     }
 
+    fun getPreviewPostsListByKeyword(
+        page: Int,
+        keyword: String,
+        callback: (List<PostEntity>) -> Unit
+    ) {
+        postRepository.getPreviewPostsListByKeyword(
+            page,
+            keyword
+        ) { previewPostsList, isSucceed ->
+            callback(previewPostsList)
+        }
+    }
+
     fun getPreviewPopularPostsList(
         page: Int,
         periodIdx: Int,
@@ -60,35 +73,35 @@ class PostUseCase @Inject constructor(
 
     fun getPostDetails(
         postId: Long,
-        callBack: (PostEntity?, Boolean) -> Unit
+        callback: (PostEntity?, Boolean) -> Unit
     ) {
         postRepository.getPostDetails(
             postId
         ) { getPostEntity ->
 
             if (getPostEntity != null) {
-                callBack(getPostEntity, true)
+                callback(getPostEntity, true)
             } else {
-                callBack(null, false)
+                callback(null, false)
             }
         }
     }
 
     fun updatePost(
         postDetails: PostEntity,
-        callBack: (Boolean) -> Unit
+        callback: (Boolean) -> Unit
     ) {
         postRepository.updatePost(postDetails) {
-            callBack(it)
+            callback(it)
         }
     }
 
     fun deletePost(
         postId: Long,
-        callBack: (Boolean) -> Unit
+        callback: (Boolean) -> Unit
     ) {
         postRepository.deletePost(postId) {
-            callBack(it)
+            callback(it)
         }
     }
 }

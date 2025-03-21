@@ -5,10 +5,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.sohae.data.myinformation.dto.MySearchHistoryDTO
+import com.sohae.domain.myinformation.entity.MySearchHistoryEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MySearchHistoryDAO {
+
+    @Query("select * from my_search_history where keyword = :input")
+    suspend fun select(input: String): MySearchHistoryEntity?
 
     @Query("select * from my_search_history")
     fun selectAll(): Flow<List<MySearchHistoryDTO>?>

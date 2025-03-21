@@ -3,10 +3,10 @@ package com.sohae.feature.community.category
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class CommunityCategoryRoute {
+sealed class CommunityCategoryNavRoute {
 
     @Serializable
-    data object ALL: CommunityCategoryRoute() {
+    data object ALL: CommunityCategoryNavRoute() {
 
         @Serializable
         object MAIN
@@ -22,7 +22,7 @@ sealed class CommunityCategoryRoute {
     }
 
     @Serializable
-    data object HOT: CommunityCategoryRoute() {
+    data object HOT: CommunityCategoryNavRoute() {
 
         @Serializable
         object DAY
@@ -35,5 +35,5 @@ sealed class CommunityCategoryRoute {
     }
 
     @Serializable
-    data object NOTICE: CommunityCategoryRoute()
+    data object NOTICE: CommunityCategoryNavRoute()
 }

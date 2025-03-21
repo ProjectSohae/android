@@ -22,6 +22,7 @@ import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainScreenController
 import com.sohae.feature.jobinformation.JobInformationView
+import com.sohae.feature.jobinformation.JobInformationViewModel
 import com.sohae.feature.jobreview.JobReviewView
 import com.sohae.feature.mycommentlist.MyCommentListView
 import com.sohae.feature.mypostlist.MyPostListView
@@ -32,8 +33,8 @@ import com.sohae.feature.post.post.PostImageView
 import com.sohae.feature.post.post.PostView
 import com.sohae.feature.post.post.PostViewModel
 import com.sohae.feature.searchjob.SearchJobView
-import com.sohae.feature.searchpost.SearchPostView
-import com.sohae.feature.searchpost.SearchPostViewModel
+import com.sohae.feature.searchpost.main.SearchPostView
+import com.sohae.feature.searchpost.main.SearchPostViewModel
 import com.sohae.feature.selectimage.SelectImageView
 import com.sohae.feature.selectimage.SelectImageViewModel
 import com.sohae.feature.settingoptions.inquiryemail.InquiryEmailView
@@ -123,7 +124,11 @@ fun MainNavGraphView(
                 WriteJobReviewView()
             }
             composable(MainNavGraphRoutes.JOBINFORMATION.name) {
-                JobInformationView()
+                val jobInformationViewModel: JobInformationViewModel = viewModel()
+
+                jobInformationViewModel.jobReviewNavController = rememberNavController()
+
+                JobInformationView(jobInformationViewModel)
             }
             composable(MainNavGraphRoutes.JOBREVIEW.name) {
                 val pressedJobReviewId by remember {

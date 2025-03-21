@@ -2,7 +2,7 @@ package com.sohae.feature.community.main
 
 import androidx.navigation.NavHostController
 import com.sohae.feature.community.category.CommunityCategory
-import com.sohae.feature.community.category.CommunityCategoryRoute
+import com.sohae.feature.community.category.CommunityCategoryNavRoute
 
 fun NavHostController.communityNavigate(
     category: CommunityCategory,
@@ -13,27 +13,27 @@ fun NavHostController.communityNavigate(
         CommunityCategory.ALL -> {
             when (subCategoryIdx) {
                 -1 -> {
-                    navigate(CommunityCategoryRoute.ALL.MAIN) {
+                    navigate(CommunityCategoryNavRoute.ALL.MAIN) {
                         doBeforeNavigate()
                     }
                 }
                 0 -> {
-                    navigate(CommunityCategoryRoute.ALL.COMMON) {
+                    navigate(CommunityCategoryNavRoute.ALL.COMMON) {
                         doBeforeNavigate()
                     }
                 }
                 1 -> {
-                    navigate(CommunityCategoryRoute.ALL.QUESTION) {
+                    navigate(CommunityCategoryNavRoute.ALL.QUESTION) {
                         doBeforeNavigate()
                     }
                 }
                 2 -> {
-                    navigate(CommunityCategoryRoute.ALL.TIP) {
+                    navigate(CommunityCategoryNavRoute.ALL.TIP) {
                         doBeforeNavigate()
                     }
                 }
                 else -> {
-                    navigate(CommunityCategoryRoute.ALL.MAIN) {
+                    navigate(CommunityCategoryNavRoute.ALL.MAIN) {
                         doBeforeNavigate()
                     }
                 }
@@ -42,29 +42,29 @@ fun NavHostController.communityNavigate(
         CommunityCategory.HOT -> {
             when (subCategoryIdx) {
                 0 -> {
-                    navigate(CommunityCategoryRoute.HOT.DAY) {
+                    navigate(CommunityCategoryNavRoute.HOT.DAY) {
                         doBeforeNavigate()
                     }
                 }
                 1 -> {
-                    navigate(CommunityCategoryRoute.HOT.WEEK) {
+                    navigate(CommunityCategoryNavRoute.HOT.WEEK) {
                         doBeforeNavigate()
                     }
                 }
                 2 -> {
-                    navigate(CommunityCategoryRoute.HOT.MONTH) {
+                    navigate(CommunityCategoryNavRoute.HOT.MONTH) {
                         doBeforeNavigate()
                     }
                 }
                 else -> {
-                    navigate(CommunityCategoryRoute.HOT.DAY) {
+                    navigate(CommunityCategoryNavRoute.HOT.DAY) {
                         doBeforeNavigate()
                     }
                 }
             }
         }
         CommunityCategory.NOTICE -> {
-            navigate(CommunityCategoryRoute.NOTICE) {
+            navigate(CommunityCategoryNavRoute.NOTICE) {
                 doBeforeNavigate()
             }
         }

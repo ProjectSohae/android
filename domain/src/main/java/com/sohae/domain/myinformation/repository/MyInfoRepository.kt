@@ -39,7 +39,7 @@ interface MyInfoRepository {
     fun getMyUsedLeaveListByDate(startDate: Long, endDate: Long): List<MyUsedLeaveEntity>?
 
     fun getAllMySearchHistory(): Flow<List<MySearchHistoryEntity>?>
-    fun updateMySearchHistory(input: MySearchHistoryEntity)
+    suspend fun updateMySearchHistory(input: MySearchHistoryEntity)
     fun deleteAllMySearchHistory()
     fun deleteMySearchHistoryById(id: Int)
 

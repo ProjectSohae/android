@@ -85,7 +85,17 @@ class CommunityPostListViewModel @Inject constructor(
                 }
 
                 CommunityCategory.NOTICE -> {
+                    postUseCase.getPreviewPostsList(
+                        page,
+                        (CommunityCategory.NOTICE.idx + 1).toLong()
+                    ) {
 
+                        if (it.isNotEmpty()) {
+                            onSucceed(it)
+                        } else {
+                            onFailure("불러올 게시글이 더 이상 없습니다.")
+                        }
+                    }
                 }
             }
         }

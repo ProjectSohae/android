@@ -8,39 +8,45 @@ interface PostRepository {
 
     fun createPost(
         postDetails: PostEntity,
-        callBack: (Boolean) -> Unit
+        callback: (Boolean) -> Unit
     )
 
     fun getPreviewPostsList(
         page: Int,
         categoryId: CategoryId,
-        callBack: (List<PostEntity>, Boolean) -> Unit
+        callback: (List<PostEntity>, Boolean) -> Unit
     )
 
     fun getPreviewPopularPostsList(
         page: Int,
         periodIdx: Int,
-        callBack: (List<PostEntity>, Boolean) -> Unit
+        callback: (List<PostEntity>, Boolean) -> Unit
     )
 
+    fun getPreviewPostsListByKeyword(
+        page: Int,
+        keyword: String,
+        callback: (List<PostEntity>, Boolean) -> Unit
+    )
+    
     fun getPreviewPostsListByUserId(
         page: Int,
         userId: UserId,
-        callBack: (List<PostEntity>, Boolean) -> Unit
+        callback: (List<PostEntity>, Boolean) -> Unit
     )
 
     fun getPostDetails(
         postId: Long,
-        callBack: (PostEntity?) -> Unit
+        callback: (PostEntity?) -> Unit
     )
 
     fun updatePost(
         postDetails: PostEntity,
-        callBack: (Boolean) -> Unit
+        callback: (Boolean) -> Unit
     )
 
     fun deletePost(
         postId: Long,
-        callBack: (Boolean) -> Unit
+        callback: (Boolean) -> Unit
     )
 }

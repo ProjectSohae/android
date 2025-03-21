@@ -215,7 +215,13 @@ object MyInfoRepositoryImpl : MyInfoRepository {
             }
     }
 
-    override fun updateMySearchHistory(input: MySearchHistoryEntity) {
+    override suspend fun updateMySearchHistory(input: MySearchHistoryEntity) {
+        val getMySearchHistoryEntity = mySearchHistoryDAO.select(input.keyword)
+
+        if (getMySearchHistoryEntity != null) {
+            deleteMySearchHistoryById(getMySearchHistoryEntity.id)
+        }
+
         mySearchHistoryDAO.insert(input.toMySearchHistoryDTO())
     }
 

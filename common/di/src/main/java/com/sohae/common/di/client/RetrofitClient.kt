@@ -9,15 +9,15 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    val url = "http://192.168.103.2:8080/"
+    private const val URL = "http://192.168.103.2:8080/"
 
     val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl(url)
+        .baseUrl(URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     val retrofitWithToken: Retrofit = Retrofit.Builder()
-        .baseUrl(url)
+        .baseUrl(URL)
         .client(
             OkHttpClient().newBuilder()
                 .addInterceptor(

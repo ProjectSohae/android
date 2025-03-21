@@ -1,5 +1,7 @@
-package com.sohae.feature.searchpost
+package com.sohae.feature.searchpost.main
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,16 +33,25 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.common.ui.custom.textfield.CustomTextFieldView
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.domain.myinformation.entity.MySearchHistoryEntity
+import com.sohae.feature.searchpost.postlist.SearchPostsListView
+import com.sohae.feature.searchpost.postlist.SearchPostsListViewModel
+import com.sohae.feature.searchpost.route.SearchPostNavRoute
 
 @Composable
 fun SearchPostView(
@@ -62,15 +75,15 @@ fun SearchPostView(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.onPrimary)
         ) {
-            SearchPostViewHeader(searchPostViewModel)
+            SearchPostHeaderView(searchPostViewModel)
 
-            SearchPostViewBody(searchPostViewModel)
+            SearchPostBodyView(searchPostViewModel)
         }
     }
 }
 
 @Composable
-private fun SearchPostViewHeader(
+private fun SearchPostHeaderView(
     searchPostViewModel: SearchPostViewModel
 ) {
     val mainNavController = MainNavGraphViewController.mainNavController
@@ -79,6 +92,15 @@ private fun SearchPostViewHeader(
     val interactionSource = remember { MutableInteractionSource() }
     val isFocusedSearchBar = interactionSource.collectIsFocusedAsState().value
     val searchPostTitle = searchPostViewModel.searchPostTitle.collectAsState().value
+    val searchPosts = {
+        if (searchPostTitle.isNotBlank()) {
+            searchPostViewModel.searchPostRequest(
+                onFailure = { SnackBarController.show(it, SnackBarBehindTarget.VIEW) }
+            )
+        } else {
+            SnackBarController.show("검색어를 입력해주세요.", SnackBarBehindTarget.VIEW)
+        }
+    }
 
     LaunchedEffect(isFocusedSearchBar) {
 
@@ -119,7 +141,11 @@ private fun SearchPostViewHeader(
             onValueChange = {
                 searchPostViewModel.updateSearchPostTitle(it)
                 searchPostViewModel.updateShowRecentSearchList(true)
-            }
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(
+                onSearch = { searchPosts() }
+            )
         )
 
         Icon(
@@ -132,29 +158,39 @@ private fun SearchPostViewHeader(
                 .clickable(
                     indication = null,
                     interactionSource = null
-                ) {
-                    if (searchPostTitle.isNotBlank()) {
-                        searchPostViewModel.searchPostRequest(
-                            onFailure = { SnackBarController.show(it, SnackBarBehindTarget.VIEW) }
-                        )
-                    } else {
-                        SnackBarController.show("검색어를 입력해주세요.", SnackBarBehindTarget.VIEW)
-                    }
-                }
+                ) { searchPosts() }
         )
     }
 }
 
 @Composable
-private fun SearchPostViewBody(
-    searchPostViewModel: SearchPostViewModel
+private fun SearchPostBodyView(
+    searchPostViewModel: SearchPostViewModel,
+    searchPostNavController: NavHostController = rememberNavController()
 ) {
+    val requestSearchPostTitle = searchPostViewModel.requestSearchPostTitle.collectAsState().value
     val showRecentSearchList = searchPostViewModel.showRecentSearchList.collectAsState().value
 
+    LaunchedEffect(requestSearchPostTitle) {
+
+        if (requestSearchPostTitle.isNotBlank()) {
+            searchPostNavController.popBackStack()
+            searchPostNavController.navigate(SearchPostNavRoute(requestSearchPostTitle))
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        // 검색 게시글 목록
-        LazyColumn {
-            item {
+        NavHost(
+            modifier = Modifier.fillMaxSize(),
+            navController = searchPostNavController,
+            startDestination = SearchPostNavRoute(""),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            composable<SearchPostNavRoute>{ navBackStackEntry ->
+                val keyword = navBackStackEntry.arguments?.getString("keyword") ?: ""
+
+                SearchPostsListView(keyword, hiltViewModel<SearchPostsListViewModel>())
             }
         }
 
@@ -169,6 +205,7 @@ private fun SearchPostViewBody(
 private fun RecentSearchHistoryListView(
     searchPostViewModel: SearchPostViewModel
 ) {
+    val requestSearchPostTitle = searchPostViewModel.requestSearchPostTitle.collectAsState().value
     val recentMySearchHistoryList = searchPostViewModel
         .recentMySearchHistoryList.collectAsState()
         .value.sortedBy { -it.id }
@@ -180,7 +217,7 @@ private fun RecentSearchHistoryListView(
             .padding(horizontal = 24.dp)
     ) {
         // 최근 검색 닫기 버튼
-        if (searchPostViewModel.getRequestSearchPostTitle().isNotBlank()) {
+        if (requestSearchPostTitle.isNotBlank()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -250,7 +287,10 @@ private fun RecentSearchHistoryListView(
                                 searchPostViewModel.searchPostRequest(
                                     inputSearchPostTitle = item.keyword,
                                     onFailure = { errorMessage ->
-                                        SnackBarController.show(errorMessage, SnackBarBehindTarget.VIEW)
+                                        SnackBarController.show(
+                                            errorMessage,
+                                            SnackBarBehindTarget.VIEW
+                                        )
                                     }
                                 )
                             },

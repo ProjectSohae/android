@@ -7,14 +7,16 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Path
 
+private const val AUTH_URL = "auth"
+
 interface SessionRequestMethod {
 
-    @POST("/auth/login/{auth_type}")
+    @POST("${AUTH_URL}/login/{auth_type}")
     fun signIn(
         @Path("auth_type") authType: String,
         @Body token: SocialLoginRequest
     ): Call<SignInResponse>
 
-    @POST("/auth/logout")
+    @POST("${AUTH_URL}/logout")
     fun singOut(): Call<Unit>
 }

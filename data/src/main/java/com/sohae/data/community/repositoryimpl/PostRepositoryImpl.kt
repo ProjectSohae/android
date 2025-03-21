@@ -14,6 +14,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
+import java.net.URLEncoder
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
@@ -30,13 +31,13 @@ class PostRepositoryImpl @Inject constructor(
 
     override fun createPost(
         postDetails: PostEntity,
-        callBack: (Boolean) -> Unit
+        callback: (Boolean) -> Unit
     ) {
         val success = {
-            callBack(true)
+            callback(true)
         }
         val failure = {
-            callBack(false)
+            callback(false)
         }
         val request = client.createPost(postDetails.toCreatePostRequest())
 
@@ -61,10 +62,10 @@ class PostRepositoryImpl @Inject constructor(
     override fun getPreviewPostsList(
         page: Int,
         categoryId: CategoryId,
-        callBack: (List<PostEntity>, Boolean) -> Unit
+        callback: (List<PostEntity>, Boolean) -> Unit
     ) {
         val success: (List<PostResponse>) -> Unit = { response ->
-            callBack(
+            callback(
                 response.map {
                     it.toPostEntity()
                 },
@@ -72,7 +73,7 @@ class PostRepositoryImpl @Inject constructor(
             )
         }
         val failure = {
-            callBack(emptyList(), false)
+            callback(emptyList(), false)
         }
         val request = client.getPostsList(categoryId, page)
 
@@ -85,7 +86,6 @@ class PostRepositoryImpl @Inject constructor(
                 if (p1.isSuccessful) {
 
                     p1.body()?.let {
-                        Log.d(tag, "$it")
                         success(it)
                     } ?: {
                         failureLog("서버 응답 내용 없음", Throwable(p1.errorBody()?.string()))
@@ -107,10 +107,10 @@ class PostRepositoryImpl @Inject constructor(
     override fun getPreviewPopularPostsList(
         page: Int,
         periodIdx: Int,
-        callBack: (List<PostEntity>, Boolean) -> Unit
+        callback: (List<PostEntity>, Boolean) -> Unit
     ) {
         val success: (List<PostResponse>) -> Unit = { response ->
-            callBack(
+            callback(
                 response.map {
                     it.toPostEntity()
                 },
@@ -118,7 +118,7 @@ class PostRepositoryImpl @Inject constructor(
             )
         }
         val failure = {
-            callBack(emptyList(), false)
+            callback(emptyList(), false)
         }
         val request = client.getPopularPostsList(periodIdx, page)
 
@@ -131,7 +131,54 @@ class PostRepositoryImpl @Inject constructor(
                 if (p1.isSuccessful) {
 
                     p1.body()?.let {
-                        Log.d(tag, "$it")
+                        success(it)
+                    } ?: {
+                        failureLog("서버 응답 내용 없음", Throwable(p1.errorBody()?.string()))
+                        failure()
+                    }
+                } else {
+                    failureLog("서버 응답 실패", Throwable(p1.errorBody()?.string()))
+                    failure()
+                }
+            }
+
+            override fun onFailure(p0: Call<List<PostResponse>>, p1: Throwable) {
+                failureLog("서버 요청 실패", p1)
+                failure()
+            }
+        })
+    }
+
+    override fun getPreviewPostsListByKeyword(
+        page: Int,
+        keyword: String,
+        callback: (List<PostEntity>, Boolean) -> Unit
+    ) {
+        val success: (List<PostResponse>) -> Unit = { response ->
+            callback(
+                response.map {
+                    it.toPostEntity()
+                },
+                true
+            )
+        }
+        val failure = {
+            callback(emptyList(), false)
+        }
+        val request = client.getPreviewPostsListByKeyword(
+            URLEncoder.encode(keyword, "UTF-8"),
+            page
+        )
+
+        request.enqueue(object: Callback<List<PostResponse>> {
+            override fun onResponse(
+                p0: Call<List<PostResponse>>,
+                p1: Response<List<PostResponse>>
+            ) {
+
+                if (p1.isSuccessful) {
+
+                    p1.body()?.let {
                         success(it)
                     } ?: {
                         failureLog("서버 응답 내용 없음", Throwable(p1.errorBody()?.string()))
@@ -153,10 +200,10 @@ class PostRepositoryImpl @Inject constructor(
     override fun getPreviewPostsListByUserId(
         page: Int,
         userId: UserId,
-        callBack: (List<PostEntity>, Boolean) -> Unit
+        callback: (List<PostEntity>, Boolean) -> Unit
     ) {
         val success: (List<PostResponse>) -> Unit = { response ->
-            callBack(
+            callback(
                 response.map {
                     it.toPostEntity()
                 },
@@ -164,7 +211,7 @@ class PostRepositoryImpl @Inject constructor(
             )
         }
         val failure = {
-            callBack(emptyList(), false)
+            callback(emptyList(), false)
         }
         val request = client.getPostsListByUserId(userId, page)
 
@@ -197,13 +244,13 @@ class PostRepositoryImpl @Inject constructor(
 
     override fun getPostDetails(
         postId: Long,
-        callBack: (PostEntity?) -> Unit
+        callback: (PostEntity?) -> Unit
     ) {
         val success: (PostResponse) -> Unit = {
-            callBack(it.toPostEntity())
+            callback(it.toPostEntity())
         }
         val failure: (String) -> Unit = {
-            callBack(null)
+            callback(null)
         }
         val request = client.getPostDetails(postId)
 
@@ -233,13 +280,13 @@ class PostRepositoryImpl @Inject constructor(
 
     override fun updatePost(
         postDetails: PostEntity,
-        callBack: (Boolean) -> Unit
+        callback: (Boolean) -> Unit
     ) {
         val success = {
-            callBack(true)
+            callback(true)
         }
         val failure = {
-            callBack(false)
+            callback(false)
         }
         val request = client.updatePost(postDetails.id, postDetails.toUpdatePostRequest())
 
@@ -269,13 +316,13 @@ class PostRepositoryImpl @Inject constructor(
 
     override fun deletePost(
         postId: Long,
-        callBack: (Boolean) -> Unit
+        callback: (Boolean) -> Unit
     ) {
         val success = {
-            callBack(true)
+            callback(true)
         }
         val failure = {
-            callBack(false)
+            callback(false)
         }
         val request = client.deletePost(postId)
 
