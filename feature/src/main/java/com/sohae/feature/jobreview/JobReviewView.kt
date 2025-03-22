@@ -134,7 +134,7 @@ fun JobReviewBodyView() {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 24.dp)
                 ) {
                     Text(
-                        text = "“도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐”",
+                        text = "“리뷰 제목”",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
@@ -217,7 +217,7 @@ fun JobReviewBodyView() {
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무\n주요업무",
+                            text = "주요 업무 내용",
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -233,7 +233,7 @@ fun JobReviewBodyView() {
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "장점장점장점\n장점장점장점\n장점장점장점\n장점장점장점\n장점장점장점\n장점장점장점\n장점장점장점\n장점장점장점\n장점장점장점\n장점장점장점\n장점장점장점\n장점장점장점",
+                            text = "장점 내용",
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -249,7 +249,7 @@ fun JobReviewBodyView() {
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "단점단점단점\n단점단점단점\n단점단점단점\n단점단점단점\n단점단점단점\n단점단점단점\n단점단점단점\n단점단점단점\n단점단점단점\n단점단점단점\n단점단점단점\n단점단점단점",
+                            text = "단점 내용",
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.primary
                         )

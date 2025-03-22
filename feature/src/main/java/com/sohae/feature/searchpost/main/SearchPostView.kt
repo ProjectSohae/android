@@ -43,6 +43,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
 import com.sohae.common.ui.custom.snackbar.SnackBarController
@@ -188,7 +189,7 @@ private fun SearchPostBodyView(
             exitTransition = { ExitTransition.None }
         ) {
             composable<SearchPostNavRoute>{ navBackStackEntry ->
-                val keyword = navBackStackEntry.arguments?.getString("keyword") ?: ""
+                val keyword = navBackStackEntry.toRoute<SearchPostNavRoute>().keyword
 
                 SearchPostsListView(keyword, hiltViewModel<SearchPostsListViewModel>())
             }
