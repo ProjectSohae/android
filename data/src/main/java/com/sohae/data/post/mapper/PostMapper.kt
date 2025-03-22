@@ -1,4 +1,4 @@
-package com.sohae.data.community.mapper
+package com.sohae.data.post.mapper
 
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.models.post.entity.PostImageEntity

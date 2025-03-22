@@ -3,7 +3,7 @@ package com.sohae.feature.mypostlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sohae.common.models.post.entity.PostEntity
-import com.sohae.domain.community.usecase.PostUseCase
+import com.sohae.domain.post.usecase.PostUseCase
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
 import com.sohae.feature.community.category.CommunityCategory
 import dagger.hilt.android.lifecycle.HiltViewModel

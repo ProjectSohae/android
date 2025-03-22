@@ -1,4 +1,4 @@
-package com.sohae.data.community.requestmethod
+package com.sohae.data.post.requestmethod
 
 import com.sohae.common.models.post.entity.CategoryId
 import com.sohae.common.models.post.request.CreatePostRequest

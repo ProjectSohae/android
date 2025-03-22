@@ -1,15 +1,15 @@
-package com.sohae.data.community.repositoryimpl
+package com.sohae.data.post.repositoryimpl
 
 import android.util.Log
 import com.sohae.common.models.post.entity.CategoryId
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.models.post.response.PostResponse
 import com.sohae.common.models.user.entity.UserId
-import com.sohae.data.community.mapper.toCreatePostRequest
-import com.sohae.data.community.mapper.toPostEntity
-import com.sohae.data.community.mapper.toUpdatePostRequest
-import com.sohae.data.community.requestmethod.PostRequestMethod
-import com.sohae.domain.community.repository.PostRepository
+import com.sohae.data.post.mapper.toCreatePostRequest
+import com.sohae.data.post.mapper.toPostEntity
+import com.sohae.data.post.mapper.toUpdatePostRequest
+import com.sohae.data.post.requestmethod.PostRequestMethod
+import com.sohae.domain.post.repository.PostRepository
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

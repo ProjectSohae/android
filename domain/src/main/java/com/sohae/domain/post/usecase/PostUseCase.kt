@@ -1,9 +1,9 @@
-package com.sohae.domain.community.usecase
+package com.sohae.domain.post.usecase
 
 import com.sohae.common.models.post.entity.CategoryId
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.models.user.entity.UserId
-import com.sohae.domain.community.repository.PostRepository
+import com.sohae.domain.post.repository.PostRepository
 import javax.inject.Inject
 
 class PostUseCase @Inject constructor(

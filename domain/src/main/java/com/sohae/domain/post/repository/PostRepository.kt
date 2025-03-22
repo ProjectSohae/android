@@ -1,4 +1,4 @@
-package com.sohae.domain.community.repository
+package com.sohae.domain.post.repository
 
 import com.sohae.common.models.post.entity.CategoryId
 import com.sohae.common.models.post.entity.PostEntity

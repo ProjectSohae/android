@@ -29,6 +29,7 @@ import com.sohae.feature.mypostlist.MyPostListView
 import com.sohae.feature.mypostlist.MyPostListViewModel
 import com.sohae.feature.myprofile.MyProfileView
 import com.sohae.feature.myprofile.MyProfileViewModel
+import com.sohae.feature.post.comment.CommentListViewModel
 import com.sohae.feature.post.post.PostImageView
 import com.sohae.feature.post.post.PostView
 import com.sohae.feature.post.post.PostViewModel
@@ -110,7 +111,8 @@ fun MainNavGraphView(
 
                 PostView(
                     pressedPostId,
-                    hiltViewModel<PostViewModel>()
+                    hiltViewModel<PostViewModel>(),
+                    hiltViewModel<CommentListViewModel>()
                 )
             }
             composable(MainNavGraphRoutes.POSTIMAGE.name) {

@@ -2,7 +2,7 @@ package com.sohae.feature.searchpost.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sohae.domain.community.usecase.PostUseCase
+import com.sohae.domain.post.usecase.PostUseCase
 import com.sohae.domain.myinformation.entity.MySearchHistoryEntity
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

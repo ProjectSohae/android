@@ -1,12 +1,14 @@
 package com.sohae.common.di.repositorymodule
 
 import com.sohae.common.di.client.RetrofitClient
-import com.sohae.data.community.repositoryimpl.PostRepositoryImpl
+import com.sohae.data.comment.repositoryimpl.CommentRepositoryImpl
+import com.sohae.data.post.repositoryimpl.PostRepositoryImpl
 import com.sohae.data.jobinformation.repositoryimpl.JobInfoRepositoryImpl
 import com.sohae.data.myinformation.repositoryimpl.MyInfoRepositoryImpl
 import com.sohae.data.profile.repositoryimpl.ProfileRepositoryImpl
 import com.sohae.data.session.repositoryimpl.SessionRepositoryImpl
-import com.sohae.domain.community.repository.PostRepository
+import com.sohae.domain.comment.reposiotory.CommentRepository
+import com.sohae.domain.post.repository.PostRepository
 import com.sohae.domain.jobinformation.repository.JobInfoRepository
 import com.sohae.domain.myinformation.repository.MyInfoRepository
 import com.sohae.domain.profile.repository.ProfileReposiotory
@@ -25,6 +27,12 @@ object RepositoryModule {
     @Singleton
     fun providePostRepository(): PostRepository {
         return PostRepositoryImpl(RetrofitClient.retrofitWithToken)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommentRepository(): CommentRepository {
+        return CommentRepositoryImpl(RetrofitClient.retrofitWithToken)
     }
 
     @Provides
