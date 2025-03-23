@@ -1,4 +1,4 @@
-package com.sohae.feature.post.option
+package com.sohae.feature.post.comment
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -26,8 +26,8 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 
 @Composable
-fun PostOptionView(
-    isMyPost: Boolean,
+fun CommentOptionView(
+    isMyComment: Boolean,
     onDismissRequest: () -> Unit,
     onConfirm: (Int) -> Unit
 ) {
@@ -68,8 +68,8 @@ fun PostOptionView(
                 .padding(horizontal = 24.dp)
         ) {
 
-            // 타인 게시글
-            if (!isMyPost) {
+            // 타인 댓글
+            if (!isMyComment) {
                 Text(
                     text = "작성자 차단",
                     fontSize = 16.sp,
@@ -79,29 +79,21 @@ fun PostOptionView(
                 )
 
                 Text(
-                    text = "게시글 신고",
+                    text = "댓글 신고",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     color = Color.Red,
                     modifier = itemModifier.clickable { onConfirm(1) }
                 )
             }
-            // 내 게시글
+            // 내 댓글
             else {
                 Text(
-                    text = "게시글 수정",
+                    text = "댓글 삭제",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = itemModifier.clickable { onConfirm(2) }
-                )
-
-                Text(
-                    text = "게시글 삭제",
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = itemModifier.clickable { onConfirm(3) }
                 )
             }
         }

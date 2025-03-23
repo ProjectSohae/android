@@ -23,13 +23,12 @@ fun getDiffTimeFromNow(input: Instant): String {
     var diffTime = Clock.System.now().toEpochMilliseconds() - input.toEpochMilliseconds()
     var result = "방금 전"
 
-    timeList.forEach forEach@{ item ->
-
+    for (item in timeList) {
         if (diffTime / item.first > 0) {
             diffTime /= item.first
             result = "${diffTime}${item.second} 전"
         } else {
-            return@forEach
+            break
         }
     }
 

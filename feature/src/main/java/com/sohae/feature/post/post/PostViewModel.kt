@@ -1,9 +1,15 @@
 package com.sohae.feature.post.post
 
+import android.util.Log
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sohae.common.models.comment.entity.CommentEntity
+import com.sohae.common.models.comment.entity.CommentId
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.domain.comment.usecase.CommentUseCase
 import com.sohae.domain.myinformation.entity.MyAccountEntity
@@ -14,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.util.UUID
@@ -35,7 +42,25 @@ class PostViewModel @Inject constructor(
     private var _postDetails = MutableStateFlow<PostEntity?>(null)
     val postDetails = _postDetails.asStateFlow()
 
-    val textFieldInteraction = MutableInteractionSource()
+    private var _parentCommentId = MutableStateFlow<CommentId?>(null)
+    val parentCommentId = _parentCommentId.asStateFlow()
+
+    var parentCommentUsername = ""
+
+    val textFieldFocusRequester = FocusRequester()
+
+    fun activeTextField() {
+        textFieldFocusRequester.requestFocus()
+    }
+
+    fun initParentCommentId() {
+        parentCommentUsername = ""
+        _parentCommentId.value = null
+    }
+
+    fun setParentCommentId(input: CommentId) {
+        _parentCommentId.value = input
+    }
 
     fun getPostDetails(
         postId: Long,
@@ -80,13 +105,13 @@ class PostViewModel @Inject constructor(
             postDetails.id,
             myAccount.id,
             myAccount.username,
-            null,
+            parentCommentId.value,
             commentContent,
             Clock.System.now()
         )
 
         commentUseCase.createComment(commentEntity) {
-
+            initParentCommentId()
         }
     }
 }

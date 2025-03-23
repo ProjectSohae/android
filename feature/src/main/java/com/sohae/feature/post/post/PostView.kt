@@ -4,8 +4,13 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,22 +46,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.sohae.common.models.comment.entity.CommentEntity
-import com.sohae.common.models.user.entity.UserId
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.CircularLoadingBarView
 import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
@@ -64,8 +73,6 @@ import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.controller.barcolor.BarColorController
 import com.sohae.controller.mainnavgraph.MainNavGraphViewController
 import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.feature.post.commentoption.CommentOptionView
-import com.sohae.feature.post.option.PostOptionView
 import com.sohae.domain.utils.getDiffTimeFromNow
 import com.sohae.feature.post.comment.CommentListView
 import com.sohae.feature.post.comment.CommentListViewModel
@@ -100,7 +107,9 @@ fun PostView(
             }
         }
 
-        Scaffold {
+        Scaffold(
+            modifier = Modifier.fillMaxSize()
+        ) {
             val innerPadding = PaddingValues(
                 it.calculateLeftPadding(LayoutDirection.Rtl),
                 it.calculateTopPadding(),
@@ -134,7 +143,7 @@ fun PostView(
 
                         item {
                             CommentListView(
-                                postViewModel.postDetails.value!!,
+                                postViewModel,
                                 commentListViewModel
                             )
                         }
@@ -359,7 +368,12 @@ private fun PostDetailsView(
 
         // 댓글
         Row(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .clickable {
+                    postViewModel.initParentCommentId()
+                    postViewModel.activeTextField()
+                },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -430,7 +444,9 @@ private fun PostViewFooter(
 ) {
     val postDetails = postViewModel.postDetails.collectAsState().value
     val myAccountEntity = postViewModel.myAccount.collectAsState().value
+    val parentCommentId = postViewModel.parentCommentId.collectAsState().value
     val primary = MaterialTheme.colorScheme.primary
+    val tertiary = MaterialTheme.colorScheme.tertiary
     val brightTertiary = Color(
         ColorUtils.blendARGB(
             MaterialTheme.colorScheme.tertiary.toArgb(),
@@ -438,7 +454,7 @@ private fun PostViewFooter(
             0.75f
         )
     )
-    val interactionSource = postViewModel.textFieldInteraction
+    val interactionSource = MutableInteractionSource()
     var commentContent by rememberSaveable { mutableStateOf("") }
     val textFieldColors = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
@@ -449,81 +465,122 @@ private fun PostViewFooter(
         errorContainerColor = Color.Transparent,
         disabledContainerColor = Color.Transparent
     )
-
-    val test = interactionSource.collectIsFocusedAsState().value
+    val topPaddingValue = if (parentCommentId != null) { 0 } else { 16 }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.onPrimary)
-            .padding(start = 8.dp, end = 8.dp, top = 20.dp, bottom = 12.dp),
-    ) {
-        BasicTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = commentContent,
-            onValueChange = { commentContent = it },
-            enabled = true,
-            textStyle = TextStyle(
-                fontSize = 16.sp,
-                platformStyle = PlatformTextStyle(
-                    includeFontPadding = false
-                )
-            ),
-            interactionSource = interactionSource,
-            maxLines = 4,
-            decorationBox = { innerTextField ->
-                OutlinedTextFieldDefaults.DecorationBox(
-                    value = commentContent,
-                    visualTransformation = VisualTransformation.None,
-                    innerTextField = innerTextField,
-                    contentPadding = PaddingValues(start = 24.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
-                    placeholder = {
-                        Text(
-                            text = "댓글을 입력하세요.",
-                            fontSize = 16.sp,
-                            color = primary,)
-                    },
-                    container = @Composable {
-                        Container(
-                            enabled = true,
-                            isError = false,
-                            interactionSource = interactionSource,
-                            modifier = Modifier,
-                            colors = textFieldColors,
-                            shape = RoundedCornerShape(25)
-                        )
-                    },
-                    singleLine = true,
-                    enabled = true,
-                    isError = false,
-                    interactionSource = interactionSource,
-                    colors = textFieldColors,
-                    suffix = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.outline_keyboard_double_arrow_right_24),
-                            tint = if (commentContent.isBlank()) {
-                                MaterialTheme.colorScheme.tertiary
-                            } else { primary },
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clickable(
-                                    interactionSource = interactionSource,
-                                    indication = null
-                                ) {
-                                    if (commentContent.isNotBlank()) {
-                                        postViewModel.createComment(
-                                            postDetails,
-                                            myAccountEntity,
-                                            commentContent
-                                        )
-                                        commentContent = ""
-                                    }
-                                }
-                        )
-                    }
+            .drawBehind {
+                drawLine(
+                    color = tertiary,
+                    start = Offset(0f, 0f),
+                    end = Offset(this.size.width, 0f),
+                    strokeWidth = 1.dp.toPx()
                 )
             }
-        )
+            .padding(start = 8.dp, end = 8.dp, top = topPaddingValue.dp, bottom = 16.dp),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (parentCommentId != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp, 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "${postViewModel.parentCommentUsername}의 댓글에 대댓글 입력 중",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f).padding(end = 12.dp)
+                    )
+
+                    Text(
+                        text = "취소",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clickable {
+                                postViewModel.initParentCommentId()
+                            }
+                    )
+                }
+            }
+
+            BasicTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(postViewModel.textFieldFocusRequester),
+                value = commentContent,
+                onValueChange = { commentContent = it },
+                enabled = true,
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    platformStyle = PlatformTextStyle(
+                        includeFontPadding = false
+                    )
+                ),
+                maxLines = 4,
+                decorationBox = { innerTextField ->
+                    OutlinedTextFieldDefaults.DecorationBox(
+                        value = commentContent,
+                        visualTransformation = VisualTransformation.None,
+                        innerTextField = innerTextField,
+                        contentPadding = PaddingValues(start = 24.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+                        placeholder = {
+                            Text(
+                                text = "댓글을 입력하세요.",
+                                fontSize = 16.sp,
+                                color = primary,)
+                        },
+                        container = @Composable {
+                            Container(
+                                enabled = true,
+                                isError = false,
+                                interactionSource = interactionSource,
+                                modifier = Modifier,
+                                colors = textFieldColors,
+                                shape = RoundedCornerShape(25)
+                            )
+                        },
+                        singleLine = true,
+                        enabled = true,
+                        isError = false,
+                        interactionSource = interactionSource,
+                        colors = textFieldColors,
+                        suffix = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.outline_keyboard_double_arrow_right_24),
+                                tint = if (commentContent.isBlank()) {
+                                    MaterialTheme.colorScheme.tertiary
+                                } else { primary },
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clickable(
+                                        interactionSource = interactionSource,
+                                        indication = null
+                                    ) {
+                                        if (commentContent.isNotBlank()) {
+                                            postViewModel.createComment(
+                                                postDetails,
+                                                myAccountEntity,
+                                                commentContent
+                                            )
+                                            commentContent = ""
+                                        }
+                                    }
+                            )
+                        }
+                    )
+                }
+            )
+        }
     }
 }

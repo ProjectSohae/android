@@ -16,8 +16,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CommentListViewModel @Inject constructor(
+    private val myInfoUseCase: MyInfoUseCase,
     private val commentUseCase: CommentUseCase
 ): ViewModel() {
+
+    val myAccount = myInfoUseCase.getMyAccount().stateIn(
+        viewModelScope,
+        SharingStarted.Lazily,
+        null
+    )
 
     private var _commentsList = MutableStateFlow<List<CommentEntity>>(emptyList())
     val commentsList = _commentsList.asStateFlow()

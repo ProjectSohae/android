@@ -1,4 +1,4 @@
-package com.sohae.feature.post.commentoption
+package com.sohae.feature.post.post
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -26,13 +26,12 @@ import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 
 @Composable
-fun CommentOptionView(
-    commenterNickname: String,
+fun PostOptionView(
+    isMyPost: Boolean,
     onDismissRequest: () -> Unit,
     onConfirm: (Int) -> Unit
 ) {
     val tertiary = MaterialTheme.colorScheme.tertiary
-    val myNickname = ""
     val itemModifier = Modifier
         .fillMaxWidth()
         .drawBehind {
@@ -69,8 +68,8 @@ fun CommentOptionView(
                 .padding(horizontal = 24.dp)
         ) {
 
-            // 타인 댓글
-            if (commenterNickname != myNickname) {
+            // 타인 게시글
+            if (!isMyPost) {
                 Text(
                     text = "작성자 차단",
                     fontSize = 16.sp,
@@ -80,21 +79,29 @@ fun CommentOptionView(
                 )
 
                 Text(
-                    text = "댓글 신고",
+                    text = "게시글 신고",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     color = Color.Red,
                     modifier = itemModifier.clickable { onConfirm(1) }
                 )
             }
-            // 내 댓글
+            // 내 게시글
             else {
                 Text(
-                    text = "댓글 삭제",
+                    text = "게시글 수정",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = itemModifier.clickable { onConfirm(2) }
+                )
+
+                Text(
+                    text = "게시글 삭제",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = itemModifier.clickable { onConfirm(3) }
                 )
             }
         }
