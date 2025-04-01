@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,9 +43,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.auth.api.identity.AuthorizationResult
 import com.google.android.gms.auth.api.identity.Identity
 import com.sohae.common.resource.R
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.common.ui.custom.composable.CircularLoadingBarView
+import com.sohae.controller.ui.MainScreenController
+import com.sohae.controller.ui.snackbar.SnackBarBehindTarget
+import com.sohae.controller.ui.snackbar.SnackBarController
 import com.sohae.domain.session.type.AuthType
 import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
@@ -60,12 +63,14 @@ fun SignInView(
     onConfirm: () -> Unit
 ) {
     val currentContext = LocalContext.current
+    val isWaitingResponse = signInViewModel.isWaitingResponse.collectAsState().value
     var selectedSignInType by remember { mutableStateOf<AuthType?>(null) }
     val signInSucceed = {
         SnackBarController.show(
             "로그인 성공",
             SnackBarBehindTarget.VIEW
         )
+        signInViewModel.setIsWaitingResponse(false)
         onConfirm()
     }
     val signInFailed = {
@@ -73,6 +78,7 @@ fun SignInView(
             "로그인 실패.\n다시 시도해 주세요.",
             SnackBarBehindTarget.VIEW
         )
+        signInViewModel.setIsWaitingResponse(false)
         onDismissRequest()
     }
     val reCheckCallbackLogic = { authType: AuthType, socialAccessToken: String ->
@@ -115,111 +121,118 @@ fun SignInView(
         }
     }
 
-
-    Dialog(
-        onDismissRequest = onDismissRequest
+    Box(
+        contentAlignment = Alignment.Center
     ) {
-        Column(
-            modifier = Modifier
-                .shadow(
-                    elevation = 12.dp,
-                    shape = RoundedCornerShape(10)
-                )
-                .clip(RoundedCornerShape(10))
-                .hazeEffect(
-                    state = MainScreenController.hazeState,
-                    style = HazeStyle(
-                        backgroundColor = MaterialTheme.colorScheme.onPrimary,
-                        tint = HazeTint(
-                            color = MaterialTheme.colorScheme.onPrimary
-                        ),
-                        blurRadius = 25.dp
-                    ),
-                    block = fun HazeEffectScope.() {
-                        progressive = HazeProgressive.LinearGradient(
-                            startIntensity = intensity,
-                            endIntensity = intensity,
-                            preferPerformance = true
-                        )
-                    })
-                .padding(vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Dialog(
+            onDismissRequest = onDismissRequest
         ) {
-            Text(
-                text = "로그인",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
-            // 카카오 로그인
-            Box(
+            Column(
                 modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
-                    .width(260.dp)
-                    .clip(RoundedCornerShape(25))
-                    .background(Color(0xFFFEE500))
-                    .clickable {
-
-                        if (selectedSignInType == null) {
-                            selectedSignInType = AuthType.KAKAO
-                        }
-                    }
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                contentAlignment = Alignment.CenterStart
+                    .shadow(
+                        elevation = 12.dp,
+                        shape = RoundedCornerShape(10)
+                    )
+                    .clip(RoundedCornerShape(10))
+                    .hazeEffect(
+                        state = MainScreenController.hazeState,
+                        style = HazeStyle(
+                            backgroundColor = MaterialTheme.colorScheme.onPrimary,
+                            tint = HazeTint(
+                                color = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            blurRadius = 25.dp
+                        ),
+                        block = fun HazeEffectScope.() {
+                            progressive = HazeProgressive.LinearGradient(
+                                startIntensity = intensity,
+                                endIntensity = intensity,
+                                preferPerformance = true
+                            )
+                        })
+                    .padding(vertical = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.kakao_logo),
-                    modifier = Modifier.size(18.dp),
-                    contentDescription = null
-                )
-
                 Text(
-                    text = "카카오 로그인",
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
+                    text = "로그인",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .alpha(0.85f)
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
-            }
 
-            // 구글 로그인
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .width(260.dp)
-                    .clip(RoundedCornerShape(25))
-                    .background(Color(0xFFF2F2F2))
-                    .clickable {
+                // 카카오 로그인
+                Box(
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+                        .width(260.dp)
+                        .clip(RoundedCornerShape(25))
+                        .background(Color(0xFFFEE500))
+                        .clickable {
 
-                        if (selectedSignInType == null) {
-                            selectedSignInType = AuthType.GOOGLE
+                            if (selectedSignInType == null) {
+                                selectedSignInType = AuthType.KAKAO
+                            }
                         }
-                    }
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google_logo),
-                    modifier = Modifier.size(18.dp),
-                    contentDescription = null
-                )
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.kakao_logo),
+                        modifier = Modifier.size(18.dp),
+                        contentDescription = null
+                    )
 
-                Text(
-                    text = "구글 로그인",
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary,
+                    Text(
+                        text = "카카오 로그인",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(0.85f)
+                    )
+                }
+
+                // 구글 로그인
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .alpha(0.54f)
-                )
+                        .padding(horizontal = 16.dp)
+                        .width(260.dp)
+                        .clip(RoundedCornerShape(25))
+                        .background(Color(0xFFF2F2F2))
+                        .clickable {
+
+                            if (selectedSignInType == null) {
+                                selectedSignInType = AuthType.GOOGLE
+                            }
+                        }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.google_logo),
+                        modifier = Modifier.size(18.dp),
+                        contentDescription = null
+                    )
+
+                    Text(
+                        text = "구글 로그인",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(0.54f)
+                    )
+                }
             }
+        }
+
+        if (isWaitingResponse) {
+            WaitingSignInView()
         }
     }
 }
@@ -249,3 +262,18 @@ private fun reCheckForSignInView(
             callback(authType, authorizationClient.accessToken!!)
         }
     }
+
+@Composable
+private fun WaitingSignInView() {
+
+    Dialog(
+        onDismissRequest = {}
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularLoadingBarView()
+        }
+    }
+}

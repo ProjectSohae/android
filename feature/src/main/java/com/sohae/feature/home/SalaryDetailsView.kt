@@ -28,13 +28,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.unit.sp
-import com.sohae.controller.mainnavgraph.MainScreenController
-import com.sohae.domain.myinformation.entity.MyUsedLeaveEntity
-import com.sohae.domain.home.entity.SalaryDetailsEntity
-import com.sohae.domain.utils.displayAsAmount
-import com.sohae.domain.utils.getWeekendCount
+import androidx.compose.ui.window.Dialog
+import com.sohae.controller.ui.MainScreenController
 import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle

@@ -20,7 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
+import com.sohae.controller.navigation.main.MainNavGraphViewController
 
 @Composable
 fun PostImageView(

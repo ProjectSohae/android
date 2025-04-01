@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "993102449423",
+    "project_id": "silent-vim-449411-m5",
+    "storage_bucket": "silent-vim-449411-m5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993102449423:android:3e9bea32528507bdff8c7a",
+        "android_client_info": {
+          "package_name": "com.sohae"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993102449423-tiqhuccqvifccbo1idrdrom31d2lt8ke.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sohae",
+            "certificate_hash": "ade8c4322c5128ac176bc9a0e8e353fa4eb69c91"
+          }
+        },
+        {
+          "client_id": "993102449423-vh89liamdicb3h4osbcpn4b6dd73cjil.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXZe82KlljwVADx-yFt6rVG2EVruh9qSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993102449423-vh89liamdicb3h4osbcpn4b6dd73cjil.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

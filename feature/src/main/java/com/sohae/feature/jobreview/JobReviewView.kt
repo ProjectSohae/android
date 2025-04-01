@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
+import com.sohae.controller.navigation.main.MainNavGraphViewController
 import com.sohae.domain.jobreview.entity.JobReviewScoreNamesList
 
 @Composable

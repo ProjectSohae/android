@@ -6,7 +6,9 @@ import com.sohae.domain.myinformation.entity.MyAccountEntity
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
 import com.sohae.domain.session.usecase.SessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -22,9 +24,18 @@ class MyProfileViewModel @Inject constructor(
         initialValue = null
     )
 
+    private var _isWaitingResponse = MutableStateFlow(false)
+    val isWaitingResponse = _isWaitingResponse.asStateFlow()
+
+    fun setIsWaitingResponse(input: Boolean) {
+        _isWaitingResponse.value = input
+    }
+
     fun signOut(
         callback: (Boolean) -> Unit
     ) {
+        setIsWaitingResponse(true)
+
         sessionUseCase.signOut { isSucceed ->
 
             if (isSucceed) {

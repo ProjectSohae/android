@@ -64,9 +64,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.sohae.common.resource.R
-import com.sohae.controller.barcolor.BarColorController
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
+import com.sohae.controller.ui.BarColorController
 import com.sohae.feature.community.category.CommunityCategory
 import com.sohae.feature.community.category.CommunityCategoryNavRoute
 import com.sohae.feature.community.communitypostlist.CommunityPostListView
@@ -214,29 +214,37 @@ private fun CommunityBodyView(
                 navigation<CommunityCategoryNavRoute.ALL>(
                     startDestination = CommunityCategoryNavRoute.ALL.MAIN
                 ) {
-                    composable<CommunityCategoryNavRoute.ALL.MAIN> {
+                    composable<CommunityCategoryNavRoute.ALL.MAIN> { backStackEntry ->
                         CommunityPostListView(
+                            communityNavController = communityNavController,
+                            thisBackStackEntryId = backStackEntry.id,
                             currentSelectedCategory = CommunityCategory.ALL,
                             currentSelectedSubCategoryIdx = -1,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryNavRoute.ALL.COMMON> {
+                    composable<CommunityCategoryNavRoute.ALL.COMMON> {backStackEntry ->
                         CommunityPostListView(
+                            communityNavController = communityNavController,
+                            thisBackStackEntryId = backStackEntry.id,
                             currentSelectedCategory = CommunityCategory.ALL,
                             currentSelectedSubCategoryIdx = 0,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryNavRoute.ALL.QUESTION> {
+                    composable<CommunityCategoryNavRoute.ALL.QUESTION> {backStackEntry ->
                         CommunityPostListView(
+                            communityNavController = communityNavController,
+                            thisBackStackEntryId = backStackEntry.id,
                             currentSelectedCategory = CommunityCategory.ALL,
                             currentSelectedSubCategoryIdx = 1,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryNavRoute.ALL.TIP> {
+                    composable<CommunityCategoryNavRoute.ALL.TIP> {backStackEntry ->
                         CommunityPostListView(
+                            communityNavController = communityNavController,
+                            thisBackStackEntryId = backStackEntry.id,
                             currentSelectedCategory = CommunityCategory.ALL,
                             currentSelectedSubCategoryIdx = 2,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
@@ -246,30 +254,38 @@ private fun CommunityBodyView(
                 navigation<CommunityCategoryNavRoute.HOT>(
                     startDestination = CommunityCategoryNavRoute.HOT.DAY
                 ) {
-                    composable<CommunityCategoryNavRoute.HOT.DAY> {
+                    composable<CommunityCategoryNavRoute.HOT.DAY> {backStackEntry ->
                         CommunityPostListView(
+                            communityNavController = communityNavController,
+                            thisBackStackEntryId = backStackEntry.id,
                             currentSelectedCategory = CommunityCategory.HOT,
                             currentSelectedSubCategoryIdx = 0,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryNavRoute.HOT.WEEK> {
+                    composable<CommunityCategoryNavRoute.HOT.WEEK> {backStackEntry ->
                         CommunityPostListView(
+                            communityNavController = communityNavController,
+                            thisBackStackEntryId = backStackEntry.id,
                             currentSelectedCategory = CommunityCategory.HOT,
                             currentSelectedSubCategoryIdx = 1,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
-                    composable<CommunityCategoryNavRoute.HOT.MONTH> {
+                    composable<CommunityCategoryNavRoute.HOT.MONTH> {backStackEntry ->
                         CommunityPostListView(
+                            communityNavController = communityNavController,
+                            thisBackStackEntryId = backStackEntry.id,
                             currentSelectedCategory = CommunityCategory.HOT,
                             currentSelectedSubCategoryIdx = 2,
                             communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()
                         )
                     }
                 }
-                composable<CommunityCategoryNavRoute.NOTICE> {
+                composable<CommunityCategoryNavRoute.NOTICE> {backStackEntry ->
                     CommunityPostListView(
+                        communityNavController = communityNavController,
+                        thisBackStackEntryId = backStackEntry.id,
                         currentSelectedCategory = CommunityCategory.NOTICE,
                         currentSelectedSubCategoryIdx = 0,
                         communityPostListViewModel = hiltViewModel<CommunityPostListViewModel>()

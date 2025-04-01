@@ -41,13 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.sohae.common.resource.R
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.common.ui.custom.snackbar.SnackbarView
-import com.sohae.controller.mainnavgraph.MainScreenController
-import com.sohae.domain.myinformation.entity.MyUsedLeaveEntity
-import com.sohae.domain.utils.getDate
-import com.sohae.domain.utils.getLeavePeriod
+import com.sohae.controller.ui.MainScreenController
 import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
@@ -104,9 +98,9 @@ fun MyUsedLeaveListView(
                             }
                             // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
                             else {
-                                SnackBarController.show(
+                                com.sohae.controller.ui.snackbar.SnackBarController.show(
                                     "${com.sohae.domain.utils.getLeavePeriod(it + selectedLeaveItem!!.usedLeaveTime)}을 초과하여 휴가 사용할 수 없습니다.",
-                                    SnackBarBehindTarget.DIALOG
+                                    com.sohae.controller.ui.snackbar.SnackBarBehindTarget.DIALOG
                                 )
                             }
                     }
@@ -126,11 +120,11 @@ fun MyUsedLeaveListView(
         Scaffold(
             snackbarHost = {
                 SnackbarHost(
-                    hostState = SnackBarController.snackbarHostState
+                    hostState = com.sohae.controller.ui.snackbar.SnackBarController.snackbarHostState
                 ) { getSnackbarData ->
-                    if (SnackBarController.behindTarget == SnackBarBehindTarget.DIALOG) {
-                        SnackBarController.currentSnackbar = getSnackbarData
-                        SnackbarView(snackbarData = getSnackbarData)
+                    if (com.sohae.controller.ui.snackbar.SnackBarController.behindTarget == com.sohae.controller.ui.snackbar.SnackBarBehindTarget.DIALOG) {
+                        com.sohae.controller.ui.snackbar.SnackBarController.currentSnackbar = getSnackbarData
+                        com.sohae.controller.ui.snackbar.SnackbarView(snackbarData = getSnackbarData)
                     }
                 }
             }

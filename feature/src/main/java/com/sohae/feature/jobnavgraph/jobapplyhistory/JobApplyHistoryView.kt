@@ -1,7 +1,6 @@
 package com.sohae.feature.jobnavgraph.jobapplyhistory
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,11 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.controller.ui.MainScreenController
 import com.sohae.feature.jobnavgraph.option.SelectDistrictView
 
 // 이전 경쟁률
@@ -94,7 +90,7 @@ fun JobApplyHistoryView(
                 jobApplyHistoryViewModel.ghjbc_cd[ghjbc_cd] ?: "",
                 jobApplyHistoryViewModel.bjdsggjuso_cd[bjdsggjuso_cd] ?: "",
                 callback = {
-                    SnackBarController.show(it, SnackBarBehindTarget.VIEW)
+                    com.sohae.controller.ui.snackbar.SnackBarController.show(it, com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
                 }
             )
         }
@@ -149,9 +145,9 @@ fun JobApplyHistoryView(
                                     if (errorMessage.isBlank()) {
                                         isReadyBjdsggjusoCd = true
                                     } else {
-                                        SnackBarController.show(
+                                        com.sohae.controller.ui.snackbar.SnackBarController.show(
                                             errorMessage,
-                                            SnackBarBehindTarget.VIEW
+                                            com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                                         )
                                     }
                                 }
@@ -171,16 +167,16 @@ fun JobApplyHistoryView(
         else {
 
             if (ghjbc_cd.isBlank()) {
-                SnackBarController.show("관할 지방청을 선택해주세요.", SnackBarBehindTarget.VIEW)
+                com.sohae.controller.ui.snackbar.SnackBarController.show("관할 지방청을 선택해주세요.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
                 selectedFilterIdx = -1
             } else {
 
                 if (jobApplyHistoryViewModel.bjdsggjuso_cd.isEmpty()) {
 
                     if (isReadyBjdsggjusoCd) {
-                        SnackBarController.show("데이터가 존재하지 않습니다.", SnackBarBehindTarget.VIEW)
+                        com.sohae.controller.ui.snackbar.SnackBarController.show("데이터가 존재하지 않습니다.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
                     } else {
-                        SnackBarController.show("데이터를 불러오고 있습니다.\n잠시 후 다시 시도해주세요.", SnackBarBehindTarget.VIEW)
+                        com.sohae.controller.ui.snackbar.SnackBarController.show("데이터를 불러오고 있습니다.\n잠시 후 다시 시도해주세요.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
                     }
 
                     selectedFilterIdx = -1

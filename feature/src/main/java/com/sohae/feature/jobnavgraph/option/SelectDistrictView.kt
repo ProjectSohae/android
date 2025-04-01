@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.ColorUtils
-import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.controller.ui.MainScreenController
 import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle

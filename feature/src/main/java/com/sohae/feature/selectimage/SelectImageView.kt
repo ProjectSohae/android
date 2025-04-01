@@ -23,10 +23,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -68,12 +66,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.allowHardware
+import coil3.request.crossfade
 import com.sohae.common.resource.R
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.controller.navigation.main.MainNavGraphViewController
+import com.sohae.controller.ui.MainScreenController
+import com.sohae.controller.ui.snackbar.SnackBarBehindTarget
+import com.sohae.controller.ui.snackbar.SnackBarController
 import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
@@ -104,7 +106,7 @@ fun SelectImageView(
             showAlert = true
         }
     }
-    var imageUris by rememberSaveable { mutableStateOf<List<Uri>>(emptyList()) }
+    var imageUris by rememberSaveable { mutableStateOf<List<List<Uri>>>(emptyList()) }
 
     LaunchedEffect(Unit) {
 
@@ -134,7 +136,7 @@ fun SelectImageView(
                         Intent(
                             Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                         ).apply {
-                            data = Uri.parse("package:${context.packageName}")
+                            data = "package:${context.packageName}".toUri()
                         }
                     )
                 } catch (e: ActivityNotFoundException) {
@@ -242,49 +244,57 @@ private fun SelectImageHeaderView(
 
 @Composable
 private fun SelectImageBodyView(
-    imageUris: List<Uri>,
+    imageUris: List<List<Uri>>,
     selectImageViewModel: SelectImageViewModel
 ) {
     val selectedImageList = selectImageViewModel.selectedImagesList.collectAsState().value
-    val bodyState = rememberLazyGridState()
 
-    LaunchedEffect(selectedImageList) {
-    }
-
-    LazyVerticalGrid(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(2.dp),
-        columns = GridCells.Fixed(3),
-        state = bodyState
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(2.dp)
     ) {
         itemsIndexed(
             items = imageUris,
-            key = { idx: Int, item -> idx}
-        ) { idx: Int, item ->
-            SelectImageItem(
-                uri = item,
-                isSelected = selectedImageList.contains(item),
-                selectedIdx = selectedImageList.indexOf(item) + 1,
-                onClick = {
-                    selectImageViewModel.selectImage(item).let callback@{
+            key = { rowIdx, item -> rowIdx }
+        ) { rowIdx, item ->
+            if (imageUris[rowIdx].isNotEmpty()) {
+                val columnSize = imageUris[rowIdx].size
 
-                        if (it.isNotBlank()) {
-                            SnackBarController.show(it, SnackBarBehindTarget.VIEW)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    for (columnIdx: Int in 0..<columnSize) {
+                        val imageUri = imageUris[rowIdx][columnIdx]
 
-                            return@callback false
-                        }
+                        SelectImageItemView(
+                            modifier = Modifier.fillParentMaxWidth(0.33f),
+                            uri = imageUri,
+                            isSelected = selectedImageList.contains(imageUri),
+                            selectedIdx = selectedImageList.indexOf(imageUri) + 1,
+                            onClick = {
+                                selectImageViewModel.selectImage(imageUri).let callback@{
 
-                        return@callback true
+                                    if (it.isNotBlank()) {
+                                        SnackBarController.show(it, SnackBarBehindTarget.VIEW)
+
+                                        return@callback false
+                                    }
+
+                                    return@callback true
+                                }
+                            }
+                        )
                     }
                 }
-            )
+            }
         }
     }
 }
 
 @Composable
-private fun SelectImageItem(
+private fun SelectImageItemView(
+    modifier: Modifier,
     uri: Uri,
     isSelected: Boolean,
     selectedIdx: Int,
@@ -304,7 +314,7 @@ private fun SelectImageItem(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f, true)
             .padding(2.dp)
@@ -321,7 +331,11 @@ private fun SelectImageItem(
             }
     ) {
         AsyncImage(
-            model = uri,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(uri)
+                .crossfade(true)
+                .allowHardware(true)
+                .build(),
             contentScale = ContentScale.Crop,
             contentDescription = null,
             modifier = Modifier.fillMaxSize()

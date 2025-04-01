@@ -68,8 +68,8 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
 import com.sohae.domain.jobreview.entity.JobReviewScoreNamesList
 import com.sohae.feature.BuildConfig
 import kotlinx.coroutines.runBlocking
@@ -827,7 +827,7 @@ private fun JobReviewItemView() {
 
         // 제목
         Text(
-            text = "“도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐도망쳐”",
+            text = "“제목”",
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 2,
@@ -844,7 +844,7 @@ private fun JobReviewItemView() {
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무주요 업무",
+            text = "주요 업무",
             fontSize = 16.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -860,7 +860,7 @@ private fun JobReviewItemView() {
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점장점",
+            text = "장점",
             fontSize = 16.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -876,7 +876,7 @@ private fun JobReviewItemView() {
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점단점",
+            text = "단점",
             fontSize = 16.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,

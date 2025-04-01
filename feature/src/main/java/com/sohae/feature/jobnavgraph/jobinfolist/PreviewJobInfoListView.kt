@@ -47,14 +47,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
+import com.sohae.controller.ui.MainScreenController
 import com.sohae.feature.jobnavgraph.option.SelectDistrictView
 
 // 복무지 목록
@@ -108,7 +105,7 @@ fun PreviewJobInfoListView(
                         0
                     }
                 },
-                intensity = 0.8f,
+                intensity = 0.95f,
                 onDismissRequest = { pressedFilterIdx = -1 },
                 onConfirm = { getOptionValue ->
 
@@ -124,7 +121,7 @@ fun PreviewJobInfoListView(
                                     if (errorMessage.isBlank()) {
                                         isReadyBjdsggjusoCd = true
                                     } else {
-                                        SnackBarController.show(errorMessage, SnackBarBehindTarget.VIEW)
+                                        com.sohae.controller.ui.snackbar.SnackBarController.show(errorMessage, com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
                                     }
                                 }
                             )
@@ -144,16 +141,16 @@ fun PreviewJobInfoListView(
         else {
 
             if (ghjbc_cd.isBlank()) {
-                SnackBarController.show("관할 지방청을 선택해주세요.", SnackBarBehindTarget.VIEW)
+                com.sohae.controller.ui.snackbar.SnackBarController.show("관할 지방청을 선택해주세요.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
                 pressedFilterIdx = -1
             } else {
 
                 if (previewJobInfoListViewModel.bjdsggjuso_cd.isEmpty()) {
 
                     if (isReadyBjdsggjusoCd) {
-                        SnackBarController.show("데이터가 존재하지 않습니다.", SnackBarBehindTarget.VIEW)
+                        com.sohae.controller.ui.snackbar.SnackBarController.show("데이터가 존재하지 않습니다.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
                     } else {
-                        SnackBarController.show("데이터를 불러오고 있습니다.\n잠시 후 다시 시도해주세요.", SnackBarBehindTarget.VIEW)
+                        com.sohae.controller.ui.snackbar.SnackBarController.show("데이터를 불러오고 있습니다.\n잠시 후 다시 시도해주세요.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
                     }
 
                     pressedFilterIdx = -1

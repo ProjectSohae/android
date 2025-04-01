@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    id("com.google.gms.google-services")
     kotlin("plugin.serialization")
     id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
@@ -62,10 +63,9 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":common:remote"))
     implementation(libs.play.services.auth)
+    implementation(project(":controller"))
+    implementation(libs.firebase.messaging.ktx)
     kapt(libs.hilt.android.compiler)
-
-    implementation(project(":controller:barcolor"))
-    implementation(project(":controller:mainnavgraph"))
 
     implementation(project(":common:resource"))
     implementation(project(":common:ui:custom"))
@@ -77,7 +77,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material)
     implementation(libs.androidx.material3)
 
     implementation(libs.androidx.navigation.compose)

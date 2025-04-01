@@ -6,6 +6,7 @@ import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.domain.post.usecase.PostUseCase
 import com.sohae.feature.community.category.CommunityCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -20,6 +21,9 @@ class CommunityPostListViewModel @Inject constructor(
 
     val PAGE_OFFSET = 20
 
+    private var _currentJob = MutableStateFlow<Job?>(null)
+    val currentJob = _currentJob.asStateFlow()
+
     private var _isReadyPostsList = MutableStateFlow(false)
     val isReadyPostsList = _isReadyPostsList.asStateFlow()
 
@@ -28,6 +32,11 @@ class CommunityPostListViewModel @Inject constructor(
 
     private var _maxFirstVisibleItemIndex = MutableStateFlow(-1)
     val maxFirstVisibleItemIndex = _maxFirstVisibleItemIndex.asStateFlow()
+
+    fun setCurrentJob(input: Job?) {
+        currentJob.value?.cancel()
+        _currentJob.value = input
+    }
 
     fun setIsReadyPostsList(input: Boolean) {
         _isReadyPostsList.value = input

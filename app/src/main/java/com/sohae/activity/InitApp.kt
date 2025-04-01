@@ -1,9 +1,10 @@
 package com.sohae.activity
 
 import android.app.Application
+import com.google.firebase.FirebaseApp
+import com.kakao.sdk.common.KakaoSdk
 import com.sohae.BuildConfig
 import com.sohae.data.myinformation.database.MyInformationDBGraph
-import com.kakao.sdk.common.KakaoSdk
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -12,9 +13,11 @@ class InitApp: Application() {
     override fun onCreate() {
         super.onCreate()
 
-        KakaoSdk.init(this, BuildConfig.KAKAO_NATIVE_KEY)
+        FirebaseApp.initializeApp(applicationContext);
+
+        KakaoSdk.init(applicationContext, BuildConfig.KAKAO_NATIVE_KEY)
         
         // remote local DB
-        MyInformationDBGraph.provide(this)
+        MyInformationDBGraph.provide(applicationContext)
     }
 }

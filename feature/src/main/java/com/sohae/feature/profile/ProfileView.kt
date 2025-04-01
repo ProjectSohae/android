@@ -44,9 +44,9 @@ import com.sohae.common.ui.custom.composable.ProfileImage
 import com.sohae.common.ui.custom.dialog.DatePickerDialog
 import com.sohae.common.ui.custom.dialog.TypingTextDialog
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
+import com.sohae.controller.ui.MainScreenController
 import com.sohae.domain.utils.displayAsAmount
 import com.sohae.domain.utils.getDate
 import kotlinx.coroutines.delay

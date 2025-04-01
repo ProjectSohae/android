@@ -58,11 +58,9 @@ import coil3.compose.AsyncImage
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.CircularLoadingBarView
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
+import com.sohae.controller.ui.MainScreenController
 
 @Composable
 fun WritePostView(
@@ -80,9 +78,9 @@ fun WritePostView(
                 if (isSucceed) {
                     writePostViewModel.setIsReadyPostDetails(true)
                 } else {
-                    SnackBarController.show(
+                    com.sohae.controller.ui.snackbar.SnackBarController.show(
                         "게시글을 불러오는데 실패했습니다.\n다시 시도해 주세요.",
-                        SnackBarBehindTarget.VIEW
+                        com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                     )
                     mainNavController.popBackStack()
                 }
@@ -550,7 +548,7 @@ private fun WritePostViewFooter(
     writePostViewModel: WritePostViewModel
 ) {
     val failure = { msg: String ->
-        SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+        com.sohae.controller.ui.snackbar.SnackBarController.show(msg, com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
     }
     val mainNavController = MainNavGraphViewController.mainNavController
     val myId = writePostViewModel.myId.collectAsState().value?.id
@@ -587,22 +585,22 @@ private fun WritePostViewFooter(
                         writePostViewModel.updatePost(myId) { isSucceed ->
 
                             if (isSucceed) {
-                                SnackBarController.show(
+                                com.sohae.controller.ui.snackbar.SnackBarController.show(
                                     "게시글을 수정했습니다.",
-                                    SnackBarBehindTarget.VIEW
+                                    com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                                 )
                                 mainNavController.popBackStack()
                             } else {
-                                SnackBarController.show(
+                                com.sohae.controller.ui.snackbar.SnackBarController.show(
                                     "게시글 수정에 문제가 발생했습니다.\n잠시 후 다시 시도해 주세요.",
-                                    SnackBarBehindTarget.VIEW
+                                    com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                                 )
                             }
                         }
                     } else {
                         writePostViewModel.uploadPost(myId) { msg, isSucceed ->
 
-                            SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+                            com.sohae.controller.ui.snackbar.SnackBarController.show(msg, com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
 
                             if (isSucceed) {
                                 mainNavController.popBackStack()

@@ -1,11 +1,6 @@
 package com.sohae.feature.post.post
 
-import android.util.Log
-import androidx.compose.foundation.interaction.FocusInteraction
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sohae.common.models.comment.entity.CommentEntity
@@ -13,17 +8,14 @@ import com.sohae.common.models.comment.entity.CommentId
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.domain.comment.usecase.CommentUseCase
 import com.sohae.domain.myinformation.entity.MyAccountEntity
-import com.sohae.domain.post.usecase.PostUseCase
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
+import com.sohae.domain.post.usecase.PostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -87,6 +79,58 @@ class PostViewModel @Inject constructor(
 
         postUseCase.deletePost(postId) { isSucceed ->
             callback(isSucceed)
+        }
+    }
+
+    fun likePost(
+        callback: (Boolean) -> Unit
+    ) {
+        val postDetails = postDetails.value
+
+        if (postDetails != null) {
+
+            _postDetails.value = postDetails.copy(likesCount = postDetails.likesCount + 1)
+        } else {
+
+        }
+    }
+
+    fun unlikePost(
+        callback: (Boolean) -> Unit
+    ) {
+        val postDetails = postDetails.value
+
+        if (postDetails != null) {
+
+            _postDetails.value = postDetails.copy(likesCount = postDetails.likesCount - 1)
+        } else {
+
+        }
+    }
+
+    fun bookmarkPost(
+        callback: (Boolean) -> Unit
+    ) {
+        val postDetails = postDetails.value
+
+        if (postDetails != null) {
+
+            _postDetails.value = postDetails.copy(bookmarksCount = postDetails.bookmarksCount + 1)
+        } else {
+
+        }
+    }
+
+    fun unBookmarkPost(
+        callback: (Boolean) -> Unit
+    ) {
+        val postDetails = postDetails.value
+
+        if (postDetails != null) {
+
+            _postDetails.value = postDetails.copy(bookmarksCount = postDetails.bookmarksCount - 1)
+        } else {
+
         }
     }
 

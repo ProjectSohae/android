@@ -53,9 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.CircularLoadingBarView
 import com.sohae.common.ui.custom.composable.ProfileImage
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.barcolor.BarColorController
+import com.sohae.controller.ui.BarColorController
 import com.sohae.domain.utils.getLeavePeriod
 import kotlinx.coroutines.delay
 import java.time.Instant
@@ -478,9 +476,9 @@ private fun MySalary(
 
         if (salaryDetails.beginPayDate.isEqual(LocalDate.MIN)
             || salaryDetails.endPayDate.isEqual(LocalDate.MIN)) {
-            SnackBarController.show(
+            com.sohae.controller.ui.snackbar.SnackBarController.show(
                 inputMessage = "급여 정보가 존재하지 않습니다.",
-                inputBehindTarget = SnackBarBehindTarget.VIEW
+                inputBehindTarget = com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
             )
             showSalaryDetails = false
         } else {
@@ -689,9 +687,9 @@ private fun MyLeaveList(
                                 }
                                 // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
                                 else {
-                                    SnackBarController.show(
+                                    com.sohae.controller.ui.snackbar.SnackBarController.show(
                                         "${getLeavePeriod(it)}을 초과하여 휴가 사용할 수 없습니다.",
-                                        SnackBarBehindTarget.VIEW
+                                        com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                                     )
                                 }
                     }

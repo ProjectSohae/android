@@ -22,6 +22,8 @@ import com.sohae.domain.session.type.AuthType
 import com.sohae.domain.session.usecase.SessionUseCase
 import com.sohae.feature.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,6 +36,13 @@ class SignInViewModel @Inject constructor(
 ): ViewModel() {
 
     private val tag = "sohae_signIn"
+
+    private var _isWaitingResponse = MutableStateFlow(false)
+    val isWaitingResponse = _isWaitingResponse.asStateFlow()
+
+    fun setIsWaitingResponse(input: Boolean) {
+        _isWaitingResponse.value = input
+    }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun getSocialAccessToken(
@@ -51,6 +60,8 @@ class SignInViewModel @Inject constructor(
         val failure = { callback(false) }
 
         viewModelScope.launch {
+
+            setIsWaitingResponse(true)
 
             when (type) {
                 AuthType.KAKAO -> {

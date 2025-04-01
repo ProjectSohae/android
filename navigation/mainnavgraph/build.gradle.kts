@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(project(":feature"))
+    implementation(project(":controller"))
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.haze)
@@ -59,7 +60,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
-    implementation(project(":controller:mainnavgraph"))
     implementation(project(":navigation:homenavgraph"))
 
     testImplementation(libs.junit)

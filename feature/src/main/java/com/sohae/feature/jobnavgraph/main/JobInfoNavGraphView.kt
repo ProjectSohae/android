@@ -45,8 +45,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sohae.common.resource.R
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
 import com.sohae.feature.jobnavgraph.jobapplyhistory.JobApplyHistoryView
 import com.sohae.feature.jobnavgraph.jobinfolist.PreviewJobInfoListView
 import kotlinx.coroutines.runBlocking

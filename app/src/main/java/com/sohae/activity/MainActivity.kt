@@ -22,10 +22,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.common.ui.custom.snackbar.SnackbarView
-import com.sohae.controller.barcolor.BarColorController
+import com.sohae.controller.ui.BarColorController
 import com.sohae.navigation.mainnavgraph.MainNavGraphView
 import com.sohae.ui.theme.GongikTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,11 +59,11 @@ class MainActivity : ComponentActivity() {
                     snackbarHost = {
                         SnackbarHost(
                             modifier = Modifier.offset(y = (-60).dp),
-                            hostState = SnackBarController.snackbarHostState
+                            hostState = com.sohae.controller.ui.snackbar.SnackBarController.snackbarHostState
                         ) { getSnackbarData ->
-                            if (SnackBarController.behindTarget == SnackBarBehindTarget.VIEW) {
-                                SnackBarController.currentSnackbar = getSnackbarData
-                                SnackbarView(snackbarData = getSnackbarData)
+                            if (com.sohae.controller.ui.snackbar.SnackBarController.behindTarget == com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW) {
+                                com.sohae.controller.ui.snackbar.SnackBarController.currentSnackbar = getSnackbarData
+                                com.sohae.controller.ui.snackbar.SnackbarView(snackbarData = getSnackbarData)
                             }
                         }
                     }

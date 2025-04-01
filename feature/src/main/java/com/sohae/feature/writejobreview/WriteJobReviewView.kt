@@ -44,8 +44,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.dialog.WheelPickerDialog
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.controller.navigation.main.MainNavGraphViewController
+import com.sohae.controller.ui.MainScreenController
 import kotlinx.coroutines.runBlocking
 
 @Composable

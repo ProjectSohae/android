@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
@@ -45,6 +46,10 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+
+    implementation(platform(libs.firebase.bom))
+
+    implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.okhttp)
     implementation(libs.retrofit)

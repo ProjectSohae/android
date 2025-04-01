@@ -45,10 +45,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.sohae.common.resource.R
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.common.ui.custom.textfield.CustomTextFieldView
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
+import com.sohae.controller.navigation.main.MainNavGraphViewController
 import com.sohae.domain.myinformation.entity.MySearchHistoryEntity
 import com.sohae.feature.searchpost.postlist.SearchPostsListView
 import com.sohae.feature.searchpost.postlist.SearchPostsListViewModel
@@ -96,10 +94,10 @@ private fun SearchPostHeaderView(
     val searchPosts = {
         if (searchPostTitle.isNotBlank()) {
             searchPostViewModel.searchPostRequest(
-                onFailure = { SnackBarController.show(it, SnackBarBehindTarget.VIEW) }
+                onFailure = { com.sohae.controller.ui.snackbar.SnackBarController.show(it, com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW) }
             )
         } else {
-            SnackBarController.show("검색어를 입력해주세요.", SnackBarBehindTarget.VIEW)
+            com.sohae.controller.ui.snackbar.SnackBarController.show("검색어를 입력해주세요.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
         }
     }
 
@@ -288,9 +286,9 @@ private fun RecentSearchHistoryListView(
                                 searchPostViewModel.searchPostRequest(
                                     inputSearchPostTitle = item.keyword,
                                     onFailure = { errorMessage ->
-                                        SnackBarController.show(
+                                        com.sohae.controller.ui.snackbar.SnackBarController.show(
                                             errorMessage,
-                                            SnackBarBehindTarget.VIEW
+                                            com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                                         )
                                     }
                                 )

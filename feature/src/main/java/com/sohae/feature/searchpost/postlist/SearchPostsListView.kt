@@ -37,10 +37,8 @@ import androidx.compose.ui.unit.sp
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.CircularLoadingBarView
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
 import com.sohae.domain.utils.getDiffTimeFromNow
 import com.sohae.feature.community.category.CommunityCategory
 
@@ -73,7 +71,7 @@ fun SearchPostsListView(
 
             if (firstVisibleItemIndex >= previewPostsList.size / 2) {
                 searchPostsListViewModel.getPreviewPostsListByKeyword(keyword) { msg ->
-                    SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+                    com.sohae.controller.ui.snackbar.SnackBarController.show(msg, com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
                 }
             }
         }

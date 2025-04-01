@@ -21,10 +21,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -35,55 +37,80 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.CircularLoadingBarView
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.feature.community.category.CommunityCategory
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
+import com.sohae.controller.ui.snackbar.SnackBarBehindTarget
+import com.sohae.controller.ui.snackbar.SnackBarController
 import com.sohae.domain.utils.getDiffTimeFromNow
+import com.sohae.feature.community.category.CommunityCategory
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun CommunityPostListView(
+    communityNavController: NavHostController,
+    thisBackStackEntryId: String,
     currentSelectedCategory: CommunityCategory,
     currentSelectedSubCategoryIdx: Int,
     communityPostListViewModel: CommunityPostListViewModel
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val currentBackStackEntryId = communityNavController.currentBackStackEntryAsState().value?.id
+    val currentJob = communityPostListViewModel.currentJob.collectAsState().value
     val pageOffset = communityPostListViewModel.PAGE_OFFSET
     val lazyListState = rememberLazyListState()
-    val firstVisibleItemIndex = remember {
-        derivedStateOf { lazyListState.firstVisibleItemIndex }
+    val firstVisibleItemIndex by remember {
+        derivedStateOf {
+            lazyListState.firstVisibleItemIndex
+                .let { if (it < 0) { 0 } else { it } }
+        }
     }
     val maxFirstVisibleItemIndex = communityPostListViewModel.maxFirstVisibleItemIndex.collectAsState().value
     val isReadyPostsList = communityPostListViewModel.isReadyPostsList.collectAsState().value
     val previewPostsList = communityPostListViewModel.previewPostsList.collectAsState().value
 
-    LaunchedEffect(firstVisibleItemIndex) {
+    // debounce 적용
+    DisposableEffect(firstVisibleItemIndex, currentBackStackEntryId) {
 
-        lazyListState.firstVisibleItemIndex.let { it ->
+        if (thisBackStackEntryId != currentBackStackEntryId) {
+            communityPostListViewModel.setCurrentJob(null)
+        } else {
+            if (maxFirstVisibleItemIndex < firstVisibleItemIndex) {
 
-            if (maxFirstVisibleItemIndex < it) {
                 communityPostListViewModel.setMaxFirstVisibleItemIndex(
-                    maxFirstVisibleItemIndex.let {
-                        if (it < 0) { 0 } else { it }
-                    } + (pageOffset / 2)
+                    firstVisibleItemIndex + (pageOffset / 2)
                 )
 
-                communityPostListViewModel.getPreviewPostsList(
-                    page = communityPostListViewModel.currentPage,
-                    category = currentSelectedCategory,
-                    subCategoryIdx = currentSelectedSubCategoryIdx
-                ) { msg: String, isSucceed: Boolean ->
+                val job = coroutineScope.launch {
 
-                    if (!isSucceed) {
-                        SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
-                    } else {
-                        communityPostListViewModel.currentPage++
+                    delay(1000L)
+
+                    communityPostListViewModel.getPreviewPostsList(
+                        page = communityPostListViewModel.currentPage,
+                        category = currentSelectedCategory,
+                        subCategoryIdx = currentSelectedSubCategoryIdx
+                    ) { msg: String, isSucceed: Boolean ->
+
+                        if (!isSucceed) {
+                            SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+                        } else {
+                            communityPostListViewModel.currentPage++
+                        }
                     }
                 }
+
+                communityPostListViewModel.setCurrentJob(job)
             }
+        }
+
+
+        onDispose {
+            currentJob?.cancel()
         }
     }
 

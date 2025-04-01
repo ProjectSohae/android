@@ -33,13 +33,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.resource.R
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
 import com.sohae.domain.utils.getDiffTimeFromNow
 
 @Composable
@@ -117,7 +114,7 @@ fun MyPostListBodyView(myPostListViewModel: MyPostListViewModel) {
     LaunchedEffect(Unit) {
         myPostListViewModel.getMyPostsList(1) { msg, isSucceed ->
             if (!isSucceed) {
-                SnackBarController.show(msg, SnackBarBehindTarget.VIEW)
+                com.sohae.controller.ui.snackbar.SnackBarController.show(msg, com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
             }
         }
     }

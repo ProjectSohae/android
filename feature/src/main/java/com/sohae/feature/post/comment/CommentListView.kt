@@ -1,6 +1,5 @@
 package com.sohae.feature.post.comment
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,22 +34,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import com.sohae.common.models.comment.entity.CommentEntity
-import com.sohae.common.models.post.entity.PostEntity
 import com.sohae.common.models.user.entity.UserId
 import com.sohae.common.resource.R
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
 import com.sohae.domain.utils.getDiffTimeFromNow
 import com.sohae.feature.post.post.PostViewModel
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 
 @Composable
 fun CommentListView(
     postViewModel: PostViewModel,
     commentListViewModel: CommentListViewModel
 ) {
-    val postDetails = postViewModel.postDetails.value!!
+    val postDetails = postViewModel.postDetails.collectAsState().value!!
     val myAccount = commentListViewModel.myAccount.collectAsState().value
     var showCommentOption by remember { mutableStateOf(false) }
     var selectedCommentEntity by remember { mutableStateOf<CommentEntity?>(null) }

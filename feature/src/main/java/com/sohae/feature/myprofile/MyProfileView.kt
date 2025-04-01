@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -40,14 +41,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.ColorUtils
 import com.sohae.common.resource.R
+import com.sohae.common.ui.custom.composable.CircularLoadingBarView
 import com.sohae.common.ui.custom.composable.ProfileImage
 import com.sohae.common.ui.custom.dialog.TypingTextDialog
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.controller.mainnavgraph.MainScreenController
+import com.sohae.controller.navigation.main.MainNavGraphViewController
+import com.sohae.controller.ui.MainScreenController
+import com.sohae.controller.ui.snackbar.SnackBarController
 import com.sohae.domain.myinformation.entity.MyAccountEntity
 import com.sohae.feature.myprofile.signin.SignInView
 
@@ -56,6 +58,7 @@ import com.sohae.feature.myprofile.signin.SignInView
 fun MyProfileView(
     myProfileViewModel: MyProfileViewModel
 ) {
+    val isWaitingResponse = myProfileViewModel.isWaitingResponse.collectAsState().value
     val brightTertiary = Color(
         ColorUtils.blendARGB(
             MaterialTheme.colorScheme.tertiary.toArgb(),
@@ -85,6 +88,17 @@ fun MyProfileView(
             MyProfileHeaderView()
 
             MyProfileBodyView(myProfileViewModel)
+
+            if (isWaitingResponse) {
+                Dialog(onDismissRequest = {}) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularLoadingBarView()
+                    }
+                }
+            }
         }
     }
 }
@@ -184,22 +198,24 @@ private fun MyProfileBodyView(
                     }
                 )
             } else {
-                SnackBarController.show("로그인이 필요합니다.", SnackBarBehindTarget.VIEW)
+                SnackBarController.show("로그인이 필요합니다.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
             }
         }
         // 로그아웃
         1 -> {
             myProfileViewModel.signOut { isSucceed ->
 
+                myProfileViewModel.setIsWaitingResponse(false)
+
                 if (isSucceed) {
                     SnackBarController.show(
                         "로그아웃 성공",
-                        SnackBarBehindTarget.VIEW
+                        com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                     )
                 } else {
                     SnackBarController.show(
                         "로그아웃 실패.\n다시 시도해 주세요.",
-                        SnackBarBehindTarget.VIEW
+                        com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                     )
                 }
             }

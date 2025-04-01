@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
     id("kotlin-kapt")
@@ -80,14 +81,19 @@ dependencies {
     // 멀티 모듈
     implementation(project(":common:di"))
     implementation(project(":common:ui:custom"))
-    implementation(project(":controller:barcolor"))
     implementation(project(":domain"))
     implementation(project(":data"))
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(project(":navigation:mainnavgraph"))
+    implementation(project(":controller"))
+    implementation(libs.firebase.common.ktx)
+    implementation(libs.firebase.messaging)
     kapt(libs.hilt.android.compiler)
+
+    implementation(libs.firebase.messaging.ktx.v2304)
+    implementation(libs.firebase.messaging.directboot)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -126,8 +132,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    debugImplementation(libs.leakcanary.android)
 }
 
 // Allow references to generated code

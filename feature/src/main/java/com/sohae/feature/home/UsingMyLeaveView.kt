@@ -62,13 +62,7 @@ import androidx.compose.ui.window.Dialog
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.dialog.DatePickerDialog
 import com.sohae.common.ui.custom.dialog.DateRangePickerDialog
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.common.ui.custom.snackbar.SnackbarView
-import com.sohae.controller.mainnavgraph.MainScreenController
-import com.sohae.domain.myinformation.entity.MyUsedLeaveEntity
-import com.sohae.domain.utils.getDate
-import com.sohae.domain.utils.getLeavePeriod
+import com.sohae.controller.ui.MainScreenController
 import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
@@ -118,7 +112,7 @@ fun UsingMyLeaveView(
 
     LaunchedEffect(Unit) {
 
-        SnackBarController.hide()
+        com.sohae.controller.ui.snackbar.SnackBarController.hide()
 
         if (myUsedLeave != null) {
             entityId = myUsedLeave.id
@@ -181,7 +175,7 @@ fun UsingMyLeaveView(
                 )
             }
         } else {
-            SnackBarController.show("휴가 종류를 선택해 주세요.", SnackBarBehindTarget.DIALOG)
+            com.sohae.controller.ui.snackbar.SnackBarController.show("휴가 종류를 선택해 주세요.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.DIALOG)
             showDatePicker = false
         }
     }
@@ -192,11 +186,11 @@ fun UsingMyLeaveView(
         Scaffold(
             snackbarHost = {
                 SnackbarHost(
-                    hostState = SnackBarController.snackbarHostState
+                    hostState = com.sohae.controller.ui.snackbar.SnackBarController.snackbarHostState
                 ) { getSnackbarData ->
-                    if (SnackBarController.behindTarget == SnackBarBehindTarget.DIALOG) {
-                        SnackBarController.currentSnackbar = getSnackbarData
-                        SnackbarView(snackbarData = getSnackbarData)
+                    if (com.sohae.controller.ui.snackbar.SnackBarController.behindTarget == com.sohae.controller.ui.snackbar.SnackBarBehindTarget.DIALOG) {
+                        com.sohae.controller.ui.snackbar.SnackBarController.currentSnackbar = getSnackbarData
+                        com.sohae.controller.ui.snackbar.SnackbarView(snackbarData = getSnackbarData)
                     }
                 }
             }

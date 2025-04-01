@@ -1,16 +1,9 @@
 package com.sohae.feature.post.post
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,15 +40,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -68,11 +56,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.CircularLoadingBarView
-import com.sohae.common.ui.custom.snackbar.SnackBarBehindTarget
-import com.sohae.common.ui.custom.snackbar.SnackBarController
-import com.sohae.controller.barcolor.BarColorController
-import com.sohae.controller.mainnavgraph.MainNavGraphViewController
-import com.sohae.controller.mainnavgraph.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphRoutes
+import com.sohae.controller.navigation.main.MainNavGraphViewController
+import com.sohae.controller.ui.BarColorController
 import com.sohae.domain.utils.getDiffTimeFromNow
 import com.sohae.feature.post.comment.CommentListView
 import com.sohae.feature.post.comment.CommentListViewModel
@@ -89,7 +75,7 @@ fun PostView(
     BarColorController.setNavigationBarColor(MaterialTheme.colorScheme.onPrimary)
 
     if (postId == null) {
-        SnackBarController.show("잘못된 게시글 접근입니다.", SnackBarBehindTarget.VIEW)
+        com.sohae.controller.ui.snackbar.SnackBarController.show("잘못된 게시글 접근입니다.", com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW)
         mainNavController.popBackStack()
     } else {
 
@@ -98,9 +84,9 @@ fun PostView(
             postViewModel.getPostDetails(postId) { isSucceed ->
 
                 if (!isSucceed) {
-                    SnackBarController.show(
+                    com.sohae.controller.ui.snackbar.SnackBarController.show(
                         "존재하지 않는 게시글입니다.",
-                        SnackBarBehindTarget.VIEW
+                        com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                     )
                     mainNavController.popBackStack()
                 }
@@ -194,15 +180,15 @@ private fun PostHeaderView(
                             postViewModel.deletePost(postDetails.id) { isSucceed ->
 
                                 if (isSucceed) {
-                                    SnackBarController.show(
+                                    com.sohae.controller.ui.snackbar.SnackBarController.show(
                                         "게시글 삭제 성공",
-                                        SnackBarBehindTarget.VIEW
+                                        com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                                     )
                                     mainNavController.popBackStack()
                                 } else {
-                                    SnackBarController.show(
+                                    com.sohae.controller.ui.snackbar.SnackBarController.show(
                                         "게시글 삭제 실패하였습니다.\n잠시 후 다시 시도해주세요.",
-                                        SnackBarBehindTarget.VIEW
+                                        com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
                                     )
                                 }
                             }
@@ -211,9 +197,9 @@ private fun PostHeaderView(
                 }
             )
         } else {
-            SnackBarController.show(
+            com.sohae.controller.ui.snackbar.SnackBarController.show(
                 "나중에 다시 시도해 주세요.",
-                SnackBarBehindTarget.VIEW
+                com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
             )
         }
     }
@@ -286,7 +272,7 @@ private fun PostDetailsView(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, bottom = 12.dp)
+                .padding(start = 24.dp, top = 12.dp, bottom = 12.dp)
         ) {
             item {
                 postDetails.images.forEach {
@@ -339,7 +325,20 @@ private fun PostDetailsView(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .clickable { likeThisPost = !likeThisPost },
+                .clickable {
+
+                    if (likeThisPost) {
+                        postViewModel.unlikePost {
+
+                        }
+                    } else {
+                        postViewModel.likePost {
+
+                        }
+                    }
+
+                    likeThisPost = !likeThisPost
+                },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -400,7 +399,20 @@ private fun PostDetailsView(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .clickable { bookmarkThisPost = !bookmarkThisPost },
+                .clickable {
+
+                    if (bookmarkThisPost) {
+                        postViewModel.unBookmarkPost {
+
+                        }
+                    } else {
+                        postViewModel.bookmarkPost {
+
+                        }
+                    }
+
+                    bookmarkThisPost = !bookmarkThisPost
+                },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -454,7 +466,7 @@ private fun PostViewFooter(
             0.75f
         )
     )
-    val interactionSource = MutableInteractionSource()
+    val interactionSource = remember { MutableInteractionSource() }
     var commentContent by rememberSaveable { mutableStateOf("") }
     val textFieldColors = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
@@ -497,7 +509,9 @@ private fun PostViewFooter(
                         color = MaterialTheme.colorScheme.primary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f).padding(end = 12.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 12.dp)
                     )
 
                     Text(
