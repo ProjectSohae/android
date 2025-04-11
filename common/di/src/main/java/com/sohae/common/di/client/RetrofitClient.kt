@@ -1,5 +1,6 @@
 package com.sohae.common.di.client
 
+import com.sohae.common.di.BuildConfig
 import com.sohae.common.di.interceptor.CheckExpiredTokenInterceptor
 import com.sohae.data.myinformation.repositoryimpl.MyInfoRepositoryImpl
 import com.sohae.domain.myinformation.usecase.MyInfoUseCase
@@ -9,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val URL = "http://192.168.103.2:8080/"
+    private const val URL = BuildConfig.SERVER_IP
 
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(URL)

@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +43,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.sohae.common.resource.R
 import com.sohae.controller.ui.MainScreenController
+import com.sohae.controller.ui.snackbar.SnackBarBehindTarget
+import com.sohae.controller.ui.snackbar.SnackBarController
+import com.sohae.controller.ui.snackbar.SnackbarView
+import com.sohae.domain.utils.getLeavePeriod
 import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
@@ -98,9 +103,9 @@ fun MyUsedLeaveListView(
                             }
                             // 사용 하고자 하는 휴가 시간이 남은 휴가 시간을 넘어설 때
                             else {
-                                com.sohae.controller.ui.snackbar.SnackBarController.show(
-                                    "${com.sohae.domain.utils.getLeavePeriod(it + selectedLeaveItem!!.usedLeaveTime)}을 초과하여 휴가 사용할 수 없습니다.",
-                                    com.sohae.controller.ui.snackbar.SnackBarBehindTarget.DIALOG
+                                SnackBarController.show(
+                                    "${getLeavePeriod(it + selectedLeaveItem!!.usedLeaveTime)}을 초과하여 휴가 사용할 수 없습니다.",
+                                    SnackBarBehindTarget.DIALOG
                                 )
                             }
                     }
@@ -118,13 +123,14 @@ fun MyUsedLeaveListView(
         onDismissRequest = onDismissRequest
     ) {
         Scaffold(
+            modifier = Modifier.fillMaxHeight(0.9f),
             snackbarHost = {
                 SnackbarHost(
-                    hostState = com.sohae.controller.ui.snackbar.SnackBarController.snackbarHostState
+                    hostState = SnackBarController.snackbarHostState
                 ) { getSnackbarData ->
-                    if (com.sohae.controller.ui.snackbar.SnackBarController.behindTarget == com.sohae.controller.ui.snackbar.SnackBarBehindTarget.DIALOG) {
-                        com.sohae.controller.ui.snackbar.SnackBarController.currentSnackbar = getSnackbarData
-                        com.sohae.controller.ui.snackbar.SnackbarView(snackbarData = getSnackbarData)
+                    if (SnackBarController.behindTarget == SnackBarBehindTarget.DIALOG) {
+                        SnackBarController.currentSnackbar = getSnackbarData
+                        SnackbarView(snackbarData = getSnackbarData)
                     }
                 }
             }
@@ -132,7 +138,6 @@ fun MyUsedLeaveListView(
             Box(
                 modifier = Modifier
                     .padding(innerPadding)
-                    .fillMaxHeight()
                     .clickable(
                         indication = null,
                         interactionSource = null
@@ -142,7 +147,6 @@ fun MyUsedLeaveListView(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(540.dp)
                         .shadow(12.dp, RoundedCornerShape(10))
                         .clip(RoundedCornerShape(10))
                         .hazeEffect(state = MainScreenController.hazeState,

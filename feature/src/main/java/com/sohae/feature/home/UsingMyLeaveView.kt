@@ -63,6 +63,7 @@ import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.dialog.DatePickerDialog
 import com.sohae.common.ui.custom.dialog.DateRangePickerDialog
 import com.sohae.controller.ui.MainScreenController
+import com.sohae.domain.myinformation.entity.MyUsedLeaveEntity
 import dev.chrisbanes.haze.HazeEffectScope
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeStyle
@@ -77,12 +78,12 @@ import java.time.temporal.ChronoUnit
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UsingMyLeaveView(
-    myUsedLeave: com.sohae.domain.myinformation.entity.MyUsedLeaveEntity? = null,
+    myUsedLeave: MyUsedLeaveEntity? = null,
     title: String,
     leaveKindIdx: Int,
     leaveTypeList: List<String>,
     onDismissRequest: () -> Unit,
-    onConfirm: (com.sohae.domain.myinformation.entity.MyUsedLeaveEntity) -> Unit
+    onConfirm: (MyUsedLeaveEntity) -> Unit
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val onPrimary = MaterialTheme.colorScheme.onPrimary
@@ -184,6 +185,7 @@ fun UsingMyLeaveView(
         onDismissRequest = onDismissRequest
     ) {
         Scaffold(
+            modifier = Modifier.fillMaxHeight(0.9f),
             snackbarHost = {
                 SnackbarHost(
                     hostState = com.sohae.controller.ui.snackbar.SnackBarController.snackbarHostState
@@ -198,7 +200,6 @@ fun UsingMyLeaveView(
             Box(
                 modifier = Modifier
                     .padding(innerPadding)
-                    .fillMaxHeight()
                     .clickable(
                         indication = null,
                         interactionSource = null
@@ -730,7 +731,7 @@ fun UsingMyLeaveView(
                                         }
 
                                         onConfirm(
-                                            com.sohae.domain.myinformation.entity.MyUsedLeaveEntity(
+                                            MyUsedLeaveEntity(
                                                 id = entityId,
                                                 leaveKindIdx = leaveKindIdx,
                                                 leaveTypeIdx = selectedLeaveTypeIdx,

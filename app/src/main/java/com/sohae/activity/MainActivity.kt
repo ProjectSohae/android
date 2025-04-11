@@ -23,6 +23,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.sohae.controller.ui.BarColorController
+import com.sohae.controller.ui.snackbar.SnackBarBehindTarget
+import com.sohae.controller.ui.snackbar.SnackBarController
+import com.sohae.controller.ui.snackbar.SnackbarView
 import com.sohae.navigation.mainnavgraph.MainNavGraphView
 import com.sohae.ui.theme.GongikTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,11 +62,11 @@ class MainActivity : ComponentActivity() {
                     snackbarHost = {
                         SnackbarHost(
                             modifier = Modifier.offset(y = (-60).dp),
-                            hostState = com.sohae.controller.ui.snackbar.SnackBarController.snackbarHostState
+                            hostState = SnackBarController.snackbarHostState
                         ) { getSnackbarData ->
-                            if (com.sohae.controller.ui.snackbar.SnackBarController.behindTarget == com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW) {
-                                com.sohae.controller.ui.snackbar.SnackBarController.currentSnackbar = getSnackbarData
-                                com.sohae.controller.ui.snackbar.SnackbarView(snackbarData = getSnackbarData)
+                            if (SnackBarController.behindTarget == SnackBarBehindTarget.VIEW) {
+                                SnackBarController.currentSnackbar = getSnackbarData
+                                SnackbarView(snackbarData = getSnackbarData)
                             }
                         }
                     }

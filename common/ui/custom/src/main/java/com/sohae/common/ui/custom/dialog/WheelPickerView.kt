@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -102,7 +103,7 @@ fun WheelPickerDialog(
     ) {
         Box(
             modifier = Modifier
-                .width(240.dp)
+                .fillMaxWidth()
                 .height(300.dp)
                 .scrollable(
                     orientation = Orientation.Vertical,
@@ -286,7 +287,7 @@ private fun WheelPickerItem(
     Box(
         modifier = Modifier
             .zIndex(currentZIndex.toFloat())
-            .width(240.dp)
+            .fillMaxWidth(0.75f)
             .height(100.dp)
             .offset {
                 IntOffset(
@@ -300,6 +301,7 @@ private fun WheelPickerItem(
                 rotationX = currentRotateX
             }
             .drawBehind {
+                // item's outline
                 drawOutline(
                     outline = Outline.Rounded(
                         roundRect = if (

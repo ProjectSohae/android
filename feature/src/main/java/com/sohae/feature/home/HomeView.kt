@@ -54,6 +54,7 @@ import com.sohae.common.resource.R
 import com.sohae.common.ui.custom.composable.CircularLoadingBarView
 import com.sohae.common.ui.custom.composable.ProfileImage
 import com.sohae.controller.ui.BarColorController
+import com.sohae.controller.ui.snackbar.SnackBarBehindTarget
 import com.sohae.domain.utils.getLeavePeriod
 import kotlinx.coroutines.delay
 import java.time.Instant
@@ -478,7 +479,7 @@ private fun MySalary(
             || salaryDetails.endPayDate.isEqual(LocalDate.MIN)) {
             com.sohae.controller.ui.snackbar.SnackBarController.show(
                 inputMessage = "급여 정보가 존재하지 않습니다.",
-                inputBehindTarget = com.sohae.controller.ui.snackbar.SnackBarBehindTarget.VIEW
+                inputBehindTarget = SnackBarBehindTarget.VIEW
             )
             showSalaryDetails = false
         } else {

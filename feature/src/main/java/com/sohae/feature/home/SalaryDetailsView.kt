@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -63,7 +64,7 @@ fun SalaryDetailsView(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(640.dp)
+                .fillMaxHeight(0.9f)
                 .shadow(12.dp, RoundedCornerShape(10))
                 .clip(RoundedCornerShape(10))
                 .hazeEffect(state = MainScreenController.hazeState,
